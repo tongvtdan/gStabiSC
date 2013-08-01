@@ -9,15 +9,15 @@
 #include <QTime>
 #include <QTimer>
 
-//#define SYSTEM_ID 20
+
 #define TARGET_SYSTEM_ID 10
 
 bool pulse = false;
 bool readParams = false;
 bool chartTimerStarted = false;
 
-QTime logtime;
-QTimer sendTimer;
+//QTime logtime;
+//QTimer sendTimer;
 QString loadfilename, savefilename, filedir;
 QString oldprofilename;
 

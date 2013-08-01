@@ -28,7 +28,7 @@ FORMS    += mainwindow.ui
 include(thirdParty/qextserialport/src/qextserialport.pri)
 
 INCLUDEPATH += thirdParty/mavlink/v1.0/gremsyBGC \
-                thirdParty/mavlink/v1.0
+               thirdParty/mavlink/v1.0
 RESOURCES += \
     gGimbalResources.qrc
 
