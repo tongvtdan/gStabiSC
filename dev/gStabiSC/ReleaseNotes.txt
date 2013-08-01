@@ -1,0 +1,38 @@
+gStabiSC Windows XP/2003/Vista(32/64)/7(32/64)/8(32/64) Application Release Notes
+Copyright (C) 2013 Gremsy Co., LTd.
+
+This release contains the following components:
+
+* gStabi-setup_1.0: setup file for the application
+* Install guide.txt: Installation instructions.
+* Driver folder: contain driver for USB - RS232 Converter Chip used in the gStabi controller board
+* ReleaseNotes.txt (this file)
+
+
+Driver Installation
+-------------------
+
+	See Kit User's Guide for installation instructions.
+
+
+Release Dates
+-------------
+
+        gStabi SC Application v1.0 - August 01, 2013
+	
+
+
+Supported Operating Systems
+---------------------------
+
+	Windows 8 (64/32), 7 (64/32), Vista (64/32), 2003, and XP
+
+
+gStabi SC Application Revision History
+--------------------------------------
+
+version 1.0: 
+	
+	Initial Release
+
+
