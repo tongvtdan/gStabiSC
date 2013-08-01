@@ -112,13 +112,13 @@ private Q_SLOTS:
     void on_SerialPortConnectButton_clicked();
     void onPortAddedRemoved();
     void onReadyReadData();
-    void on_clearParamButton_clicked();
+//    void on_clearParamButton_clicked();
 
 
     void on_pitchSlider_valueChanged(double value);
-    void on_rollSlider_ValueChanged();
-    void on_yawknob_ValueChanged();
-    void on_yawknob_Released();
+    void on_rollSlider_valueChanged(double value);
+    void on_yawknob_valueChanged(double value);
+    void on_yawknob_sliderReleased();
 
     void on_loadfileButtonClicked();
     void on_savefileButtonClicked();
@@ -135,7 +135,7 @@ private Q_SLOTS:
     void on_roll_checkBox_toggled(bool checked);
     void on_yaw_checkBox_toggled(bool checked);
 
-
+    void on_clearParam_clicked();
 
 signals:
     void messageReceived(QByteArray message);

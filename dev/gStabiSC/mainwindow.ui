@@ -45,7 +45,7 @@
     <property name="frameShadow">
      <enum>QFrame::Raised</enum>
     </property>
-    <widget class="QwtCompass" name="yawCompass">
+    <widget class="QwtCompass" name="yawCompass" native="true">
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -54,11 +54,11 @@
        <height>120</height>
       </rect>
      </property>
-     <property name="lineWidth">
+     <property name="lineWidth" stdset="0">
       <number>4</number>
      </property>
     </widget>
-    <widget class="QwtCompass" name="pitchCompass">
+    <widget class="QwtCompass" name="pitchCompass" native="true">
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -67,7 +67,7 @@
        <height>120</height>
       </rect>
      </property>
-     <property name="lineWidth">
+     <property name="lineWidth" stdset="0">
       <number>4</number>
      </property>
     </widget>
@@ -3280,7 +3280,7 @@
       <property name="title">
        <string>RC Simulator</string>
       </property>
-      <widget class="QwtSlider" name="pitchSlider">
+      <widget class="QwtSlider" name="pitchSlider" native="true">
        <property name="geometry">
         <rect>
          <x>10</x>
@@ -3295,20 +3295,20 @@
        <property name="styleSheet">
         <string notr="true">color: rgb(85, 85, 255);</string>
        </property>
-       <property name="lowerBound">
+       <property name="lowerBound" stdset="0">
         <double>-20.000000000000000</double>
        </property>
-       <property name="upperBound">
+       <property name="upperBound" stdset="0">
         <double>90.000000000000000</double>
        </property>
-       <property name="scaleMaxMajor">
+       <property name="scaleMaxMajor" stdset="0">
         <number>5</number>
        </property>
-       <property name="scaleMaxMinor">
+       <property name="scaleMaxMinor" stdset="0">
         <number>3</number>
        </property>
       </widget>
-      <widget class="QwtKnob" name="yawknob">
+      <widget class="QwtKnob" name="yawknob" native="true">
        <property name="geometry">
         <rect>
          <x>80</x>
@@ -3324,23 +3324,23 @@
         <string notr="true">color: rgb(85, 85, 255);
 border-color: rgb(170, 170, 127);</string>
        </property>
-       <property name="lowerBound">
+       <property name="lowerBound" stdset="0">
         <double>-180.000000000000000</double>
        </property>
-       <property name="upperBound">
+       <property name="upperBound" stdset="0">
         <double>180.000000000000000</double>
        </property>
-       <property name="knobWidth">
+       <property name="knobWidth" stdset="0">
         <number>55</number>
        </property>
-       <property name="totalAngle">
+       <property name="totalAngle" stdset="0">
         <double>270.000000000000000</double>
        </property>
-       <property name="numTurns">
+       <property name="numTurns" stdset="0">
         <number>1</number>
        </property>
       </widget>
-      <widget class="QwtSlider" name="rollSlider">
+      <widget class="QwtSlider" name="rollSlider" native="true">
        <property name="geometry">
         <rect>
          <x>80</x>
@@ -3355,14 +3355,11 @@ border-color: rgb(170, 170, 127);</string>
        <property name="styleSheet">
         <string notr="true">color: rgb(85, 85, 255);</string>
        </property>
-       <property name="lowerBound">
+       <property name="lowerBound" stdset="0">
         <double>-30.000000000000000</double>
        </property>
-       <property name="upperBound">
+       <property name="upperBound" stdset="0">
         <double>30.000000000000000</double>
-       </property>
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
        </property>
       </widget>
      </widget>
@@ -4104,11 +4101,6 @@ border-color: rgb(170, 170, 127);</string>
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>QwtCompass</class>
-   <extends>QwtDial</extends>
-   <header>qwt_compass.h</header>
-  </customwidget>
-  <customwidget>
    <class>QwtDial</class>
    <extends>QWidget</extends>
    <header>qwt_dial.h</header>
@@ -4122,6 +4114,11 @@ border-color: rgb(170, 170, 127);</string>
    <class>QwtSlider</class>
    <extends>QWidget</extends>
    <header>qwt_slider.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QwtCompass</class>
+   <extends>QwtDial</extends>
+   <header>qwt_compass.h</header>
   </customwidget>
  </customwidgets>
  <resources>

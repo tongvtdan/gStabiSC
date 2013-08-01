@@ -92,16 +92,6 @@ MainWindow::MainWindow(QWidget *parent) :
     // attitude display
     connect(this, SIGNAL(attitudeChanged(float, float, float)),this, SLOT(updateAttitude(float, float, float)));
 
-    /* connect line chart check box */
-//    connect(ui->ax_checkBox, SIGNAL(toggled(bool)), SLOT(on_ax_CheckBox_toggled(bool)));
-//    connect(ui->ay_checkBox, SIGNAL(toggled(bool)), SLOT(on_ay_CheckBox_toggled(bool)));
-//    connect(ui->az_checkBox, SIGNAL(toggled(bool)), SLOT(on_az_CheckBox_toggled(bool)));
-//    connect(ui->gx_checkBox, SIGNAL(toggled(bool)), SLOT(on_gx_checkBox_toggled(bool)));
-//    connect(ui->gy_checkBox, SIGNAL(toggled(bool)), SLOT(on_gy_checkBox_toggled(bool)));
-//    connect(ui->gz_checkBox, SIGNAL(toggled(bool)), SLOT(on_gz_checkBox_toggled(bool)));
-//    connect(ui->pitch_checkBox, SIGNAL(toggled(bool)), SLOT(on_pitch_checkBox_toggled(bool)));
-//    connect(ui->roll_checkBox, SIGNAL(toggled(bool)), SLOT(on_roll_checkBox_toggled(bool)));
-//    connect(ui->yaw_checkBox, SIGNAL(toggled(bool)), SLOT(on_yaw_checkBox_toggled(bool)));
 
     watchdogTimer = new QTimer(this);
     chartTimer = new QTimer(this);
@@ -110,11 +100,6 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(chartTimer, SIGNAL(timeout()), SLOT(chartUpdateData()));
 
     connect(this, SIGNAL(sbusValuesChanged()), this, SLOT(updateSbusValues()));
-
-//    connect(ui->pitchSlider, SIGNAL(valueChanged(double)), SLOT(on_pitchSlider_valueChanged()));
-    connect(ui->rollSlider, SIGNAL(valueChanged(double)), SLOT(on_rollSlider_ValueChanged()));
-    connect(ui->yawknob, SIGNAL(valueChanged(double)), SLOT(on_yawknob_ValueChanged()));
-    connect(ui->yawknob, SIGNAL(sliderReleased()),SLOT(on_yawknob_Released()));
 
     chartSetting(ui->chartPlot);
 
@@ -1992,81 +1977,8 @@ void MainWindow::onSelectPortChanged(const QString &newPortName){
 }
 
 /* clear all params to zero */
-void MainWindow::on_clearParamButton_clicked(){
-    /* clear tab motor and pid config */
-    ui->roll_Power->setValue(0);
-    ui->roll_Pole->setValue(0);
-    ui->roll_maxTravel->setValue(0);
-    ui->roll_minTravel->setValue(0);
-    ui->roll_Dir->setCurrentIndex(2);
-
-    ui->pitch_Power->setValue(0);
-    ui->pitch_Pole->setValue(0);
-    ui->pitch_maxTravel->setValue(0);
-    ui->pitch_minTravel->setValue(0);
-    ui->pitch_Dir->setCurrentIndex(2);
-
-    ui->yaw_Power->setValue(0);
-    ui->yaw_Pole->setValue(0);
-    ui->yaw_maxTravel->setValue(0);
-    ui->yaw_minTravel->setValue(0);
-    ui->yaw_Dir->setCurrentIndex(2);
-
-    ui->motor_freq->setCurrentIndex(3);
-
-    /* clear pid config */
-    ui->roll_P->setValue(0);
-    ui->roll_I->setValue(0);
-    ui->roll_D->setValue(0);
-
-    ui->pitch_P->setValue(0);
-    ui->pitch_I->setValue(0);
-    ui->pitch_D->setValue(0);
-
-    ui->yaw_P->setValue(0);
-    ui->yaw_I->setValue(0);
-    ui->yaw_D->setValue(0);
-
-    ui->follow_roll->setValue(0);
-    ui->follow_pitch->setValue(0);
-    ui->follow_yaw->setValue(0);
-
-    ui->roll_filter->setValue(0);
-    ui->roll_filter->setValue(0);
-    ui->roll_filter->setValue(0);
-
-    /* clear tab rc config */
-    ui->rc_source->setCurrentIndex(2);
-    ui->rcLPF_roll->setValue(0);
-    ui->rcLPF_pitch->setValue(0);
-    ui->rcLPF_yaw->setValue(0);
-    ui->rollChan->setCurrentIndex(18);
-    ui->pitchChan->setCurrentIndex(18);
-    ui->yawChan->setCurrentIndex(18);
-    ui->modeChan->setCurrentIndex(18);
-
-    ui->trim_pitch->setValue(0);
-    ui->trim_roll->setValue(0);
-    ui->trim_yaw->setValue(0);
-
-    ui->mode_pitch->setCurrentIndex(0);
-    ui->mode_roll->setCurrentIndex(0);
-    ui->mode_yaw->setCurrentIndex(0);
-
-    /* clear tab IMU config */
-    ui->gyroTrust->setValue(0);
-    ui->gyro_LPF->setValue(0);
-    ui->accX_offset->setValue(0);
-    ui->accY_offset->setValue(0);
-    ui->accZ_offset->setValue(0);
-
-    ui->useGPS->setChecked(false);
-
-    ui->gyroX_offset->setValue(0);
-    ui->gyroY_offset->setValue(0);
-    ui->gyroZ_offset->setValue(0);
-    ui->calibGyro->setChecked(false);
-}
+//void MainWindow::on_clearParamButton_clicked(){
+//}
 
 void MainWindow::on_ax_checkBox_toggled(bool checked)
 {
@@ -2154,13 +2066,13 @@ void MainWindow::on_pitchSlider_valueChanged(double value)
     */
 }
 
-void MainWindow::on_rollSlider_ValueChanged()
+void MainWindow::on_rollSlider_valueChanged(double value)
 {
     uint16_t len=0;
     mavlink_message_t msg;
     uint8_t buf[MAVLINK_MAX_PACKET_LEN];
     int temp=0;
-    temp = ui->rollSlider->value() * 7;
+    temp = value * 7;
 
 //    if(ui->pitchSlider->value() > 0)
 //        temp = ui->pitchSlider->value() * 10;
@@ -2174,13 +2086,13 @@ void MainWindow::on_rollSlider_ValueChanged()
     serialport->write((const char*)buf, len);
 }
 
-void MainWindow::on_yawknob_ValueChanged()
+void MainWindow::on_yawknob_valueChanged(double value)
 {
     uint16_t len=0;
     mavlink_message_t msg;
     uint8_t buf[MAVLINK_MAX_PACKET_LEN];
     int temp=0;
-    temp = ui->yawknob->value() * 3;
+    temp = value * 3;
 
     mavlink_msg_pan_simulation_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg,
                                      temp, ui->yawChan->currentIndex());
@@ -2189,9 +2101,10 @@ void MainWindow::on_yawknob_ValueChanged()
     serialport->write((const char*)buf, len);
 }
 
-void MainWindow::on_yawknob_Released()
+void MainWindow::on_yawknob_sliderReleased()
 {
     ui->yawknob->setValue(0);
+    qDebug()<<"Knob Release";
 }
 
 void MainWindow::on_loadfileButtonClicked()
@@ -2286,3 +2199,82 @@ QPalette MainWindow::colorTheme(const QColor &base) const
 
 
 
+
+
+void MainWindow::on_clearParam_clicked()
+{
+    /* clear tab motor and pid config */
+    ui->roll_Power->setValue(0);
+    ui->roll_Pole->setValue(0);
+    ui->roll_maxTravel->setValue(0);
+    ui->roll_minTravel->setValue(0);
+    ui->roll_Dir->setCurrentIndex(2);
+
+    ui->pitch_Power->setValue(0);
+    ui->pitch_Pole->setValue(0);
+    ui->pitch_maxTravel->setValue(0);
+    ui->pitch_minTravel->setValue(0);
+    ui->pitch_Dir->setCurrentIndex(2);
+
+    ui->yaw_Power->setValue(0);
+    ui->yaw_Pole->setValue(0);
+    ui->yaw_maxTravel->setValue(0);
+    ui->yaw_minTravel->setValue(0);
+    ui->yaw_Dir->setCurrentIndex(2);
+
+    ui->motor_freq->setCurrentIndex(3);
+
+    /* clear pid config */
+    ui->roll_P->setValue(0);
+    ui->roll_I->setValue(0);
+    ui->roll_D->setValue(0);
+
+    ui->pitch_P->setValue(0);
+    ui->pitch_I->setValue(0);
+    ui->pitch_D->setValue(0);
+
+    ui->yaw_P->setValue(0);
+    ui->yaw_I->setValue(0);
+    ui->yaw_D->setValue(0);
+
+    ui->follow_roll->setValue(0);
+    ui->follow_pitch->setValue(0);
+    ui->follow_yaw->setValue(0);
+
+    ui->roll_filter->setValue(0);
+    ui->roll_filter->setValue(0);
+    ui->roll_filter->setValue(0);
+
+    /* clear tab rc config */
+    ui->rc_source->setCurrentIndex(2);
+    ui->rcLPF_roll->setValue(0);
+    ui->rcLPF_pitch->setValue(0);
+    ui->rcLPF_yaw->setValue(0);
+    ui->rollChan->setCurrentIndex(18);
+    ui->pitchChan->setCurrentIndex(18);
+    ui->yawChan->setCurrentIndex(18);
+    ui->modeChan->setCurrentIndex(18);
+
+    ui->trim_pitch->setValue(0);
+    ui->trim_roll->setValue(0);
+    ui->trim_yaw->setValue(0);
+
+    ui->mode_pitch->setCurrentIndex(0);
+    ui->mode_roll->setCurrentIndex(0);
+    ui->mode_yaw->setCurrentIndex(0);
+
+    /* clear tab IMU config */
+    ui->gyroTrust->setValue(0);
+    ui->gyro_LPF->setValue(0);
+    ui->accX_offset->setValue(0);
+    ui->accY_offset->setValue(0);
+    ui->accZ_offset->setValue(0);
+
+    ui->useGPS->setChecked(false);
+
+    ui->gyroX_offset->setValue(0);
+    ui->gyroY_offset->setValue(0);
+    ui->gyroZ_offset->setValue(0);
+    ui->calibGyro->setChecked(false);
+
+}
