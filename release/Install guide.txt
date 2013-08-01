@@ -1,0 +1,5 @@
+1. Remove/Uninstall older Version.
+2. Install USB-RS232 Driver for the first time, from folder Driver\CP210x_VCP_Windows:
+         - Win32 bits: Run "CP210xVCPInstaller_x86.exe"
+         - Win64 bits: Run "CP210xVCPInstaller_x64.exe"
+3. Run "gStabiSC-setup_x.x.exe" to install the application.
