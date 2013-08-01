@@ -30,6 +30,9 @@ Supported Operating Systems
 
 gStabi SC Application Revision History
 --------------------------------------
+version 1.1:
+	- Fixed some minor bugs: warnings on Signal-Slot
+        - Improve UI.
 
 version 1.0: 
 	
