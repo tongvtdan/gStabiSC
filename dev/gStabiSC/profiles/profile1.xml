@@ -1,0 +1,27 @@
+<Groups>
+ <Motors Freq="0">
+  <PitchMotor Poles="24" MaxTravel="30" Direction="0" MinTravel="-90" Power="50"/>
+  <RollMotor Poles="24" MaxTravel="45" Direction="0" MinTravel="-45" Power="50"/>
+  <YawMotor Poles="24" MaxTravel="180" Direction="0" MinTravel="-180" Power="50"/>
+ </Motors>
+ <PIDs>
+  <PitchPID D="5" I="1" P="10"/>
+  <RollPID D="5" I="1" P="10"/>
+  <YawPID D="5" I="1" P="10"/>
+ </PIDs>
+ <Follows>
+  <PitchFollow Follow="0" Filter="0"/>
+  <RollFollow Follow="0" Filter="0"/>
+  <YawFollow Follow="0" Filter="0"/>
+ </Follows>
+ <IMU>
+  <Gyro GyroLPF="10" Zoffset="0" GyroTrust="10" Yoffset="0" Xoffset="0" SkipCalibGyro="0"/>
+  <Acc Zoffset="0" Yoffset="0" Xoffset="0"/>
+  <GPS UseGPS="0"/>
+ </IMU>
+ <RC Source="0" StickChan="0">
+  <PitchChan LPF="10" Mode="0" Trim="10" Chan="0"/>
+  <RollChan LPF="10" Mode="0" Trim="10" Chan="0"/>
+  <YawChan LPF="10" Mode="0" Trim="10" Chan="0"/>
+ </RC>
+</Groups>

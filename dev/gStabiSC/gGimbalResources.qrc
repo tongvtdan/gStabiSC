@@ -1,0 +1,23 @@
+<RCC>
+    <qresource prefix="/">
+        <file>files/images/leds/circle_black.svg</file>
+        <file>files/images/leds/circle_blue.svg</file>
+        <file>files/images/leds/circle_green.svg</file>
+        <file>files/images/leds/circle_grey.svg</file>
+        <file>files/images/leds/circle_orange.svg</file>
+        <file>files/images/leds/circle_purple.svg</file>
+        <file>files/images/leds/circle_red.svg</file>
+        <file>files/images/leds/circle_yellow.svg</file>
+        <file>files/images/cockpit/attitude_face.png</file>
+        <file>files/images/cockpit/attitude_level.png</file>
+        <file>files/images/gremsy_logo.png</file>
+        <file>files/images/actions/go-down.svg</file>
+        <file>files/images/actions/go-up.svg</file>
+        <file>files/images/Videocam.ico</file>
+    </qresource>
+    <qresource prefix="/general">
+        <file>files/styles/style-indoor.css</file>
+        <file>files/styles/style-outdoor.css</file>
+        <file>files/styles/Vera.ttf</file>
+    </qresource>
+</RCC>
