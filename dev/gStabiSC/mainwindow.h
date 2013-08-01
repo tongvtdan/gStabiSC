@@ -114,17 +114,8 @@ private Q_SLOTS:
     void onReadyReadData();
     void on_clearParamButton_clicked();
 
-//    void on_ax_CheckBox_toggled(bool checked);
-//    void on_ay_CheckBox_toggled(bool checked);
-//    void on_az_CheckBox_toggled(bool checked);
-//    void on_gx_CheckBox_toggled(bool checked);
-//    void on_gy_CheckBox_toggled(bool checked);
-//    void on_gz_CheckBox_toggled(bool checked);
-//    void on_pitch_CheckBox_toggled(bool checked);
-//    void on_roll_CheckBox_toggled(bool checked);
-//    void on_yaw_CheckBox_toggled(bool checked);
 
-    void on_pitchSlider_ValueChanged();
+    void on_pitchSlider_valueChanged(double value);
     void on_rollSlider_ValueChanged();
     void on_yawknob_ValueChanged();
     void on_yawknob_Released();
@@ -135,10 +126,16 @@ private Q_SLOTS:
 
 
     void on_ax_checkBox_toggled(bool checked);
-
     void on_ay_checkBox_toggled(bool checked);
-
     void on_az_checkBox_toggled(bool checked);
+    void on_gx_checkBox_toggled(bool checked);
+    void on_gy_checkBox_toggled(bool checked);
+    void on_gz_checkBox_toggled(bool checked);
+    void on_pitch_checkBox_toggled(bool checked);
+    void on_roll_checkBox_toggled(bool checked);
+    void on_yaw_checkBox_toggled(bool checked);
+
+
 
 signals:
     void messageReceived(QByteArray message);

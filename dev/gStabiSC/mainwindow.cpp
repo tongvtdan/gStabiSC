@@ -96,12 +96,12 @@ MainWindow::MainWindow(QWidget *parent) :
 //    connect(ui->ax_checkBox, SIGNAL(toggled(bool)), SLOT(on_ax_CheckBox_toggled(bool)));
 //    connect(ui->ay_checkBox, SIGNAL(toggled(bool)), SLOT(on_ay_CheckBox_toggled(bool)));
 //    connect(ui->az_checkBox, SIGNAL(toggled(bool)), SLOT(on_az_CheckBox_toggled(bool)));
-    connect(ui->gx_checkBox, SIGNAL(toggled(bool)), SLOT(on_gx_CheckBox_toggled(bool)));
-    connect(ui->gy_checkBox, SIGNAL(toggled(bool)), SLOT(on_gy_CheckBox_toggled(bool)));
-    connect(ui->gz_checkBox, SIGNAL(toggled(bool)), SLOT(on_gz_CheckBox_toggled(bool)));
-    connect(ui->pitch_checkBox, SIGNAL(toggled(bool)), SLOT(on_pitch_CheckBox_toggled(bool)));
-    connect(ui->roll_checkBox, SIGNAL(toggled(bool)), SLOT(on_roll_CheckBox_toggled(bool)));
-    connect(ui->yaw_checkBox, SIGNAL(toggled(bool)), SLOT(on_yaw_CheckBox_toggled(bool)));
+//    connect(ui->gx_checkBox, SIGNAL(toggled(bool)), SLOT(on_gx_checkBox_toggled(bool)));
+//    connect(ui->gy_checkBox, SIGNAL(toggled(bool)), SLOT(on_gy_checkBox_toggled(bool)));
+//    connect(ui->gz_checkBox, SIGNAL(toggled(bool)), SLOT(on_gz_checkBox_toggled(bool)));
+//    connect(ui->pitch_checkBox, SIGNAL(toggled(bool)), SLOT(on_pitch_checkBox_toggled(bool)));
+//    connect(ui->roll_checkBox, SIGNAL(toggled(bool)), SLOT(on_roll_checkBox_toggled(bool)));
+//    connect(ui->yaw_checkBox, SIGNAL(toggled(bool)), SLOT(on_yaw_checkBox_toggled(bool)));
 
     watchdogTimer = new QTimer(this);
     chartTimer = new QTimer(this);
@@ -111,7 +111,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(this, SIGNAL(sbusValuesChanged()), this, SLOT(updateSbusValues()));
 
-    connect(ui->pitchSlider, SIGNAL(valueChanged(double)), SLOT(on_pitchSlider_ValueChanged()));
+//    connect(ui->pitchSlider, SIGNAL(valueChanged(double)), SLOT(on_pitchSlider_valueChanged()));
     connect(ui->rollSlider, SIGNAL(valueChanged(double)), SLOT(on_rollSlider_ValueChanged()));
     connect(ui->yawknob, SIGNAL(valueChanged(double)), SLOT(on_yawknob_ValueChanged()));
     connect(ui->yawknob, SIGNAL(sliderReleased()),SLOT(on_yawknob_Released()));
@@ -137,7 +137,7 @@ void MainWindow::chartSetting(QwtPlot *plot)
     grid->setMajorPen(QPen(Qt::gray, 0, Qt::DotLine));
     grid->enableX(true);
     grid->enableY(true);
-    grid->attach((plot);
+    grid->attach(plot);
 //    grid->attach(ui->chartPlot);
 
     ax_curve = new QwtPlotCurve();
@@ -596,7 +596,7 @@ void MainWindow::saveXMLfile(QString xmlfile)
 int MainWindow::ListElements(QDomElement root, QString tagname, QString attribute)
 {
     QDomNodeList items = root.elementsByTagName(tagname);
-
+    int element_val = -1;
     qDebug() << "Total items = " << items.count();
 
     for(int i=0; i< items.count(); i++)
@@ -608,10 +608,11 @@ int MainWindow::ListElements(QDomElement root, QString tagname, QString attribut
         {
             QDomElement itemele = itemnode.toElement();          
             qDebug() << itemele.attribute(attribute).toInt();
-            return itemele.attribute(attribute).toInt();
+            element_val = itemele.attribute(attribute).toInt();
         }
-        else return -1;
+        else element_val = -1;
     }
+    return element_val;
 }
 
 void MainWindow::loadAppStyle(MainWindow::G_MAINWINDOW_STYLE style)
@@ -2067,62 +2068,76 @@ void MainWindow::on_clearParamButton_clicked(){
     ui->calibGyro->setChecked(false);
 }
 
-//void MainWindow::on_ax_CheckBox_toggled(bool checked)
-//{
-//    if(checked) ax_curve->show();
-//    else ax_curve->hide();
-//}
+void MainWindow::on_ax_checkBox_toggled(bool checked)
+{
+    if(checked) ax_curve->show();
+    else ax_curve->hide();
+}
 
-//void MainWindow::on_ay_CheckBox_toggled(bool checked)
-//{
-//    if(checked) ay_curve->show();
-//    else ay_curve->hide();
-//}
+void MainWindow::on_ay_checkBox_toggled(bool checked)
+{
+    if(checked) ay_curve->show();
+    else ay_curve->hide();
+}
 
-//void MainWindow::on_az_CheckBox_toggled(bool checked)
-//{
-//    if(checked) az_curve->show();
-//    else az_curve->hide();
-//}
+void MainWindow::on_az_checkBox_toggled(bool checked)
+{
+    if(checked) az_curve->show();
+    else az_curve->hide();
+}
 
-void MainWindow::on_gx_CheckBox_toggled(bool checked)
+void MainWindow::on_gx_checkBox_toggled(bool checked)
 {
     if(checked) gx_curve->show();
     else gx_curve->hide();
 }
 
-void MainWindow::on_gy_CheckBox_toggled(bool checked)
+void MainWindow::on_gy_checkBox_toggled(bool checked)
 {
     if(checked) gy_curve->show();
     else gy_curve->hide();
 }
 
-void MainWindow::on_gz_CheckBox_toggled(bool checked)
+void MainWindow::on_gz_checkBox_toggled(bool checked)
 {
     if(checked) gz_curve->show();
     else gz_curve->hide();
 }
 
-void MainWindow::on_pitch_CheckBox_toggled(bool checked)
+void MainWindow::on_pitch_checkBox_toggled(bool checked)
 {
     if(checked) pitch_curve->show();
     else pitch_curve->hide();
 }
 
-void MainWindow::on_roll_CheckBox_toggled(bool checked)
+void MainWindow::on_roll_checkBox_toggled(bool checked)
 {
     if(checked) roll_curve->show();
     else roll_curve->hide();
 }
 
-void MainWindow::on_yaw_CheckBox_toggled(bool checked)
+void MainWindow::on_yaw_checkBox_toggled(bool checked)
 {
     if(checked) yaw_curve->show();
     else yaw_curve->hide();
 }
 
-void MainWindow::on_pitchSlider_ValueChanged()
+void MainWindow::on_pitchSlider_valueChanged(double value)
 {
+    uint16_t len=0;
+    mavlink_message_t msg;
+    uint8_t buf[MAVLINK_MAX_PACKET_LEN];
+    int temp=0;
+    if(value > 0)
+        temp = value * 10;
+    else temp = value * 5;
+
+    mavlink_msg_tilt_simulation_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg,
+                                     temp, ui->pitchChan->currentIndex());
+    qDebug() <<"pitch slider" << temp;
+    len = mavlink_msg_to_send_buffer(buf, &msg);
+    serialport->write((const char*)buf, len);
+    /* old code
     uint16_t len=0;
     mavlink_message_t msg;
     uint8_t buf[MAVLINK_MAX_PACKET_LEN];
@@ -2136,6 +2151,7 @@ void MainWindow::on_pitchSlider_ValueChanged()
     qDebug() <<"pitch slider" << temp;
     len = mavlink_msg_to_send_buffer(buf, &msg);
     serialport->write((const char*)buf, len);
+    */
 }
 
 void MainWindow::on_rollSlider_ValueChanged()
@@ -2250,6 +2266,8 @@ void MainWindow::init_var()
     currentStyle = G_MAINWINDOW_STYLE_INDOOR;
     styleFileName = QCoreApplication::applicationDirPath() + ":general/files/styles/style-indoor.css";
 
+    ui->pitchSlider->setOrientation(Qt::Vertical);
+    ui->rollSlider->setOrientation(Qt::Horizontal);
 }
 
 QPalette MainWindow::colorTheme(const QColor &base) const
@@ -2266,20 +2284,5 @@ QPalette MainWindow::colorTheme(const QColor &base) const
     return palette;
 }
 
-void MainWindow::on_ax_checkBox_toggled(bool checked)
-{
-    if(checked) ax_curve->show();
-    else ax_curve->hide();
-}
 
-void MainWindow::on_ay_checkBox_toggled(bool checked)
-{
-    if(checked) ay_curve->show();
-    else ay_curve->hide();
-}
 
-void MainWindow::on_az_checkBox_toggled(bool checked)
-{
-    if(checked) az_curve->show();
-    else az_curve->hide();
-}
