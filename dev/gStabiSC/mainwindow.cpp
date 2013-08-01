@@ -207,7 +207,7 @@ void MainWindow::attitudeIndicatorSetting()
     roll_ai = new AttitudeIndicator( this );
     roll_ai->scaleDraw()->setPenWidth( 2 );
     roll_ai->scaleDraw()->setAngleRange(0, 360);
-    roll_ai->setPalette(colorTheme( QColor( Qt::gray).dark(250)));
+    roll_ai->setPalette(colorTheme( QColor( Qt::gray).dark(100)));
     roll_ai->setStyleSheet("color: rgb(6,228,249) ;");
     roll_ai->setGeometry(20, 306, 120, 120);
     dial = roll_ai;
@@ -237,22 +237,12 @@ void MainWindow::attitudeIndicatorSetting()
 
     ui->pitchCompass->setScaleDraw( pitchscaleDraw );
 
-    ui->pitchCompass->setPalette(colorTheme( QColor( Qt::green).dark(250)));
+//    ui->pitchCompass->setPalette(colorTheme( QColor( Qt::green).dark(250)));
     ui->pitchCompass->setStyleSheet("color: rgb(6,228,249) ;");
     ui->pitchCompass->setNeedle( new QwtDialSimpleNeedle( QwtDialSimpleNeedle::Arrow, true,
         Qt::red, Qt::blue ) );
     ui->pitchCompass->setValue( 90 );
 
-    /*
-    khoi tao attitude cockpit cho truc yaw
-    */
-//    QMap<double, QString> map;
-//    for ( double d = 0.0; d < 360.0; d += 60.0 )
-//    {
-//        QString label;
-//        label.sprintf( "%.0f", d );
-//        map.insert( d, label );
-//    }
 
     QwtCompassScaleDraw *yawscaleDraw = new QwtCompassScaleDraw();
     yawscaleDraw->enableComponent( QwtAbstractScaleDraw::Ticks, true );
@@ -265,10 +255,10 @@ void MainWindow::attitudeIndicatorSetting()
     yawscaleDraw->setPenWidth(2);
 
     ui->yawCompass->setScaleDraw( yawscaleDraw );
-    ui->yawCompass->setPalette(colorTheme( QColor( Qt::green).dark(250)));
+//    ui->yawCompass->setPalette(colorTheme( QColor( Qt::green).dark(250)));
     ui->yawCompass->setStyleSheet("color: rgb(6,228,249) ;");
     ui->yawCompass->setNeedle( new QwtCompassMagnetNeedle( QwtCompassMagnetNeedle::TriangleStyle,
-                                                        Qt::blue, Qt::red ) );
+                                                        Qt::red, Qt::yellow ) );
     ui->yawCompass->setValue( 0 );
 }
 

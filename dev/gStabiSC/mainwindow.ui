@@ -80,11 +80,17 @@
        <height>21</height>
       </rect>
      </property>
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
      <property name="styleSheet">
-      <string notr="true">background-color: rgb(170, 0, 0);</string>
+      <string notr="true">background-color: rgb(255, 0, 0);</string>
      </property>
      <property name="text">
-      <string/>
+      <string>---</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
@@ -99,11 +105,17 @@
        <height>21</height>
       </rect>
      </property>
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
      <property name="styleSheet">
-      <string notr="true">background-color: rgb(0, 85, 0);</string>
+      <string notr="true">background-color: rgb(0, 0, 255);</string>
      </property>
      <property name="text">
-      <string/>
+      <string>---</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
@@ -118,11 +130,17 @@
        <height>21</height>
       </rect>
      </property>
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
      <property name="styleSheet">
-      <string notr="true">background-color: rgb(85, 0, 127);</string>
+      <string notr="true">background-color: rgb(255, 255, 0);</string>
      </property>
      <property name="text">
-      <string/>
+      <string>---</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
@@ -142,7 +160,7 @@
      <string/>
     </property>
     <property name="currentIndex">
-     <number>2</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="tab_motorPIDConfig">
      <property name="toolTip">

@@ -98,7 +98,7 @@ void AttitudeIndicator::drawScaleContents( QPainter *painter,
     int dir = 360 - qRound( origin() - value() ); // counter clockwise
     int arc = 90 + qRound( gradient() * 90 );
 
-    const QColor skyColor( 38, 151, 221 );
+    const QColor skyColor( 5,22,238 );
 
     painter->save();
     painter->setBrush( skyColor );
