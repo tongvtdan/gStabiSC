@@ -16,8 +16,6 @@ bool pulse = false;
 bool readParams = false;
 bool chartTimerStarted = false;
 
-//QTime logtime;
-//QTimer sendTimer;
 QString loadfilename, savefilename, filedir;
 QString oldprofilename;
 
