@@ -54,7 +54,7 @@ public:
     /**
      * @brief Graph Chart functions
      */
-    void chartSetting();
+    void chartSetting(QwtPlot *plot);
     void attitudeIndicatorSetting();
 
     void updateXMLfile(QDomDocument document, QString xmlfile);
@@ -114,15 +114,15 @@ private Q_SLOTS:
     void onReadyReadData();
     void on_clearParamButton_clicked();
 
-    void on_ax_CheckBox_toggled(bool checked);
-    void on_ay_CheckBox_toggled(bool checked);
-    void on_az_CheckBox_toggled(bool checked);
-    void on_gx_CheckBox_toggled(bool checked);
-    void on_gy_CheckBox_toggled(bool checked);
-    void on_gz_CheckBox_toggled(bool checked);
-    void on_pitch_CheckBox_toggled(bool checked);
-    void on_roll_CheckBox_toggled(bool checked);
-    void on_yaw_CheckBox_toggled(bool checked);
+//    void on_ax_CheckBox_toggled(bool checked);
+//    void on_ay_CheckBox_toggled(bool checked);
+//    void on_az_CheckBox_toggled(bool checked);
+//    void on_gx_CheckBox_toggled(bool checked);
+//    void on_gy_CheckBox_toggled(bool checked);
+//    void on_gz_CheckBox_toggled(bool checked);
+//    void on_pitch_CheckBox_toggled(bool checked);
+//    void on_roll_CheckBox_toggled(bool checked);
+//    void on_yaw_CheckBox_toggled(bool checked);
 
     void on_pitchSlider_ValueChanged();
     void on_rollSlider_ValueChanged();
@@ -133,6 +133,12 @@ private Q_SLOTS:
     void on_savefileButtonClicked();
     void init_var(); // init all variables
 
+
+    void on_ax_checkBox_toggled(bool checked);
+
+    void on_ay_checkBox_toggled(bool checked);
+
+    void on_az_checkBox_toggled(bool checked);
 
 signals:
     void messageReceived(QByteArray message);

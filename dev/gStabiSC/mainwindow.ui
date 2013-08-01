@@ -57,9 +57,6 @@
      <property name="lineWidth">
       <number>4</number>
      </property>
-     <property name="frameShadow">
-      <enum>QwtDial::Plain</enum>
-     </property>
     </widget>
     <widget class="QwtCompass" name="pitchCompass">
      <property name="geometry">
@@ -72,9 +69,6 @@
      </property>
      <property name="lineWidth">
       <number>4</number>
-     </property>
-     <property name="frameShadow">
-      <enum>QwtDial::Plain</enum>
      </property>
     </widget>
     <widget class="QLabel" name="pitch_ai_label">
@@ -148,7 +142,7 @@
      <string/>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>3</number>
     </property>
     <widget class="QWidget" name="tab_motorPIDConfig">
      <property name="toolTip">
@@ -3366,9 +3360,6 @@ border-color: rgb(170, 170, 127);</string>
        </property>
        <property name="upperBound">
         <double>30.000000000000000</double>
-       </property>
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
        </property>
       </widget>
      </widget>

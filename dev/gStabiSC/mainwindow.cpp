@@ -42,20 +42,14 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
     m_statusLabel(new QLabel)
-
-
 {
     ui->setupUi(this);
-
 //    init all required variables
     init_var();
-
     loadAppStyle(currentStyle);
-
 
     connect(ui->actionAbout,SIGNAL(triggered()),  this, SLOT(aboutActionTriggered()));
     connect(ui->actionHelp, SIGNAL(triggered()),this, SLOT(helpActionTriggered()));
-
 
     fillSerialPortInfo();
 
@@ -99,9 +93,9 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(this, SIGNAL(attitudeChanged(float, float, float)),this, SLOT(updateAttitude(float, float, float)));
 
     /* connect line chart check box */
-    connect(ui->ax_checkBox, SIGNAL(toggled(bool)), SLOT(on_ax_CheckBox_toggled(bool)));
-    connect(ui->ay_checkBox, SIGNAL(toggled(bool)), SLOT(on_ay_CheckBox_toggled(bool)));
-    connect(ui->az_checkBox, SIGNAL(toggled(bool)), SLOT(on_az_CheckBox_toggled(bool)));
+//    connect(ui->ax_checkBox, SIGNAL(toggled(bool)), SLOT(on_ax_CheckBox_toggled(bool)));
+//    connect(ui->ay_checkBox, SIGNAL(toggled(bool)), SLOT(on_ay_CheckBox_toggled(bool)));
+//    connect(ui->az_checkBox, SIGNAL(toggled(bool)), SLOT(on_az_CheckBox_toggled(bool)));
     connect(ui->gx_checkBox, SIGNAL(toggled(bool)), SLOT(on_gx_CheckBox_toggled(bool)));
     connect(ui->gy_checkBox, SIGNAL(toggled(bool)), SLOT(on_gy_CheckBox_toggled(bool)));
     connect(ui->gz_checkBox, SIGNAL(toggled(bool)), SLOT(on_gz_CheckBox_toggled(bool)));
@@ -122,7 +116,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->yawknob, SIGNAL(valueChanged(double)), SLOT(on_yawknob_ValueChanged()));
     connect(ui->yawknob, SIGNAL(sliderReleased()),SLOT(on_yawknob_Released()));
 
-    chartSetting();
+    chartSetting(ui->chartPlot);
 
     attitudeIndicatorSetting();
 }
@@ -133,64 +127,68 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::chartSetting()
+void MainWindow::chartSetting(QwtPlot *plot)
 {
     QwtPlotGrid *grid = new QwtPlotGrid();
-    ui->chartPlot->setAutoReplot(true);
+//    ui->chartPlot->setAutoReplot(true);
+    plot->setAutoReplot(true);
 
     grid->setMinorPen(QPen(Qt::gray, 0, Qt::DotLine));
     grid->setMajorPen(QPen(Qt::gray, 0, Qt::DotLine));
     grid->enableX(true);
     grid->enableY(true);
-    grid->attach(ui->chartPlot);
+    grid->attach((plot);
+//    grid->attach(ui->chartPlot);
 
     ax_curve = new QwtPlotCurve();
     ax_curve->setTitle("AccX");
     ax_curve->setPen(Qt::red, 2, Qt::SolidLine);
     ax_curve->setRenderHint(QwtPlotItem::RenderAntialiased, true);
-    ax_curve->attach(ui->chartPlot);
+    ax_curve->attach(plot);
+//    ax_curve->attach(ui->chartPlot);
     ax_curve->hide();
 
     ay_curve = new QwtPlotCurve();
     ay_curve->setTitle("AccY");
     ay_curve->setPen(Qt::green, 2, Qt::SolidLine);
     ay_curve->setRenderHint(QwtPlotItem::RenderAntialiased, true);
-    ay_curve->attach(ui->chartPlot);
+
+    ay_curve->attach(plot);
     ay_curve->hide();
 
     az_curve = new QwtPlotCurve();
     az_curve->setTitle("AccZ");
     az_curve->setPen(Qt::blue, 2, Qt::SolidLine);
     az_curve->setRenderHint(QwtPlotItem::RenderAntialiased, true);
-    az_curve->attach(ui->chartPlot);
+    az_curve->attach(plot);
     az_curve->hide();
 
     gx_curve = new QwtPlotCurve();
     gx_curve->setTitle("GyroX");
     gx_curve->setPen(Qt::magenta, 2, Qt::SolidLine);
     gx_curve->setRenderHint(QwtPlotItem::RenderAntialiased, true);
-    gx_curve->attach(ui->chartPlot);
+    gx_curve->attach(plot);
     gx_curve->hide();
 
     gy_curve = new QwtPlotCurve();
     gy_curve->setTitle("GyroY");
     gy_curve->setPen(Qt::darkBlue, 2, Qt::SolidLine);
     gy_curve->setRenderHint(QwtPlotItem::RenderAntialiased, true);
-    gy_curve->attach(ui->chartPlot);
+    gy_curve->attach(plot);
     gy_curve->hide();
 
     gz_curve = new QwtPlotCurve();
     gz_curve->setTitle("GyroZ");
     gz_curve->setPen(Qt::darkCyan, 2, Qt::SolidLine);
     gz_curve->setRenderHint(QwtPlotItem::RenderAntialiased, true);
-    gz_curve->attach(ui->chartPlot);
+    gz_curve->attach(plot);
     gz_curve->hide();
 
     pitch_curve = new QwtPlotCurve();
     pitch_curve->setTitle("Pitch in degree");
     pitch_curve->setPen(Qt::darkRed, 2, Qt::SolidLine);
     pitch_curve->setRenderHint(QwtPlotItem::RenderAntialiased, true);
-    pitch_curve->attach(ui->chartPlot);
+    pitch_curve->attach(plot);
     ui->pitch_checkBox->setChecked(true);
     pitch_curve->show();
 
@@ -198,7 +196,7 @@ void MainWindow::chartSetting()
     roll_curve->setTitle("Roll in degree");
     roll_curve->setPen(Qt::darkGreen, 2, Qt::SolidLine);
     roll_curve->setRenderHint(QwtPlotItem::RenderAntialiased, true);
-    roll_curve->attach(ui->chartPlot);
+    roll_curve->attach(plot);
     ui->roll_checkBox->setChecked(true);
     roll_curve->show();
 
@@ -206,7 +204,7 @@ void MainWindow::chartSetting()
     yaw_curve->setTitle("Yaw in degree");
     yaw_curve->setPen(Qt::darkMagenta, 2, Qt::SolidLine);
     yaw_curve->setRenderHint(QwtPlotItem::RenderAntialiased, true);
-    yaw_curve->attach(ui->chartPlot);
+    yaw_curve->attach(plot);
     ui->yaw_checkBox->setChecked(true);
     yaw_curve->show();
 }
@@ -2069,23 +2067,23 @@ void MainWindow::on_clearParamButton_clicked(){
     ui->calibGyro->setChecked(false);
 }
 
-void MainWindow::on_ax_CheckBox_toggled(bool checked)
-{
-    if(checked) ax_curve->show();
-    else ax_curve->hide();
-}
+//void MainWindow::on_ax_CheckBox_toggled(bool checked)
+//{
+//    if(checked) ax_curve->show();
+//    else ax_curve->hide();
+//}
 
-void MainWindow::on_ay_CheckBox_toggled(bool checked)
-{
-    if(checked) ay_curve->show();
-    else ay_curve->hide();
-}
+//void MainWindow::on_ay_CheckBox_toggled(bool checked)
+//{
+//    if(checked) ay_curve->show();
+//    else ay_curve->hide();
+//}
 
-void MainWindow::on_az_CheckBox_toggled(bool checked)
-{
-    if(checked) az_curve->show();
-    else az_curve->hide();
-}
+//void MainWindow::on_az_CheckBox_toggled(bool checked)
+//{
+//    if(checked) az_curve->show();
+//    else az_curve->hide();
+//}
 
 void MainWindow::on_gx_CheckBox_toggled(bool checked)
 {
@@ -2266,4 +2264,22 @@ QPalette MainWindow::colorTheme(const QColor &base) const
     palette.setColor( QPalette::WindowText, base.dark( 200 ) );
 
     return palette;
+}
+
+void MainWindow::on_ax_checkBox_toggled(bool checked)
+{
+    if(checked) ax_curve->show();
+    else ax_curve->hide();
+}
+
+void MainWindow::on_ay_checkBox_toggled(bool checked)
+{
+    if(checked) ay_curve->show();
+    else ay_curve->hide();
+}
+
+void MainWindow::on_az_checkBox_toggled(bool checked)
+{
+    if(checked) az_curve->show();
+    else az_curve->hide();
 }
