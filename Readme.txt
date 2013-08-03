@@ -5,3 +5,22 @@ Project Directory Structure:
  	|------stable\   : contain built exe file to install and internal test
 	
  	|------release\  : stable version and release for external use.
+ 	
+ 	
+ 	
+ Documentation
+=============
+For generating documentation, refer to Readme.txt.
+
+Apply to Platforms:
+  - Windows   : done
+  - Linux     : not yet
+  - Mac OS X  : not yet
+  
+Contributors:
+  - Tong Vu Than Dan, email: tongvtdan@gmail.com
+  - Pham Ngoc Huy, email: huypng@gmail.com
+  - Nguyen Minh Tien, email: tiennguyen.gremsy@gmail.com
+  
+Copyright(c) Gremsy Co., Ltd
+  
