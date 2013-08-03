@@ -160,7 +160,7 @@
      <string/>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>2</number>
     </property>
     <widget class="QWidget" name="tab_motorPIDConfig">
      <property name="toolTip">
@@ -2498,12 +2498,12 @@
         <rect>
          <x>10</x>
          <y>23</y>
-         <width>23</width>
+         <width>31</width>
          <height>16</height>
         </rect>
        </property>
        <property name="text">
-        <string>Type</string>
+        <string>Input</string>
        </property>
       </widget>
       <widget class="QLabel" name="label_42">
@@ -2627,7 +2627,7 @@
         </rect>
        </property>
        <property name="text">
-        <string>Stick</string>
+        <string>Mode</string>
        </property>
       </widget>
       <widget class="QLabel" name="label_57">
@@ -2883,7 +2883,7 @@
         </rect>
        </property>
        <property name="text">
-        <string>Mode</string>
+        <string>Type</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
