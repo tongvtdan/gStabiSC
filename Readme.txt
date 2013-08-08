@@ -24,3 +24,7 @@ Contributors:
   
 Copyright(c) Gremsy Co., Ltd
   
+3rd Party Software:
+ - FlyMCU: to flash MCU in controller board
+ - USB to UART Driver: download from http://www.silabs.com/products/mcu/Pages/USBtoUARTBridgeVCPDrivers.aspx
+ 
