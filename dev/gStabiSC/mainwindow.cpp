@@ -114,6 +114,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::chartSetting(QwtPlot *plot)
 {
+
     QwtPlotGrid *grid = new QwtPlotGrid();
 //    ui->chartPlot->setAutoReplot(true);
     plot->setAutoReplot(true);
@@ -192,6 +193,7 @@ void MainWindow::chartSetting(QwtPlot *plot)
     yaw_curve->attach(plot);
     ui->yaw_checkBox->setChecked(true);
     yaw_curve->show();
+
 }
 
 void MainWindow::attitudeIndicatorSetting()
@@ -1865,6 +1867,7 @@ void MainWindow::updateSbusValues()
 
 void MainWindow::chartUpdateData()
 {
+
     ++time_count;
 
     sampleSize = ax_point.size();
@@ -1922,6 +1925,7 @@ void MainWindow::chartUpdateData()
     yaw_curve->setSamples(yaw_point);
 
     ui->chartPlot->replot();
+
 }
 
 void MainWindow::on_upgradeFWButton_clicked()
