@@ -18,15 +18,18 @@ linux*: include(/usr/local/qwt-6.1.0/features/qwt.prf)
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-        thirdParty/attitude_indicator/attitude_indicator.cpp
+        thirdParty/attitude_indicator/attitude_indicator.cpp \
+    src/realtimegraph.cpp
 #    src/mavlinkmanager.cpp
 
 HEADERS  += mainwindow.h \
             thirdParty/attitude_indicator/attitude_indicator.h \
-    src/configuration.h
+    src/configuration.h \
+    src/realtimegraph.h
 #    src/mavlinkmanager.h
 
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui \
+    src/realtimegraph.ui
 
 include(thirdParty/qextserialport/src/qextserialport.pri)
 

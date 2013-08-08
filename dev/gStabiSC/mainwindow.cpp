@@ -104,6 +104,9 @@ MainWindow::MainWindow(QWidget *parent) :
     chartSetting(ui->chartPlot);
 
     attitudeIndicatorSetting();
+    realtime_graph = new RealTimeGraph(ui->tab_Graph);
+//    ui->tabWidget->addTab(&realtime_graph,"My Graph");
+//    ui->tab_Graph->addWidget(&realtime_graph);
 }
 
 MainWindow::~MainWindow()

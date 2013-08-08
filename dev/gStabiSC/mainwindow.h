@@ -25,6 +25,8 @@
 #include <qwt_compass.h>
 #include <qwt_dial.h>
 
+#include "src/realtimegraph.h"
+
 class AttitudeIndicator;
 
 namespace Ui {
@@ -169,6 +171,8 @@ private:
     double time_count;
     uint32_t interval_value, sampleSize, sampleSizeMax, sampleSizeOverflow ;
     QImage imageOn, imageOff, imageFail;
+
+    RealTimeGraph *realtime_graph;
 };
 
 #endif // MAINWINDOW_H

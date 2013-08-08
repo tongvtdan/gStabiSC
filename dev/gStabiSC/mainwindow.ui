@@ -6,14 +6,26 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>634</height>
+    <width>900</width>
+    <height>650</height>
    </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>900</width>
+    <height>650</height>
+   </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>800</width>
-    <height>634</height>
+    <width>900</width>
+    <height>650</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -45,7 +57,7 @@
     <property name="frameShadow">
      <enum>QFrame::Raised</enum>
     </property>
-    <widget class="QwtCompass" name="yawCompass" native="true">
+    <widget class="QwtCompass" name="yawCompass">
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -54,11 +66,11 @@
        <height>120</height>
       </rect>
      </property>
-     <property name="lineWidth" stdset="0">
+     <property name="lineWidth">
       <number>4</number>
      </property>
     </widget>
-    <widget class="QwtCompass" name="pitchCompass" native="true">
+    <widget class="QwtCompass" name="pitchCompass">
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -67,7 +79,7 @@
        <height>120</height>
       </rect>
      </property>
-     <property name="lineWidth" stdset="0">
+     <property name="lineWidth">
       <number>4</number>
      </property>
     </widget>
@@ -150,11 +162,17 @@
    <widget class="QTabWidget" name="tabWidget">
     <property name="geometry">
      <rect>
-      <x>210</x>
-      <y>110</y>
-      <width>581</width>
-      <height>331</height>
+      <x>211</x>
+      <y>111</y>
+      <width>681</width>
+      <height>351</height>
      </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>610</width>
+      <height>340</height>
+     </size>
     </property>
     <property name="toolTip">
      <string/>
@@ -3298,7 +3316,7 @@
       <property name="title">
        <string>RC Simulator</string>
       </property>
-      <widget class="QwtSlider" name="pitchSlider" native="true">
+      <widget class="QwtSlider" name="pitchSlider">
        <property name="geometry">
         <rect>
          <x>10</x>
@@ -3313,20 +3331,20 @@
        <property name="styleSheet">
         <string notr="true">color: rgb(85, 85, 255);</string>
        </property>
-       <property name="lowerBound" stdset="0">
+       <property name="lowerBound">
         <double>-20.000000000000000</double>
        </property>
-       <property name="upperBound" stdset="0">
+       <property name="upperBound">
         <double>90.000000000000000</double>
        </property>
-       <property name="scaleMaxMajor" stdset="0">
+       <property name="scaleMaxMajor">
         <number>5</number>
        </property>
-       <property name="scaleMaxMinor" stdset="0">
+       <property name="scaleMaxMinor">
         <number>3</number>
        </property>
       </widget>
-      <widget class="QwtKnob" name="yawknob" native="true">
+      <widget class="QwtKnob" name="yawknob">
        <property name="geometry">
         <rect>
          <x>80</x>
@@ -3342,23 +3360,23 @@
         <string notr="true">color: rgb(85, 85, 255);
 border-color: rgb(170, 170, 127);</string>
        </property>
-       <property name="lowerBound" stdset="0">
+       <property name="lowerBound">
         <double>-180.000000000000000</double>
        </property>
-       <property name="upperBound" stdset="0">
+       <property name="upperBound">
         <double>180.000000000000000</double>
        </property>
-       <property name="knobWidth" stdset="0">
+       <property name="knobWidth">
         <number>55</number>
        </property>
-       <property name="totalAngle" stdset="0">
+       <property name="totalAngle">
         <double>270.000000000000000</double>
        </property>
-       <property name="numTurns" stdset="0">
+       <property name="numTurns">
         <number>1</number>
        </property>
       </widget>
-      <widget class="QwtSlider" name="rollSlider" native="true">
+      <widget class="QwtSlider" name="rollSlider">
        <property name="geometry">
         <rect>
          <x>80</x>
@@ -3373,11 +3391,14 @@ border-color: rgb(170, 170, 127);</string>
        <property name="styleSheet">
         <string notr="true">color: rgb(85, 85, 255);</string>
        </property>
-       <property name="lowerBound" stdset="0">
+       <property name="lowerBound">
         <double>-30.000000000000000</double>
        </property>
-       <property name="upperBound" stdset="0">
+       <property name="upperBound">
         <double>30.000000000000000</double>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
        </property>
       </widget>
      </widget>
@@ -3392,11 +3413,23 @@ border-color: rgb(170, 170, 127);</string>
      <widget class="QScrollArea" name="scrollArea">
       <property name="geometry">
        <rect>
-        <x>10</x>
-        <y>10</y>
-        <width>121</width>
-        <height>291</height>
+        <x>2</x>
+        <y>11</y>
+        <width>120</width>
+        <height>300</height>
        </rect>
+      </property>
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>120</width>
+        <height>300</height>
+       </size>
       </property>
       <property name="widgetResizable">
        <bool>true</bool>
@@ -3406,8 +3439,8 @@ border-color: rgb(170, 170, 127);</string>
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>119</width>
-         <height>289</height>
+         <width>118</width>
+         <height>298</height>
         </rect>
        </property>
        <layout class="QGridLayout" name="gridLayout">
@@ -3725,11 +3758,23 @@ border-color: rgb(170, 170, 127);</string>
      <widget class="QwtPlot" name="chartPlot">
       <property name="geometry">
        <rect>
-        <x>140</x>
-        <y>10</y>
-        <width>431</width>
-        <height>291</height>
+        <x>130</x>
+        <y>11</y>
+        <width>541</width>
+        <height>300</height>
        </rect>
+      </property>
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>440</width>
+        <height>300</height>
+       </size>
       </property>
       <property name="toolTip">
        <string>Realtime data display</string>
@@ -3739,15 +3784,26 @@ border-color: rgb(170, 170, 127);</string>
       </property>
      </widget>
     </widget>
+    <widget class="QWidget" name="tab_Graph">
+     <attribute name="title">
+      <string>Graph</string>
+     </attribute>
+    </widget>
    </widget>
    <widget class="QPlainTextEdit" name="receivedMsg">
     <property name="geometry">
      <rect>
       <x>210</x>
-      <y>460</y>
-      <width>581</width>
-      <height>131</height>
+      <y>480</y>
+      <width>681</width>
+      <height>111</height>
      </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>680</width>
+      <height>100</height>
+     </size>
     </property>
     <property name="frameShape">
      <enum>QFrame::Panel</enum>
@@ -4054,7 +4110,7 @@ border-color: rgb(170, 170, 127);</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
+     <width>900</width>
      <height>21</height>
     </rect>
    </property>
@@ -4119,6 +4175,11 @@ border-color: rgb(170, 170, 127);</string>
    <container>1</container>
   </customwidget>
   <customwidget>
+   <class>QwtCompass</class>
+   <extends>QwtDial</extends>
+   <header>qwt_compass.h</header>
+  </customwidget>
+  <customwidget>
    <class>QwtDial</class>
    <extends>QWidget</extends>
    <header>qwt_dial.h</header>
@@ -4132,11 +4193,6 @@ border-color: rgb(170, 170, 127);</string>
    <class>QwtSlider</class>
    <extends>QWidget</extends>
    <header>qwt_slider.h</header>
-  </customwidget>
-  <customwidget>
-   <class>QwtCompass</class>
-   <extends>QwtDial</extends>
-   <header>qwt_compass.h</header>
   </customwidget>
  </customwidgets>
  <resources>
