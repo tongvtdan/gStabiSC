@@ -11,8 +11,9 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = gStabiSC
 TEMPLATE = app
 
-CONFIG +=qwt
-
+#CONFIG +=qwt
+win32: include(C:\Qwt-6.1.0\features\qwt.prf)
+linux*: include(/usr/local/qwt-6.1.0/features/qwt.prf)
 
 SOURCES += main.cpp\
         mainwindow.cpp \
@@ -20,7 +21,8 @@ SOURCES += main.cpp\
 #    src/mavlinkmanager.cpp
 
 HEADERS  += mainwindow.h \
-            thirdParty/attitude_indicator/attitude_indicator.h
+            thirdParty/attitude_indicator/attitude_indicator.h \
+    src/configuration.h
 #    src/mavlinkmanager.h
 
 FORMS    += mainwindow.ui
