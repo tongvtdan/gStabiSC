@@ -34,8 +34,11 @@ mavlink_attitude_t attitude;
 mavlink_param_request_read_t request_read;
 mavlink_param_value_t paramValue;
 mavlink_sbus_chan_values_t sbus_chan_values;
+mavlink_acc_calib_status_t acc_calib_sta;
+mavlink_gyro_calib_status_t gyro_calib_sta;
 global_struct global_data;
 gConfig_t oldParamConfig;
+
 
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -55,10 +58,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
     portSettings();
 
-    connect(ui->portListBox, SIGNAL(currentIndexChanged(QString)),SLOT(onSelectPortChanged(QString)));
+    connect(ui->portListBox, SIGNAL(currentIndexChanged(QString)),SLOT(SelectPortChanged(QString)));
 
-    connect(enumerator, SIGNAL(deviceDiscovered(QextPortInfo)), SLOT(onPortAddedRemoved()));
-    connect(enumerator, SIGNAL(deviceRemoved(QextPortInfo)), SLOT(onPortAddedRemoved()));
+    connect(enumerator, SIGNAL(deviceDiscovered(QextPortInfo)), SLOT(PortAddedRemoved()));
+    connect(enumerator, SIGNAL(deviceRemoved(QextPortInfo)), SLOT(PortAddedRemoved()));
 
     connect(serialport, SIGNAL(readyRead()),this, SLOT(onReadyReadData()));
     connect(this, SIGNAL(messageReceived(QByteArray)),this, SLOT(handleMessage(QByteArray)));
@@ -71,9 +74,9 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->statusBar->addWidget(m_statusLabel);
 
     //open profile file
-    connect(ui->loadfileButton, SIGNAL(clicked()), SLOT(on_loadfileButtonClicked()));
+    connect(ui->loadfileButton, SIGNAL(clicked()), SLOT(loadfileButtonClicked()));
     //save profile file
-    connect(ui->savefileButton, SIGNAL(clicked()), SLOT(on_savefileButtonClicked()));
+    connect(ui->savefileButton, SIGNAL(clicked()), SLOT(savefileButtonClicked()));
 
     //set default all params values
     connect(ui->setDefaultParams, SIGNAL(clicked()), SLOT(setDefaultParams()));
@@ -367,9 +370,9 @@ void MainWindow::updateXMLfile(QDomDocument document, QString xmlfile)
         groups.appendChild(imu);
             QDomElement gyro = document.createElement("Gyro");
             {
-                gyro.setAttribute("Xoffset", ui->gyroX_offset->value());
-                gyro.setAttribute("Yoffset", ui->gyroY_offset->value());
-                gyro.setAttribute("Zoffset", ui->gyroZ_offset->value());
+                gyro.setAttribute("Xoffset", ui->gyroX_offset->text().toInt());
+                gyro.setAttribute("Yoffset", ui->gyroY_offset->text().toInt());
+                gyro.setAttribute("Zoffset", ui->gyroZ_offset->text().toInt());
                 gyro.setAttribute("GyroTrust", ui->gyroTrust->value());
                 gyro.setAttribute("GyroLPF", ui->gyro_LPF->value());
                 gyro.setAttribute("SkipCalibGyro", ui->calibGyro->checkState());
@@ -378,9 +381,9 @@ void MainWindow::updateXMLfile(QDomDocument document, QString xmlfile)
 
             QDomElement acc = document.createElement("Acc");
             {
-                acc.setAttribute("Xoffset", ui->accX_offset->value());
-                acc.setAttribute("Yoffset", ui->accY_offset->value());
-                acc.setAttribute("Zoffset", ui->accZ_offset->value());
+                acc.setAttribute("Xoffset", ui->accX_offset->text().toInt());
+                acc.setAttribute("Yoffset", ui->accY_offset->text().toInt());
+                acc.setAttribute("Zoffset", ui->accZ_offset->text().toInt());
                 imu.appendChild(acc);
             }
 
@@ -522,17 +525,17 @@ void MainWindow::importXMLfile(QString importfile)
     ui->yaw_filter->setValue(ListElements(root, "YawFollow", "Filter"));
 
     // Gyro
-    ui->gyroX_offset->setValue(ListElements(root, "Gyro", "Xoffset"));
-    ui->gyroY_offset->setValue(ListElements(root, "Gyro", "Yoffset"));
-    ui->gyroZ_offset->setValue(ListElements(root, "Gyro", "Zoffset"));
+    ui->gyroX_offset->setText(QString::number(ListElements(root, "Gyro", "Xoffset")));
+    ui->gyroY_offset->setText(QString::number(ListElements(root, "Gyro", "Yoffset")));
+    ui->gyroZ_offset->setText(QString::number(ListElements(root, "Gyro", "Zoffset")));
     ui->gyroTrust->setValue(ListElements(root, "Gyro", "GyroTrust"));
     ui->gyro_LPF->setValue(ListElements(root, "Gyro", "GyroLPF"));
     ui->calibGyro->setChecked(ListElements(root, "Gyro", "SkipCalibGyro"));
 
     // acc
-    ui->accX_offset->setValue(ListElements(root, "Acc", "Xoffset"));
-    ui->accY_offset->setValue(ListElements(root, "Acc", "Yoffset"));
-    ui->accZ_offset->setValue(ListElements(root, "Acc", "Zoffset"));
+    ui->accX_offset->setText(QString::number(ListElements(root, "Acc", "Xoffset")));
+    ui->accY_offset->setText(QString::number(ListElements(root, "Acc", "Yoffset")));
+    ui->accZ_offset->setText(QString::number(ListElements(root, "Acc", "Zoffset")));
 
     // gps
     ui->useGPS->setChecked(ListElements(root, "GPS", "UseGPS"));
@@ -716,7 +719,7 @@ void MainWindow::portSettings()
     enumerator->setUpNotifications();
 }
 
-void MainWindow::onPortAddedRemoved()
+void MainWindow::PortAddedRemoved()
 {
     updatePortStatus(false);
     watchdogTimer->stop();
@@ -827,6 +830,49 @@ void MainWindow::handleMessage(QByteArray buff)
             sbus_chan_values.ch17 = mavlink_msg_sbus_chan_values_get_ch17(&message);
             sbus_chan_values.ch18 = mavlink_msg_sbus_chan_values_get_ch18(&message);
             emit updateSbusValues();
+            break;
+
+        case MAVLINK_MSG_ID_ACC_CALIB_STATUS:
+            acc_calib_sta.acc_calib_status = mavlink_msg_acc_calib_status_get_acc_calib_status(&message);
+            switch(acc_calib_sta.acc_calib_status)
+            {
+                case ACC_CALIB_FINISH:
+                    ui->acc_calib_label->setText("Acc calib finished!");
+                break;
+                case ONE_REMAINING_FACE:
+                    ui->acc_calib_label->setText("One remaining face");
+                break;
+                case TWO_REMAINING_FACES:
+                    ui->acc_calib_label->setText("Two remaining faces");
+                break;
+                case THREE_REMAINING_FACES:
+                    ui->acc_calib_label->setText("Three remaining faces");
+                break;
+                case FOUR_REMAINING_FACES:
+                    ui->acc_calib_label->setText("Four remaining faces");
+                break;
+                case FIVE_REMAINING_FACES:
+                    ui->acc_calib_label->setText("Five remaining faces");
+                break;
+                case SIX_REMAINING_FACES:
+                    ui->acc_calib_label->setText("Six remaining faces");
+                break;
+                case ACC_CALIB_FAIL:
+                    ui->acc_calib_label->setText("Acc calib failed!");
+                break;
+            }
+            break;
+        case MAVLINK_MSG_ID_GYRO_CALIB_STATUS:
+            gyro_calib_sta.status = mavlink_msg_gyro_calib_status_get_status(&message);
+            switch(gyro_calib_sta.status)
+            {
+                case GYRO_CALIB_FAIL:
+                    ui->gyro_calib_label->setText("Gyro calib failed!");
+                break;
+                case GYRO_CALIB_FINISH:
+                    ui->gyro_calib_label->setText("Gyro calib finished!");
+                break;
+            }
             break;
         default:
             break;
@@ -1131,17 +1177,17 @@ void MainWindow::updateParamValue(uint8_t index, float value){
 //        qDebug() << "sbus mode chan:" << oldParamConfig.sbusModeChan;
         break;
     case PARAM_ACCX_OFFSET:
-        ui->accX_offset->setValue(value);
+        ui->accX_offset->setText(QString::number(value));
         oldParamConfig.accXOffset = value;
 //        qDebug() << "acc X offset:" << oldParamConfig.accXOffset;
         break;
     case PARAM_ACCY_OFFSET:
-        ui->accY_offset->setValue(value);
+        ui->accY_offset->setText(QString::number(value));
         oldParamConfig.accYOffset = value;
 //        qDebug() << "acc Y offset:" << oldParamConfig.accYOffset;
         break;
     case PARAM_ACCZ_OFFSET:
-        ui->accZ_offset->setValue(value);
+        ui->accZ_offset->setText(QString::number(value));
         oldParamConfig.accZOffset = value;
 //        qDebug() << "acc Z offset:" << oldParamConfig.accZOffset;
         break;
@@ -1151,17 +1197,17 @@ void MainWindow::updateParamValue(uint8_t index, float value){
 //        qDebug() << "use GPS:" << oldParamConfig.useGPS;
         break;
     case PARAM_GYROX_OFFSET:
-        ui->gyroX_offset->setValue(value);
+        ui->gyroX_offset->setText(QString::number(value));
         oldParamConfig.gyroXOffset = value;
 //        qDebug() << "acc Z offset:" << oldParamConfig.accZOffset;
         break;
     case PARAM_GYROY_OFFSET:
-        ui->gyroY_offset->setValue(value);
+        ui->gyroY_offset->setText(QString::number(value));
         oldParamConfig.gyroYOffset = value;
 //        qDebug() << "acc Z offset:" << oldParamConfig.accZOffset;
         break;
     case PARAM_GYROZ_OFFSET:
-        ui->gyroZ_offset->setValue(value);
+        ui->gyroZ_offset->setText(QString::number(value));
         oldParamConfig.gyroZOffset = value;
 //        qDebug() << "acc Z offset:" << oldParamConfig.accZOffset;
         break;
@@ -1540,31 +1586,31 @@ void MainWindow::writeParamstoBoard(){
             oldParamConfig.gyroLPF = ui->gyro_LPF->value();
         }
 
-        if(ui->accX_offset->value() != oldParamConfig.accXOffset)
+        if(ui->accX_offset->text().toInt() != oldParamConfig.accXOffset)
         {
             mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
-                                       MAV_COMP_ID_IMU, "ACCX_OFFSET", ui->accX_offset->value(), MAVLINK_TYPE_INT16_T);
+                                       MAV_COMP_ID_IMU, "ACCX_OFFSET", ui->accX_offset->text().toInt(), MAVLINK_TYPE_INT16_T);
             len = mavlink_msg_to_send_buffer(buf, &msg);
             serialport->write((const char*)buf, len);
-            oldParamConfig.accXOffset = ui->accX_offset->value();
+            oldParamConfig.accXOffset = ui->accX_offset->text().toInt();
         }
 
-        if(ui->accY_offset->value() != oldParamConfig.accYOffset)
+        if(ui->accY_offset->text().toInt() != oldParamConfig.accYOffset)
         {
             mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
-                                       MAV_COMP_ID_IMU, "ACCY_OFFSET", ui->accY_offset->value(), MAVLINK_TYPE_INT16_T);
+                                       MAV_COMP_ID_IMU, "ACCY_OFFSET", ui->accY_offset->text().toInt(), MAVLINK_TYPE_INT16_T);
             len = mavlink_msg_to_send_buffer(buf, &msg);
             serialport->write((const char*)buf, len);
-            oldParamConfig.accYOffset = ui->accY_offset->value();
+            oldParamConfig.accYOffset = ui->accY_offset->text().toInt();
         }
 
-        if(ui->accZ_offset->value() != oldParamConfig.accZOffset)
+        if(ui->accZ_offset->text().toInt() != oldParamConfig.accZOffset)
         {
             mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
-                                       MAV_COMP_ID_IMU, "ACCZ_OFFSET", ui->accZ_offset->value(), MAVLINK_TYPE_INT16_T);
+                                       MAV_COMP_ID_IMU, "ACCZ_OFFSET", ui->accZ_offset->text().toInt(), MAVLINK_TYPE_INT16_T);
             len = mavlink_msg_to_send_buffer(buf, &msg);
             serialport->write((const char*)buf, len);
-            oldParamConfig.accZOffset = ui->accZ_offset->value();
+            oldParamConfig.accZOffset = ui->accZ_offset->text().toInt();
         }
 
         if(ui->useGPS->isChecked() != oldParamConfig.useGPS)
@@ -1576,31 +1622,31 @@ void MainWindow::writeParamstoBoard(){
             oldParamConfig.useGPS = ui->useGPS->isChecked();
         }
 
-        if(ui->gyroX_offset->value() != oldParamConfig.gyroXOffset)
+        if(ui->gyroX_offset->text().toInt() != oldParamConfig.gyroXOffset)
         {
             mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
-                                       MAV_COMP_ID_IMU, "GYROX_OFFSET", ui->gyroX_offset->value(), MAVLINK_TYPE_INT16_T);
+                                       MAV_COMP_ID_IMU, "GYROX_OFFSET", ui->gyroX_offset->text().toInt(), MAVLINK_TYPE_INT16_T);
             len = mavlink_msg_to_send_buffer(buf, &msg);
             serialport->write((const char*)buf, len);
-            oldParamConfig.gyroXOffset = ui->gyroX_offset->value();
+            oldParamConfig.gyroXOffset = ui->gyroX_offset->text().toInt();
         }
 
-        if(ui->gyroY_offset->value() != oldParamConfig.gyroYOffset)
+        if(ui->gyroY_offset->text().toInt() != oldParamConfig.gyroYOffset)
         {
             mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
-                                       MAV_COMP_ID_IMU, "GYROY_OFFSET", ui->gyroY_offset->value(), MAVLINK_TYPE_INT16_T);
+                                       MAV_COMP_ID_IMU, "GYROY_OFFSET", ui->gyroY_offset->text().toInt(), MAVLINK_TYPE_INT16_T);
             len = mavlink_msg_to_send_buffer(buf, &msg);
             serialport->write((const char*)buf, len);
-            oldParamConfig.gyroYOffset = ui->gyroY_offset->value();
+            oldParamConfig.gyroYOffset = ui->gyroY_offset->text().toInt();
         }
 
-        if(ui->gyroZ_offset->value() != oldParamConfig.gyroZOffset)
+        if(ui->gyroZ_offset->text().toInt() != oldParamConfig.gyroZOffset)
         {
             mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
-                                       MAV_COMP_ID_IMU, "GYROZ_OFFSET", ui->gyroZ_offset->value(), MAVLINK_TYPE_INT16_T);
+                                       MAV_COMP_ID_IMU, "GYROZ_OFFSET", ui->gyroZ_offset->text().toInt(), MAVLINK_TYPE_INT16_T);
             len = mavlink_msg_to_send_buffer(buf, &msg);
             serialport->write((const char*)buf, len);
-            oldParamConfig.gyroZOffset = ui->gyroZ_offset->value();
+            oldParamConfig.gyroZOffset = ui->gyroZ_offset->text().toInt();
         }
 
         if(ui->calibGyro->isChecked() != oldParamConfig.skipGyroCalib)
@@ -1831,15 +1877,15 @@ void MainWindow::setDefaultParams()
     /* ctab IMU config */
     ui->gyroTrust->setValue(120);
     ui->gyro_LPF->setValue(0);
-    ui->accX_offset->setValue(0);
-    ui->accY_offset->setValue(700);
-    ui->accZ_offset->setValue(0);
+    ui->accX_offset->setText("0");
+    ui->accY_offset->setText("0");
+    ui->accZ_offset->setText("0");
 
     ui->useGPS->setChecked(false);
 
-    ui->gyroX_offset->setValue(0);
-    ui->gyroY_offset->setValue(0);
-    ui->gyroZ_offset->setValue(0);
+    ui->gyroX_offset->setText("0");
+    ui->gyroY_offset->setText("0");
+    ui->gyroZ_offset->setText("0");
     ui->calibGyro->setChecked(false);  
 }
 
@@ -1948,7 +1994,7 @@ void MainWindow::on_upgradeFWButton_clicked()
 }
 
 void MainWindow::on_SerialPortConnectButton_clicked(){
-    watchdogTimer->setInterval(3000);
+    watchdogTimer->setInterval(5000);
     watchdogTimer->setSingleShot(true);
 
     chartTimer->setInterval(10);
@@ -1956,7 +2002,7 @@ void MainWindow::on_SerialPortConnectButton_clicked(){
     openSerialPort();
 }
 
-void MainWindow::onSelectPortChanged(const QString &newPortName){
+void MainWindow::SelectPortChanged(const QString &newPortName){
     serialport->flush();
     if(serialport->isOpen())
     {
@@ -2101,7 +2147,7 @@ void MainWindow::on_yawknob_sliderReleased()
     qDebug()<<"Knob Release";
 }
 
-void MainWindow::on_loadfileButtonClicked()
+void MainWindow::loadfileButtonClicked()
 {
     int char_pos=0, filename_len=0;
     int temp=0;
@@ -2125,7 +2171,7 @@ void MainWindow::on_loadfileButtonClicked()
     importXMLfile(loadfilename);
 }
 
-void MainWindow::on_savefileButtonClicked()
+void MainWindow::savefileButtonClicked()
 {
     bool dot=false;
     int len_str=0;
@@ -2190,9 +2236,6 @@ QPalette MainWindow::colorTheme(const QColor &base) const
 
     return palette;
 }
-
-
-
 
 
 void MainWindow::on_clearParam_clicked()
@@ -2260,15 +2303,40 @@ void MainWindow::on_clearParam_clicked()
     /* clear tab IMU config */
     ui->gyroTrust->setValue(0);
     ui->gyro_LPF->setValue(0);
-    ui->accX_offset->setValue(0);
-    ui->accY_offset->setValue(0);
-    ui->accZ_offset->setValue(0);
+    ui->accX_offset->setText("0");
+    ui->accY_offset->setText("0");
+    ui->accZ_offset->setText("0");
 
     ui->useGPS->setChecked(false);
 
-    ui->gyroX_offset->setValue(0);
-    ui->gyroY_offset->setValue(0);
-    ui->gyroZ_offset->setValue(0);
+    ui->gyroX_offset->setText("0");
+    ui->gyroY_offset->setText("0");
+    ui->gyroZ_offset->setText("0");
     ui->calibGyro->setChecked(false);
 
+}
+
+void MainWindow::on_calibAcc_Button_clicked()
+{
+    uint16_t len=0;
+    mavlink_message_t msg;
+    uint8_t buf[MAVLINK_MAX_PACKET_LEN];
+    uint8_t calib_mode=0;
+
+    calib_mode = ui->calibmodes->currentIndex();
+
+    mavlink_msg_acc_calib_request_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, calib_mode);
+    len = mavlink_msg_to_send_buffer(buf, &msg);
+    serialport->write((const char*)buf, len);
+}
+
+void MainWindow::on_calibGyro_Button_clicked()
+{
+    uint16_t len=0;
+    mavlink_message_t msg;
+    uint8_t buf[MAVLINK_MAX_PACKET_LEN];
+
+    mavlink_msg_gyro_calib_request_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, 0);
+    len = mavlink_msg_to_send_buffer(buf, &msg);
+    serialport->write((const char*)buf, len);
 }

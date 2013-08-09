@@ -160,7 +160,7 @@
      <string/>
     </property>
     <property name="currentIndex">
-     <number>3</number>
+     <number>1</number>
     </property>
     <widget class="QWidget" name="tab_motorPIDConfig">
      <property name="toolTip">
@@ -1202,178 +1202,27 @@
        <rect>
         <x>10</x>
         <y>10</y>
-        <width>141</width>
-        <height>261</height>
+        <width>151</width>
+        <height>281</height>
        </rect>
       </property>
       <property name="title">
        <string>Gyroscope</string>
       </property>
-      <widget class="QWidget" name="layoutWidget_3">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>160</y>
-         <width>121</width>
-         <height>22</height>
-        </rect>
-       </property>
-       <layout class="QHBoxLayout" name="horizontalLayout_23">
-        <item>
-         <widget class="QLabel" name="label_45">
-          <property name="text">
-           <string>Gyro LPF</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QSpinBox" name="gyro_LPF">
-          <property name="toolTip">
-           <string>gyro low pass filter gain</string>
-          </property>
-          <property name="minimum">
-           <number>0</number>
-          </property>
-          <property name="maximum">
-           <number>255</number>
-          </property>
-          <property name="singleStep">
-           <number>1</number>
-          </property>
-          <property name="value">
-           <number>10</number>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
       <widget class="QPushButton" name="calibGyro_Button">
        <property name="enabled">
-        <bool>false</bool>
+        <bool>true</bool>
        </property>
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>230</y>
+         <y>250</y>
          <width>121</width>
          <height>23</height>
         </rect>
        </property>
        <property name="text">
         <string>Calib gyro</string>
-       </property>
-      </widget>
-      <widget class="QWidget" name="layoutWidget">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>130</y>
-         <width>121</width>
-         <height>22</height>
-        </rect>
-       </property>
-       <layout class="QHBoxLayout" name="horizontalLayout_24">
-        <item>
-         <widget class="QLabel" name="label_48">
-          <property name="text">
-           <string>Gyro trust</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QSpinBox" name="gyroTrust">
-          <property name="toolTip">
-           <string>gyro trust factor</string>
-          </property>
-          <property name="minimum">
-           <number>0</number>
-          </property>
-          <property name="maximum">
-           <number>100</number>
-          </property>
-          <property name="singleStep">
-           <number>1</number>
-          </property>
-          <property name="value">
-           <number>10</number>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QSpinBox" name="gyroX_offset">
-       <property name="geometry">
-        <rect>
-         <x>70</x>
-         <y>40</y>
-         <width>61</width>
-         <height>20</height>
-        </rect>
-       </property>
-       <property name="toolTip">
-        <string>gyro offset value of X axis</string>
-       </property>
-       <property name="minimum">
-        <number>0</number>
-       </property>
-       <property name="maximum">
-        <number>10000</number>
-       </property>
-       <property name="singleStep">
-        <number>1</number>
-       </property>
-       <property name="value">
-        <number>0</number>
-       </property>
-      </widget>
-      <widget class="QSpinBox" name="gyroY_offset">
-       <property name="geometry">
-        <rect>
-         <x>70</x>
-         <y>70</y>
-         <width>61</width>
-         <height>20</height>
-        </rect>
-       </property>
-       <property name="toolTip">
-        <string>gyro offset value of Y axis</string>
-       </property>
-       <property name="minimum">
-        <number>0</number>
-       </property>
-       <property name="maximum">
-        <number>10000</number>
-       </property>
-       <property name="singleStep">
-        <number>1</number>
-       </property>
-       <property name="value">
-        <number>0</number>
-       </property>
-      </widget>
-      <widget class="QSpinBox" name="gyroZ_offset">
-       <property name="geometry">
-        <rect>
-         <x>70</x>
-         <y>100</y>
-         <width>61</width>
-         <height>20</height>
-        </rect>
-       </property>
-       <property name="toolTip">
-        <string>gyro offset value of Z axis</string>
-       </property>
-       <property name="minimum">
-        <number>0</number>
-       </property>
-       <property name="maximum">
-        <number>10000</number>
-       </property>
-       <property name="singleStep">
-        <number>1</number>
-       </property>
-       <property name="value">
-        <number>0</number>
        </property>
       </widget>
       <widget class="QLabel" name="label_60">
@@ -1431,17 +1280,161 @@
       <widget class="QCheckBox" name="calibGyro">
        <property name="geometry">
         <rect>
-         <x>10</x>
+         <x>6</x>
          <y>190</y>
-         <width>101</width>
+         <width>71</width>
          <height>20</height>
         </rect>
        </property>
        <property name="toolTip">
         <string>choose calib gyro or not when system is powered on</string>
        </property>
+       <property name="layoutDirection">
+        <enum>Qt::RightToLeft</enum>
+       </property>
        <property name="text">
         <string>Calib gyro</string>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="gyroX_offset">
+       <property name="geometry">
+        <rect>
+         <x>80</x>
+         <y>40</y>
+         <width>61</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="gyroY_offset">
+       <property name="geometry">
+        <rect>
+         <x>80</x>
+         <y>70</y>
+         <width>61</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="gyroZ_offset">
+       <property name="geometry">
+        <rect>
+         <x>80</x>
+         <y>100</y>
+         <width>61</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_48">
+       <property name="geometry">
+        <rect>
+         <x>11</x>
+         <y>131</y>
+         <width>49</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Gyro trust</string>
+       </property>
+      </widget>
+      <widget class="QSpinBox" name="gyroTrust">
+       <property name="geometry">
+        <rect>
+         <x>80</x>
+         <y>131</y>
+         <width>61</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="toolTip">
+        <string>gyro trust factor</string>
+       </property>
+       <property name="minimum">
+        <number>0</number>
+       </property>
+       <property name="maximum">
+        <number>100</number>
+       </property>
+       <property name="singleStep">
+        <number>1</number>
+       </property>
+       <property name="value">
+        <number>10</number>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_45">
+       <property name="geometry">
+        <rect>
+         <x>11</x>
+         <y>161</y>
+         <width>43</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Gyro LPF</string>
+       </property>
+      </widget>
+      <widget class="QSpinBox" name="gyro_LPF">
+       <property name="geometry">
+        <rect>
+         <x>80</x>
+         <y>161</y>
+         <width>61</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="toolTip">
+        <string>gyro low pass filter gain</string>
+       </property>
+       <property name="minimum">
+        <number>0</number>
+       </property>
+       <property name="maximum">
+        <number>255</number>
+       </property>
+       <property name="singleStep">
+        <number>1</number>
+       </property>
+       <property name="value">
+        <number>10</number>
+       </property>
+      </widget>
+      <widget class="QLabel" name="gyro_status_label">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>220</y>
+         <width>57</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Calib status</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="gyro_calib_label">
+       <property name="geometry">
+        <rect>
+         <x>80</x>
+         <y>220</y>
+         <width>57</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string/>
        </property>
       </widget>
      </widget>
@@ -1460,14 +1453,17 @@
       <widget class="QCheckBox" name="useGPS">
        <property name="geometry">
         <rect>
-         <x>10</x>
+         <x>8</x>
          <y>20</y>
-         <width>71</width>
+         <width>61</width>
          <height>20</height>
         </rect>
        </property>
        <property name="toolTip">
         <string>check if your system uses GPS</string>
+       </property>
+       <property name="layoutDirection">
+        <enum>Qt::RightToLeft</enum>
        </property>
        <property name="text">
         <string>Use GPS</string>
@@ -1477,10 +1473,10 @@
      <widget class="QGroupBox" name="rcConfig_groupBox_3">
       <property name="geometry">
        <rect>
-        <x>224</x>
+        <x>214</x>
         <y>10</y>
-        <width>141</width>
-        <height>171</height>
+        <width>161</width>
+        <height>231</height>
        </rect>
       </property>
       <property name="title">
@@ -1488,93 +1484,18 @@
       </property>
       <widget class="QPushButton" name="calibAcc_Button">
        <property name="enabled">
-        <bool>false</bool>
+        <bool>true</bool>
        </property>
        <property name="geometry">
         <rect>
-         <x>10</x>
-         <y>140</y>
+         <x>20</x>
+         <y>200</y>
          <width>121</width>
          <height>23</height>
         </rect>
        </property>
        <property name="text">
         <string>Calib acc</string>
-       </property>
-      </widget>
-      <widget class="QSpinBox" name="accX_offset">
-       <property name="geometry">
-        <rect>
-         <x>60</x>
-         <y>40</y>
-         <width>71</width>
-         <height>20</height>
-        </rect>
-       </property>
-       <property name="toolTip">
-        <string>acc offset value of X axis</string>
-       </property>
-       <property name="minimum">
-        <number>0</number>
-       </property>
-       <property name="maximum">
-        <number>10000</number>
-       </property>
-       <property name="singleStep">
-        <number>1</number>
-       </property>
-       <property name="value">
-        <number>0</number>
-       </property>
-      </widget>
-      <widget class="QSpinBox" name="accY_offset">
-       <property name="geometry">
-        <rect>
-         <x>60</x>
-         <y>70</y>
-         <width>71</width>
-         <height>20</height>
-        </rect>
-       </property>
-       <property name="toolTip">
-        <string>acc offset value of Y axis</string>
-       </property>
-       <property name="minimum">
-        <number>0</number>
-       </property>
-       <property name="maximum">
-        <number>10000</number>
-       </property>
-       <property name="singleStep">
-        <number>1</number>
-       </property>
-       <property name="value">
-        <number>0</number>
-       </property>
-      </widget>
-      <widget class="QSpinBox" name="accZ_offset">
-       <property name="geometry">
-        <rect>
-         <x>60</x>
-         <y>100</y>
-         <width>71</width>
-         <height>20</height>
-        </rect>
-       </property>
-       <property name="toolTip">
-        <string>acc offset value of Z axis</string>
-       </property>
-       <property name="minimum">
-        <number>0</number>
-       </property>
-       <property name="maximum">
-        <number>10000</number>
-       </property>
-       <property name="singleStep">
-        <number>1</number>
-       </property>
-       <property name="value">
-        <number>0</number>
        </property>
       </widget>
       <widget class="QLabel" name="label_53">
@@ -1627,6 +1548,113 @@
        </property>
        <property name="text">
         <string>Offset</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_80">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>130</y>
+         <width>57</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Calib mode</string>
+       </property>
+      </widget>
+      <widget class="QComboBox" name="calibmodes">
+       <property name="geometry">
+        <rect>
+         <x>80</x>
+         <y>130</y>
+         <width>71</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="toolTip">
+        <string>direction of motor</string>
+       </property>
+       <property name="autoFillBackground">
+        <bool>true</bool>
+       </property>
+       <property name="editable">
+        <bool>false</bool>
+       </property>
+       <item>
+        <property name="text">
+         <string>One face</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Six faces</string>
+        </property>
+       </item>
+      </widget>
+      <widget class="QLineEdit" name="accX_offset">
+       <property name="geometry">
+        <rect>
+         <x>90</x>
+         <y>40</y>
+         <width>61</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="accY_offset">
+       <property name="geometry">
+        <rect>
+         <x>90</x>
+         <y>70</y>
+         <width>61</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="accZ_offset">
+       <property name="geometry">
+        <rect>
+         <x>90</x>
+         <y>100</y>
+         <width>61</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+      </widget>
+      <widget class="QLabel" name="acc_status_label">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>160</y>
+         <width>57</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Calib status</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="acc_calib_label">
+       <property name="geometry">
+        <rect>
+         <x>80</x>
+         <y>160</y>
+         <width>71</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string/>
        </property>
       </widget>
      </widget>

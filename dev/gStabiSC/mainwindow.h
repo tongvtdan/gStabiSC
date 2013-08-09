@@ -108,9 +108,9 @@ private slots:
     void on_upgradeFWButton_clicked();
 
 private Q_SLOTS:
-    void onSelectPortChanged(const QString &newPortName);
+    void SelectPortChanged(const QString &newPortName);
     void on_SerialPortConnectButton_clicked();
-    void onPortAddedRemoved();
+    void PortAddedRemoved();
     void onReadyReadData();
 //    void on_clearParamButton_clicked();
 
@@ -120,8 +120,8 @@ private Q_SLOTS:
     void on_yawknob_valueChanged(double value);
     void on_yawknob_sliderReleased();
 
-    void on_loadfileButtonClicked();
-    void on_savefileButtonClicked();
+    void loadfileButtonClicked();
+    void savefileButtonClicked();
     void init_var(); // init all variables
 
 
@@ -136,6 +136,10 @@ private Q_SLOTS:
     void on_yaw_checkBox_toggled(bool checked);
 
     void on_clearParam_clicked();
+
+    void on_calibAcc_Button_clicked();
+
+    void on_calibGyro_Button_clicked();
 
 signals:
     void messageReceived(QByteArray message);
