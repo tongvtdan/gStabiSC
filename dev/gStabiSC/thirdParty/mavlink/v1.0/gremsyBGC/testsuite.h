@@ -24,6 +24,55 @@ static void mavlink_test_all(uint8_t system_id, uint8_t component_id, mavlink_me
 #include "../common/testsuite.h"
 
 
+static void mavlink_test_ppm_chan_values(uint8_t system_id, uint8_t component_id, mavlink_message_t *last_msg)
+{
+	mavlink_message_t msg;
+        uint8_t buffer[MAVLINK_MAX_PACKET_LEN];
+        uint16_t i;
+	mavlink_ppm_chan_values_t packet_in = {
+		17.0,
+	45.0,
+	73.0,
+	101.0,
+	};
+	mavlink_ppm_chan_values_t packet1, packet2;
+        memset(&packet1, 0, sizeof(packet1));
+        	packet1.tilt = packet_in.tilt;
+        	packet1.pan = packet_in.pan;
+        	packet1.roll = packet_in.roll;
+        	packet1.mode = packet_in.mode;
+        
+        
+
+        memset(&packet2, 0, sizeof(packet2));
+	mavlink_msg_ppm_chan_values_encode(system_id, component_id, &msg, &packet1);
+	mavlink_msg_ppm_chan_values_decode(&msg, &packet2);
+        MAVLINK_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
+
+        memset(&packet2, 0, sizeof(packet2));
+	mavlink_msg_ppm_chan_values_pack(system_id, component_id, &msg , packet1.tilt , packet1.pan , packet1.roll , packet1.mode );
+	mavlink_msg_ppm_chan_values_decode(&msg, &packet2);
+        MAVLINK_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
+
+        memset(&packet2, 0, sizeof(packet2));
+	mavlink_msg_ppm_chan_values_pack_chan(system_id, component_id, MAVLINK_COMM_0, &msg , packet1.tilt , packet1.pan , packet1.roll , packet1.mode );
+	mavlink_msg_ppm_chan_values_decode(&msg, &packet2);
+        MAVLINK_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
+
+        memset(&packet2, 0, sizeof(packet2));
+        mavlink_msg_to_send_buffer(buffer, &msg);
+        for (i=0; i<mavlink_msg_get_send_buffer_length(&msg); i++) {
+        	comm_send_ch(MAVLINK_COMM_0, buffer[i]);
+        }
+	mavlink_msg_ppm_chan_values_decode(last_msg, &packet2);
+        MAVLINK_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
+        
+        memset(&packet2, 0, sizeof(packet2));
+	mavlink_msg_ppm_chan_values_send(MAVLINK_COMM_1 , packet1.tilt , packet1.pan , packet1.roll , packet1.mode );
+	mavlink_msg_ppm_chan_values_decode(last_msg, &packet2);
+        MAVLINK_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
+}
+
 static void mavlink_test_sbus_chan_values(uint8_t system_id, uint8_t component_id, mavlink_message_t *last_msg)
 {
 	mavlink_message_t msg;
@@ -236,12 +285,187 @@ static void mavlink_test_pan_simulation(uint8_t system_id, uint8_t component_id,
         MAVLINK_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
 }
 
+static void mavlink_test_gyro_calib_request(uint8_t system_id, uint8_t component_id, mavlink_message_t *last_msg)
+{
+	mavlink_message_t msg;
+        uint8_t buffer[MAVLINK_MAX_PACKET_LEN];
+        uint16_t i;
+	mavlink_gyro_calib_request_t packet_in = {
+		};
+	mavlink_gyro_calib_request_t packet1, packet2;
+        memset(&packet1, 0, sizeof(packet1));
+        
+        
+
+        memset(&packet2, 0, sizeof(packet2));
+	mavlink_msg_gyro_calib_request_encode(system_id, component_id, &msg, &packet1);
+	mavlink_msg_gyro_calib_request_decode(&msg, &packet2);
+        MAVLINK_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
+
+        memset(&packet2, 0, sizeof(packet2));
+	mavlink_msg_gyro_calib_request_pack(system_id, component_id, &msg );
+	mavlink_msg_gyro_calib_request_decode(&msg, &packet2);
+        MAVLINK_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
+
+        memset(&packet2, 0, sizeof(packet2));
+	mavlink_msg_gyro_calib_request_pack_chan(system_id, component_id, MAVLINK_COMM_0, &msg );
+	mavlink_msg_gyro_calib_request_decode(&msg, &packet2);
+        MAVLINK_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
+
+        memset(&packet2, 0, sizeof(packet2));
+        mavlink_msg_to_send_buffer(buffer, &msg);
+        for (i=0; i<mavlink_msg_get_send_buffer_length(&msg); i++) {
+        	comm_send_ch(MAVLINK_COMM_0, buffer[i]);
+        }
+	mavlink_msg_gyro_calib_request_decode(last_msg, &packet2);
+        MAVLINK_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
+        
+        memset(&packet2, 0, sizeof(packet2));
+	mavlink_msg_gyro_calib_request_send(MAVLINK_COMM_1 );
+	mavlink_msg_gyro_calib_request_decode(last_msg, &packet2);
+        MAVLINK_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
+}
+
+static void mavlink_test_gyro_calib_status(uint8_t system_id, uint8_t component_id, mavlink_message_t *last_msg)
+{
+	mavlink_message_t msg;
+        uint8_t buffer[MAVLINK_MAX_PACKET_LEN];
+        uint16_t i;
+	mavlink_gyro_calib_status_t packet_in = {
+		5,
+	};
+	mavlink_gyro_calib_status_t packet1, packet2;
+        memset(&packet1, 0, sizeof(packet1));
+        	packet1.status = packet_in.status;
+        
+        
+
+        memset(&packet2, 0, sizeof(packet2));
+	mavlink_msg_gyro_calib_status_encode(system_id, component_id, &msg, &packet1);
+	mavlink_msg_gyro_calib_status_decode(&msg, &packet2);
+        MAVLINK_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
+
+        memset(&packet2, 0, sizeof(packet2));
+	mavlink_msg_gyro_calib_status_pack(system_id, component_id, &msg , packet1.status );
+	mavlink_msg_gyro_calib_status_decode(&msg, &packet2);
+        MAVLINK_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
+
+        memset(&packet2, 0, sizeof(packet2));
+	mavlink_msg_gyro_calib_status_pack_chan(system_id, component_id, MAVLINK_COMM_0, &msg , packet1.status );
+	mavlink_msg_gyro_calib_status_decode(&msg, &packet2);
+        MAVLINK_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
+
+        memset(&packet2, 0, sizeof(packet2));
+        mavlink_msg_to_send_buffer(buffer, &msg);
+        for (i=0; i<mavlink_msg_get_send_buffer_length(&msg); i++) {
+        	comm_send_ch(MAVLINK_COMM_0, buffer[i]);
+        }
+	mavlink_msg_gyro_calib_status_decode(last_msg, &packet2);
+        MAVLINK_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
+        
+        memset(&packet2, 0, sizeof(packet2));
+	mavlink_msg_gyro_calib_status_send(MAVLINK_COMM_1 , packet1.status );
+	mavlink_msg_gyro_calib_status_decode(last_msg, &packet2);
+        MAVLINK_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
+}
+
+static void mavlink_test_acc_calib_request(uint8_t system_id, uint8_t component_id, mavlink_message_t *last_msg)
+{
+	mavlink_message_t msg;
+        uint8_t buffer[MAVLINK_MAX_PACKET_LEN];
+        uint16_t i;
+	mavlink_acc_calib_request_t packet_in = {
+		5,
+	};
+	mavlink_acc_calib_request_t packet1, packet2;
+        memset(&packet1, 0, sizeof(packet1));
+        	packet1.acc_calib_mode = packet_in.acc_calib_mode;
+        
+        
+
+        memset(&packet2, 0, sizeof(packet2));
+	mavlink_msg_acc_calib_request_encode(system_id, component_id, &msg, &packet1);
+	mavlink_msg_acc_calib_request_decode(&msg, &packet2);
+        MAVLINK_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
+
+        memset(&packet2, 0, sizeof(packet2));
+	mavlink_msg_acc_calib_request_pack(system_id, component_id, &msg , packet1.acc_calib_mode );
+	mavlink_msg_acc_calib_request_decode(&msg, &packet2);
+        MAVLINK_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
+
+        memset(&packet2, 0, sizeof(packet2));
+	mavlink_msg_acc_calib_request_pack_chan(system_id, component_id, MAVLINK_COMM_0, &msg , packet1.acc_calib_mode );
+	mavlink_msg_acc_calib_request_decode(&msg, &packet2);
+        MAVLINK_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
+
+        memset(&packet2, 0, sizeof(packet2));
+        mavlink_msg_to_send_buffer(buffer, &msg);
+        for (i=0; i<mavlink_msg_get_send_buffer_length(&msg); i++) {
+        	comm_send_ch(MAVLINK_COMM_0, buffer[i]);
+        }
+	mavlink_msg_acc_calib_request_decode(last_msg, &packet2);
+        MAVLINK_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
+        
+        memset(&packet2, 0, sizeof(packet2));
+	mavlink_msg_acc_calib_request_send(MAVLINK_COMM_1 , packet1.acc_calib_mode );
+	mavlink_msg_acc_calib_request_decode(last_msg, &packet2);
+        MAVLINK_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
+}
+
+static void mavlink_test_acc_calib_status(uint8_t system_id, uint8_t component_id, mavlink_message_t *last_msg)
+{
+	mavlink_message_t msg;
+        uint8_t buffer[MAVLINK_MAX_PACKET_LEN];
+        uint16_t i;
+	mavlink_acc_calib_status_t packet_in = {
+		5,
+	};
+	mavlink_acc_calib_status_t packet1, packet2;
+        memset(&packet1, 0, sizeof(packet1));
+        	packet1.acc_calib_status = packet_in.acc_calib_status;
+        
+        
+
+        memset(&packet2, 0, sizeof(packet2));
+	mavlink_msg_acc_calib_status_encode(system_id, component_id, &msg, &packet1);
+	mavlink_msg_acc_calib_status_decode(&msg, &packet2);
+        MAVLINK_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
+
+        memset(&packet2, 0, sizeof(packet2));
+	mavlink_msg_acc_calib_status_pack(system_id, component_id, &msg , packet1.acc_calib_status );
+	mavlink_msg_acc_calib_status_decode(&msg, &packet2);
+        MAVLINK_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
+
+        memset(&packet2, 0, sizeof(packet2));
+	mavlink_msg_acc_calib_status_pack_chan(system_id, component_id, MAVLINK_COMM_0, &msg , packet1.acc_calib_status );
+	mavlink_msg_acc_calib_status_decode(&msg, &packet2);
+        MAVLINK_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
+
+        memset(&packet2, 0, sizeof(packet2));
+        mavlink_msg_to_send_buffer(buffer, &msg);
+        for (i=0; i<mavlink_msg_get_send_buffer_length(&msg); i++) {
+        	comm_send_ch(MAVLINK_COMM_0, buffer[i]);
+        }
+	mavlink_msg_acc_calib_status_decode(last_msg, &packet2);
+        MAVLINK_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
+        
+        memset(&packet2, 0, sizeof(packet2));
+	mavlink_msg_acc_calib_status_send(MAVLINK_COMM_1 , packet1.acc_calib_status );
+	mavlink_msg_acc_calib_status_decode(last_msg, &packet2);
+        MAVLINK_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
+}
+
 static void mavlink_test_gremsyBGC(uint8_t system_id, uint8_t component_id, mavlink_message_t *last_msg)
 {
+	mavlink_test_ppm_chan_values(system_id, component_id, last_msg);
 	mavlink_test_sbus_chan_values(system_id, component_id, last_msg);
 	mavlink_test_tilt_simulation(system_id, component_id, last_msg);
 	mavlink_test_roll_simulation(system_id, component_id, last_msg);
 	mavlink_test_pan_simulation(system_id, component_id, last_msg);
+	mavlink_test_gyro_calib_request(system_id, component_id, last_msg);
+	mavlink_test_gyro_calib_status(system_id, component_id, last_msg);
+	mavlink_test_acc_calib_request(system_id, component_id, last_msg);
+	mavlink_test_acc_calib_status(system_id, component_id, last_msg);
 }
 
 #ifdef __cplusplus

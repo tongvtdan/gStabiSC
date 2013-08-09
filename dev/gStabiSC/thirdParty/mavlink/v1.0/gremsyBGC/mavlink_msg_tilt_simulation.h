@@ -11,6 +11,8 @@ typedef struct __mavlink_tilt_simulation_t
 #define MAVLINK_MSG_ID_TILT_SIMULATION_LEN 3
 #define MAVLINK_MSG_ID_153_LEN 3
 
+
+
 #define MAVLINK_MESSAGE_INFO_TILT_SIMULATION { \
 	"TILT_SIMULATION", \
 	2, \
