@@ -160,7 +160,7 @@
      <string/>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>2</number>
     </property>
     <widget class="QWidget" name="tab_motorPIDConfig">
      <property name="toolTip">
@@ -1473,7 +1473,7 @@
      <widget class="QGroupBox" name="rcConfig_groupBox_3">
       <property name="geometry">
        <rect>
-        <x>214</x>
+        <x>220</x>
         <y>10</y>
         <width>161</width>
         <height>231</height>
@@ -1663,7 +1663,7 @@
      <attribute name="title">
       <string>RC Configure</string>
      </attribute>
-     <widget class="QLabel" name="label_75">
+     <widget class="QLabel" name="ch16label">
       <property name="geometry">
        <rect>
         <x>477</x>
@@ -1679,7 +1679,7 @@
        <set>Qt::AlignCenter</set>
       </property>
      </widget>
-     <widget class="QLabel" name="label_50">
+     <widget class="QLabel" name="ch4label">
       <property name="geometry">
        <rect>
         <x>99</x>
@@ -1757,7 +1757,7 @@
        <string>%v</string>
       </property>
      </widget>
-     <widget class="QLabel" name="label_69">
+     <widget class="QLabel" name="ch10label">
       <property name="geometry">
        <rect>
         <x>280</x>
@@ -1773,7 +1773,7 @@
        <set>Qt::AlignCenter</set>
       </property>
      </widget>
-     <widget class="QLabel" name="label_67">
+     <widget class="QLabel" name="ch8label">
       <property name="geometry">
        <rect>
         <x>219</x>
@@ -1944,7 +1944,7 @@
        <string>%v</string>
       </property>
      </widget>
-     <widget class="QLabel" name="label_66">
+     <widget class="QLabel" name="ch7label">
       <property name="geometry">
        <rect>
         <x>189</x>
@@ -1960,7 +1960,7 @@
        <set>Qt::AlignCenter</set>
       </property>
      </widget>
-     <widget class="QLabel" name="label_71">
+     <widget class="QLabel" name="ch12label">
       <property name="geometry">
        <rect>
         <x>345</x>
@@ -1976,7 +1976,7 @@
        <set>Qt::AlignCenter</set>
       </property>
      </widget>
-     <widget class="QLabel" name="label_46">
+     <widget class="QLabel" name="ch1label">
       <property name="geometry">
        <rect>
         <x>9</x>
@@ -1992,7 +1992,7 @@
        <set>Qt::AlignCenter</set>
       </property>
      </widget>
-     <widget class="QLabel" name="label_74">
+     <widget class="QLabel" name="ch15label">
       <property name="geometry">
        <rect>
         <x>443</x>
@@ -2070,7 +2070,7 @@
        <string>%v</string>
       </property>
      </widget>
-     <widget class="QLabel" name="label_72">
+     <widget class="QLabel" name="ch13label">
       <property name="geometry">
        <rect>
         <x>378</x>
@@ -2086,7 +2086,7 @@
        <set>Qt::AlignCenter</set>
       </property>
      </widget>
-     <widget class="QLabel" name="label_47">
+     <widget class="QLabel" name="ch2label">
       <property name="geometry">
        <rect>
         <x>39</x>
@@ -2257,7 +2257,7 @@
        <string>%v</string>
       </property>
      </widget>
-     <widget class="QLabel" name="label_70">
+     <widget class="QLabel" name="ch11label">
       <property name="geometry">
        <rect>
         <x>312</x>
@@ -2273,7 +2273,7 @@
        <set>Qt::AlignCenter</set>
       </property>
      </widget>
-     <widget class="QLabel" name="label_49">
+     <widget class="QLabel" name="ch3label">
       <property name="geometry">
        <rect>
         <x>69</x>
@@ -2289,7 +2289,7 @@
        <set>Qt::AlignCenter</set>
       </property>
      </widget>
-     <widget class="QLabel" name="label_51">
+     <widget class="QLabel" name="ch5label">
       <property name="geometry">
        <rect>
         <x>129</x>
@@ -2305,7 +2305,7 @@
        <set>Qt::AlignCenter</set>
       </property>
      </widget>
-     <widget class="QLabel" name="label_73">
+     <widget class="QLabel" name="ch14label">
       <property name="geometry">
        <rect>
         <x>410</x>
@@ -2383,7 +2383,7 @@
        <string>%v</string>
       </property>
      </widget>
-     <widget class="QLabel" name="label_68">
+     <widget class="QLabel" name="ch9label">
       <property name="geometry">
        <rect>
         <x>248</x>
@@ -2399,7 +2399,7 @@
        <set>Qt::AlignCenter</set>
       </property>
      </widget>
-     <widget class="QLabel" name="label_65">
+     <widget class="QLabel" name="ch6label">
       <property name="geometry">
        <rect>
         <x>159</x>
@@ -2415,7 +2415,7 @@
        <set>Qt::AlignCenter</set>
       </property>
      </widget>
-     <widget class="QLabel" name="label_76">
+     <widget class="QLabel" name="ch17label">
       <property name="geometry">
        <rect>
         <x>510</x>
@@ -2493,7 +2493,7 @@
        <string>%v</string>
       </property>
      </widget>
-     <widget class="QLabel" name="label_77">
+     <widget class="QLabel" name="ch18label">
       <property name="geometry">
        <rect>
         <x>542</x>
@@ -2534,7 +2534,7 @@
         <string>Input</string>
        </property>
       </widget>
-      <widget class="QLabel" name="label_42">
+      <widget class="QLabel" name="rc_rolllabel">
        <property name="geometry">
         <rect>
          <x>10</x>
@@ -2547,7 +2547,7 @@
         <string>Roll</string>
        </property>
       </widget>
-      <widget class="QLabel" name="label_52">
+      <widget class="QLabel" name="rc_yawlabel">
        <property name="geometry">
         <rect>
          <x>10</x>
@@ -2607,7 +2607,7 @@
         <number>10</number>
        </property>
       </widget>
-      <widget class="QLabel" name="label_43">
+      <widget class="QLabel" name="rc_lpflabel">
        <property name="geometry">
         <rect>
          <x>110</x>
@@ -2645,7 +2645,7 @@
         <number>10</number>
        </property>
       </widget>
-      <widget class="QLabel" name="label_56">
+      <widget class="QLabel" name="rc_modelabel">
        <property name="geometry">
         <rect>
          <x>10</x>
@@ -2658,10 +2658,10 @@
         <string>Mode</string>
        </property>
       </widget>
-      <widget class="QLabel" name="label_57">
+      <widget class="QLabel" name="rc_channelslabel">
        <property name="geometry">
         <rect>
-         <x>48</x>
+         <x>45</x>
          <y>49</y>
          <width>61</width>
          <height>16</height>
@@ -2686,6 +2686,9 @@
        <property name="toolTip">
         <string>RC type in your system</string>
        </property>
+       <property name="currentIndex">
+        <number>1</number>
+       </property>
        <item>
         <property name="text">
          <string>PPM</string>
@@ -2697,7 +2700,7 @@
         </property>
        </item>
       </widget>
-      <widget class="QLabel" name="label_41">
+      <widget class="QLabel" name="rc_pitchlabel">
        <property name="geometry">
         <rect>
          <x>10</x>
@@ -2838,7 +2841,7 @@
         <number>10</number>
        </property>
       </widget>
-      <widget class="QLabel" name="label_78">
+      <widget class="QLabel" name="rc_trimlabel">
        <property name="geometry">
         <rect>
          <x>160</x>
@@ -2901,11 +2904,11 @@
         <number>10</number>
        </property>
       </widget>
-      <widget class="QLabel" name="label_79">
+      <widget class="QLabel" name="rc_typelabel">
        <property name="geometry">
         <rect>
          <x>220</x>
-         <y>50</y>
+         <y>49</y>
          <width>61</width>
          <height>16</height>
         </rect>
@@ -3313,6 +3316,85 @@
         </property>
        </item>
       </widget>
+      <widget class="QLineEdit" name="pitch_ppmvalue">
+       <property name="geometry">
+        <rect>
+         <x>50</x>
+         <y>74</y>
+         <width>51</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="roll_ppmvalue">
+       <property name="geometry">
+        <rect>
+         <x>50</x>
+         <y>100</y>
+         <width>51</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="yaw_ppmvalue">
+       <property name="geometry">
+        <rect>
+         <x>50</x>
+         <y>125</y>
+         <width>51</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="mode_ppmvalue">
+       <property name="geometry">
+        <rect>
+         <x>50</x>
+         <y>150</y>
+         <width>51</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+      </widget>
+      <zorder>mode_ppmvalue</zorder>
+      <zorder>yaw_ppmvalue</zorder>
+      <zorder>roll_ppmvalue</zorder>
+      <zorder>pitch_ppmvalue</zorder>
+      <zorder>label_40</zorder>
+      <zorder>rc_rolllabel</zorder>
+      <zorder>rc_yawlabel</zorder>
+      <zorder>rcLPF_roll</zorder>
+      <zorder>rcLPF_pitch</zorder>
+      <zorder>rc_lpflabel</zorder>
+      <zorder>rcLPF_yaw</zorder>
+      <zorder>rc_modelabel</zorder>
+      <zorder>rc_channelslabel</zorder>
+      <zorder>rc_source</zorder>
+      <zorder>rc_pitchlabel</zorder>
+      <zorder>pitchChan</zorder>
+      <zorder>trim_yaw</zorder>
+      <zorder>rc_trimlabel</zorder>
+      <zorder>trim_pitch</zorder>
+      <zorder>trim_roll</zorder>
+      <zorder>rc_typelabel</zorder>
+      <zorder>rollChan</zorder>
+      <zorder>yawChan</zorder>
+      <zorder>modeChan</zorder>
+      <zorder>mode_pitch</zorder>
+      <zorder>mode_roll</zorder>
+      <zorder>mode_yaw</zorder>
      </widget>
      <widget class="QGroupBox" name="groupBox_7">
       <property name="geometry">

@@ -2340,3 +2340,109 @@ void MainWindow::on_calibGyro_Button_clicked()
     len = mavlink_msg_to_send_buffer(buf, &msg);
     serialport->write((const char*)buf, len);
 }
+
+void MainWindow::on_rc_source_currentIndexChanged(int index)
+{
+    if(index==0) //PPM
+    {
+        ui->rc_channelslabel->setText("Values");
+
+        ui->pitch_ppmvalue->setVisible(true);
+        ui->roll_ppmvalue->setVisible(true);
+        ui->yaw_ppmvalue->setVisible(true);
+        ui->mode_ppmvalue->setVisible(true);
+
+        ui->pitchChan->setVisible(false);
+        ui->rollChan->setVisible(false);
+        ui->yawChan->setVisible(false);
+        ui->modeChan->setVisible(false);
+
+        ui->ch1level_Bar->setVisible(false);
+        ui->ch1label->setVisible(false);
+        ui->ch2level_Bar->setVisible(false);
+        ui->ch2label->setVisible(false);
+        ui->ch3level_Bar->setVisible(false);
+        ui->ch3label->setVisible(false);
+        ui->ch4level_Bar->setVisible(false);
+        ui->ch4label->setVisible(false);
+        ui->ch5level_Bar->setVisible(false);
+        ui->ch5label->setVisible(false);
+        ui->ch6level_Bar->setVisible(false);
+        ui->ch6label->setVisible(false);
+        ui->ch7level_Bar->setVisible(false);
+        ui->ch7label->setVisible(false);
+        ui->ch8level_Bar->setVisible(false);
+        ui->ch8label->setVisible(false);
+        ui->ch9level_Bar->setVisible(false);
+        ui->ch9label->setVisible(false);
+        ui->ch10level_Bar->setVisible(false);
+        ui->ch10label->setVisible(false);
+        ui->ch11level_Bar->setVisible(false);
+        ui->ch11label->setVisible(false);
+        ui->ch12level_Bar->setVisible(false);
+        ui->ch12label->setVisible(false);
+        ui->ch13level_Bar->setVisible(false);
+        ui->ch13label->setVisible(false);
+        ui->ch14level_Bar->setVisible(false);
+        ui->ch14label->setVisible(false);
+        ui->ch15level_Bar->setVisible(false);
+        ui->ch15label->setVisible(false);
+        ui->ch16level_Bar->setVisible(false);
+        ui->ch16label->setVisible(false);
+        ui->ch17level_Bar->setVisible(false);
+        ui->ch17label->setVisible(false);
+        ui->ch18level_Bar->setVisible(false);
+        ui->ch18label->setVisible(false);
+    }
+    else  //SBUS
+    {
+        ui->rc_channelslabel->setText("Channels");
+
+        ui->pitch_ppmvalue->setVisible(false);
+        ui->roll_ppmvalue->setVisible(false);
+        ui->yaw_ppmvalue->setVisible(false);
+        ui->mode_ppmvalue->setVisible(false);
+
+        ui->pitchChan->setVisible(true);
+        ui->rollChan->setVisible(true);
+        ui->yawChan->setVisible(true);
+        ui->modeChan->setVisible(true);
+
+        ui->ch1level_Bar->setVisible(true);
+        ui->ch1label->setVisible(true);
+        ui->ch2level_Bar->setVisible(true);
+        ui->ch2label->setVisible(true);
+        ui->ch3level_Bar->setVisible(true);
+        ui->ch3label->setVisible(true);
+        ui->ch4level_Bar->setVisible(true);
+        ui->ch4label->setVisible(true);
+        ui->ch5level_Bar->setVisible(true);
+        ui->ch5label->setVisible(true);
+        ui->ch6level_Bar->setVisible(true);
+        ui->ch6label->setVisible(true);
+        ui->ch7level_Bar->setVisible(true);
+        ui->ch7label->setVisible(true);
+        ui->ch8level_Bar->setVisible(true);
+        ui->ch8label->setVisible(true);
+        ui->ch9level_Bar->setVisible(true);
+        ui->ch9label->setVisible(true);
+        ui->ch10level_Bar->setVisible(true);
+        ui->ch10label->setVisible(true);
+        ui->ch11level_Bar->setVisible(true);
+        ui->ch11label->setVisible(true);
+        ui->ch12level_Bar->setVisible(true);
+        ui->ch12label->setVisible(true);
+        ui->ch13level_Bar->setVisible(true);
+        ui->ch13label->setVisible(true);
+        ui->ch14level_Bar->setVisible(true);
+        ui->ch14label->setVisible(true);
+        ui->ch15level_Bar->setVisible(true);
+        ui->ch15label->setVisible(true);
+        ui->ch16level_Bar->setVisible(true);
+        ui->ch16label->setVisible(true);
+        ui->ch17level_Bar->setVisible(true);
+        ui->ch17label->setVisible(true);
+        ui->ch18level_Bar->setVisible(true);
+        ui->ch18label->setVisible(true);
+    }
+}

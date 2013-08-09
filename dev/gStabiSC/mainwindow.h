@@ -141,6 +141,8 @@ private Q_SLOTS:
 
     void on_calibGyro_Button_clicked();
 
+    void on_rc_source_currentIndexChanged(int index);
+
 signals:
     void messageReceived(QByteArray message);
     void heartBeatPulse(bool heartbeat_status);
