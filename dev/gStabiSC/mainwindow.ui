@@ -1203,7 +1203,7 @@
         <x>10</x>
         <y>10</y>
         <width>151</width>
-        <height>281</height>
+        <height>251</height>
        </rect>
       </property>
       <property name="title">
@@ -1215,8 +1215,8 @@
        </property>
        <property name="geometry">
         <rect>
-         <x>10</x>
-         <y>250</y>
+         <x>15</x>
+         <y>220</y>
          <width>121</width>
          <height>23</height>
         </rect>
@@ -1411,32 +1411,6 @@
         <number>10</number>
        </property>
       </widget>
-      <widget class="QLabel" name="gyro_status_label">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>220</y>
-         <width>57</width>
-         <height>20</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>Calib status</string>
-       </property>
-      </widget>
-      <widget class="QLabel" name="gyro_calib_label">
-       <property name="geometry">
-        <rect>
-         <x>80</x>
-         <y>220</y>
-         <width>57</width>
-         <height>20</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-      </widget>
      </widget>
      <widget class="QGroupBox" name="rcConfig_groupBox_4">
       <property name="geometry">
@@ -1476,7 +1450,7 @@
         <x>220</x>
         <y>10</y>
         <width>161</width>
-        <height>231</height>
+        <height>201</height>
        </rect>
       </property>
       <property name="title">
@@ -1489,7 +1463,7 @@
        <property name="geometry">
         <rect>
          <x>20</x>
-         <y>200</y>
+         <y>170</y>
          <width>121</width>
          <height>23</height>
         </rect>
@@ -1583,7 +1557,7 @@
        </property>
        <item>
         <property name="text">
-         <string>One face</string>
+         <string>Normal</string>
         </property>
        </item>
        <item>
@@ -1629,32 +1603,6 @@
        </property>
        <property name="readOnly">
         <bool>true</bool>
-       </property>
-      </widget>
-      <widget class="QLabel" name="acc_status_label">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>160</y>
-         <width>57</width>
-         <height>20</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>Calib status</string>
-       </property>
-      </widget>
-      <widget class="QLabel" name="acc_calib_label">
-       <property name="geometry">
-        <rect>
-         <x>80</x>
-         <y>160</y>
-         <width>71</width>
-         <height>20</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string/>
        </property>
       </widget>
      </widget>
@@ -3368,6 +3316,22 @@
         <bool>true</bool>
        </property>
       </widget>
+      <widget class="QCheckBox" name="checkBox">
+       <property name="geometry">
+        <rect>
+         <x>170</x>
+         <y>23</y>
+         <width>111</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="layoutDirection">
+        <enum>Qt::RightToLeft</enum>
+       </property>
+       <property name="text">
+        <string>Use RC Simulator</string>
+       </property>
+      </widget>
       <zorder>mode_ppmvalue</zorder>
       <zorder>yaw_ppmvalue</zorder>
       <zorder>roll_ppmvalue</zorder>
@@ -3395,6 +3359,7 @@
       <zorder>mode_pitch</zorder>
       <zorder>mode_roll</zorder>
       <zorder>mode_yaw</zorder>
+      <zorder>checkBox</zorder>
      </widget>
      <widget class="QGroupBox" name="groupBox_7">
       <property name="geometry">
@@ -3850,7 +3815,7 @@ border-color: rgb(170, 170, 127);</string>
      </widget>
     </widget>
    </widget>
-   <widget class="QPlainTextEdit" name="receivedMsg">
+   <widget class="QPlainTextEdit" name="information_box">
     <property name="geometry">
      <rect>
       <x>210</x>
@@ -4152,7 +4117,7 @@ border-color: rgb(170, 170, 127);</string>
    <zorder>groupBox</zorder>
    <zorder>tabWidget</zorder>
    <zorder>frameCockpitDisplay</zorder>
-   <zorder>receivedMsg</zorder>
+   <zorder>information_box</zorder>
    <zorder>hearbeatPulseLabel</zorder>
    <zorder>writeParam</zorder>
    <zorder>readParam</zorder>

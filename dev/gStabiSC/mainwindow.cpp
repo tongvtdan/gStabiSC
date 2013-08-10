@@ -34,6 +34,7 @@ mavlink_attitude_t attitude;
 mavlink_param_request_read_t request_read;
 mavlink_param_value_t paramValue;
 mavlink_sbus_chan_values_t sbus_chan_values;
+mavlink_ppm_chan_values_t ppm_chan_values;
 mavlink_acc_calib_status_t acc_calib_sta;
 mavlink_gyro_calib_status_t gyro_calib_sta;
 global_struct global_data;
@@ -50,6 +51,10 @@ MainWindow::MainWindow(QWidget *parent) :
 //    init all required variables
     init_var();
     loadAppStyle(currentStyle);
+
+    ui->yawknob->setVisible(false);
+    ui->pitchSlider->setVisible(false);
+    ui->rollSlider->setVisible(false);
 
     connect(ui->actionAbout,SIGNAL(triggered()),  this, SLOT(aboutActionTriggered()));
     connect(ui->actionHelp, SIGNAL(triggered()),this, SLOT(helpActionTriggered()));
@@ -103,6 +108,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(chartTimer, SIGNAL(timeout()), SLOT(chartUpdateData()));
 
     connect(this, SIGNAL(sbusValuesChanged()), this, SLOT(updateSbusValues()));
+    connect(this, SIGNAL(ppmValuesChanged()), this, SLOT(updatePPMValues()));
 
     chartSetting(ui->chartPlot);
 
@@ -703,8 +709,11 @@ void MainWindow::openSerialPort()
         watchdogTimer->start();
         ui->BoardConnectionStatusLabel->show();
 
+        QThread::msleep(100);
         serialport->setRts(1); // 0V output on boot0
+        QThread::msleep(10);
         serialport->setDtr(1); // 0v output on reset
+        QThread::usleep(10);
         serialport->setDtr(0); // 3V3 output on reset
     }
     updatePortStatus(serialport->isOpen());
@@ -829,36 +838,42 @@ void MainWindow::handleMessage(QByteArray buff)
             sbus_chan_values.ch16 = mavlink_msg_sbus_chan_values_get_ch16(&message);
             sbus_chan_values.ch17 = mavlink_msg_sbus_chan_values_get_ch17(&message);
             sbus_chan_values.ch18 = mavlink_msg_sbus_chan_values_get_ch18(&message);
-            emit updateSbusValues();
+            emit sbusValuesChanged();
             break;
-
+        case MAVLINK_MSG_ID_PPM_CHAN_VALUES:
+            ppm_chan_values.tilt = mavlink_msg_ppm_chan_values_get_tilt(&message);
+            ppm_chan_values.roll = mavlink_msg_ppm_chan_values_get_roll(&message);
+            ppm_chan_values.pan = mavlink_msg_ppm_chan_values_get_pan(&message);
+            ppm_chan_values.mode = mavlink_msg_ppm_chan_values_get_mode(&message);
+            emit ppmValuesChanged();
+            break;
         case MAVLINK_MSG_ID_ACC_CALIB_STATUS:
             acc_calib_sta.acc_calib_status = mavlink_msg_acc_calib_status_get_acc_calib_status(&message);
             switch(acc_calib_sta.acc_calib_status)
             {
                 case ACC_CALIB_FINISH:
-                    ui->acc_calib_label->setText("Acc calib finished!");
+                    ui->information_box->setPlainText("Acc calib finished!");
                 break;
                 case ONE_REMAINING_FACE:
-                    ui->acc_calib_label->setText("One remaining face");
+                    ui->information_box->setPlainText("One remaining face");
                 break;
                 case TWO_REMAINING_FACES:
-                    ui->acc_calib_label->setText("Two remaining faces");
+                    ui->information_box->setPlainText("Two remaining faces");
                 break;
                 case THREE_REMAINING_FACES:
-                    ui->acc_calib_label->setText("Three remaining faces");
+                    ui->information_box->setPlainText("Three remaining faces");
                 break;
                 case FOUR_REMAINING_FACES:
-                    ui->acc_calib_label->setText("Four remaining faces");
+                    ui->information_box->setPlainText("Four remaining faces");
                 break;
                 case FIVE_REMAINING_FACES:
-                    ui->acc_calib_label->setText("Five remaining faces");
+                    ui->information_box->setPlainText("Five remaining faces");
                 break;
                 case SIX_REMAINING_FACES:
-                    ui->acc_calib_label->setText("Six remaining faces");
+                    ui->information_box->setPlainText("Six remaining faces");
                 break;
                 case ACC_CALIB_FAIL:
-                    ui->acc_calib_label->setText("Acc calib failed!");
+                    ui->information_box->setPlainText("Acc calib failed!");
                 break;
             }
             break;
@@ -867,10 +882,10 @@ void MainWindow::handleMessage(QByteArray buff)
             switch(gyro_calib_sta.status)
             {
                 case GYRO_CALIB_FAIL:
-                    ui->gyro_calib_label->setText("Gyro calib failed!");
+                    ui->information_box->setPlainText("Gyro calib failed!");
                 break;
                 case GYRO_CALIB_FINISH:
-                    ui->gyro_calib_label->setText("Gyro calib finished!");
+                    ui->information_box->setPlainText("Gyro calib finished!");
                 break;
             }
             break;
@@ -1911,6 +1926,14 @@ void MainWindow::updateSbusValues()
     ui->ch18level_Bar->setValue(sbus_chan_values.ch18);
 }
 
+void MainWindow::updatePPMValues()
+{
+    ui->pitch_ppmvalue->setText(QString::number(ppm_chan_values.tilt));
+    ui->roll_ppmvalue->setText(QString::number(ppm_chan_values.roll));
+    ui->yaw_ppmvalue->setText(QString::number(ppm_chan_values.pan));
+    ui->mode_ppmvalue->setText(QString::number(ppm_chan_values.mode));
+}
+
 void MainWindow::chartUpdateData()
 {
 
@@ -2444,5 +2467,32 @@ void MainWindow::on_rc_source_currentIndexChanged(int index)
         ui->ch17label->setVisible(true);
         ui->ch18level_Bar->setVisible(true);
         ui->ch18label->setVisible(true);
+    }
+}
+
+void MainWindow::on_checkBox_toggled(bool checked)
+{
+    uint16_t len=0;
+    mavlink_message_t msg;
+    uint8_t buf[MAVLINK_MAX_PACKET_LEN];
+    if(checked == true)
+    {
+        ui->yawknob->setVisible(true);
+        ui->pitchSlider->setVisible(true);
+        ui->rollSlider->setVisible(true);
+
+        mavlink_msg_use_rc_simulator_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, 1);
+        len = mavlink_msg_to_send_buffer(buf, &msg);
+        serialport->write((const char*)buf, len);
+    }
+    else
+    {
+        ui->yawknob->setVisible(false);
+        ui->pitchSlider->setVisible(false);
+        ui->rollSlider->setVisible(false);
+
+        mavlink_msg_use_rc_simulator_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, 0);
+        len = mavlink_msg_to_send_buffer(buf, &msg);
+        serialport->write((const char*)buf, len);
     }
 }

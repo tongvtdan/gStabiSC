@@ -98,6 +98,7 @@ public slots:
     void timerRestart();
     void setDefaultParams();
     void updateSbusValues();
+    void updatePPMValues();
 
     /**
       for chartPlot
@@ -143,12 +144,15 @@ private Q_SLOTS:
 
     void on_rc_source_currentIndexChanged(int index);
 
+    void on_checkBox_toggled(bool checked);
+
 signals:
     void messageReceived(QByteArray message);
     void heartBeatPulse(bool heartbeat_status);
     void attitudeChanged(float pitch, float roll, float yaw);
     void paramValueChanged(uint8_t index, float value);
     void sbusValuesChanged();
+    void ppmValuesChanged();
 
 private:
     Ui::MainWindow *ui;      
