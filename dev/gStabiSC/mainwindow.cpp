@@ -705,11 +705,14 @@ void MainWindow::openSerialPort()
     }
     else
     {
-        serialport->open(QIODevice::ReadWrite);
-        watchdogTimer->start();
+        ui->BoardConnectionStatusLabel->setStyleSheet("color: rgb(255, 255, 255);"); // green color
+        ui->BoardConnectionStatusLabel->setText("Waiting for connection...");
         ui->BoardConnectionStatusLabel->show();
 
-        QThread::msleep(100);
+        serialport->open(QIODevice::ReadWrite);
+        watchdogTimer->start();
+
+        QThread::msleep(10);
         serialport->setRts(1); // 0V output on boot0
         QThread::msleep(10);
         serialport->setDtr(1); // 0v output on reset
@@ -742,7 +745,6 @@ void MainWindow::PortAddedRemoved()
     ui->portListBox->blockSignals(false);
     // update portname
     serialport->setPortName(ui->portListBox->currentText());
-
 }
 
 void MainWindow::onReadyReadData()
@@ -2017,7 +2019,7 @@ void MainWindow::on_upgradeFWButton_clicked()
 }
 
 void MainWindow::on_SerialPortConnectButton_clicked(){
-    watchdogTimer->setInterval(5000);
+    watchdogTimer->setInterval(6000);
     watchdogTimer->setSingleShot(true);
 
     chartTimer->setInterval(10);
