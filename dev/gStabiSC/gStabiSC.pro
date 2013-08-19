@@ -23,7 +23,8 @@ SOURCES += main.cpp\
 
 HEADERS  += mainwindow.h \
             thirdParty/attitude_indicator/attitude_indicator.h \
-    src/configuration.h
+            thirdParty/mavlink/v1.0/globalData.h \
+            src/configuration.h
 #    src/mavlinkmanager.h
 
 FORMS    += mainwindow.ui

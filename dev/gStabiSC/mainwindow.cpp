@@ -55,6 +55,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->yawknob->setVisible(false);
     ui->pitchSlider->setVisible(false);
     ui->rollSlider->setVisible(false);
+    ui->groupBox_7->setVisible(false);
 
     connect(ui->actionAbout,SIGNAL(triggered()),  this, SLOT(aboutActionTriggered()));
     connect(ui->actionHelp, SIGNAL(triggered()),this, SLOT(helpActionTriggered()));
@@ -808,13 +809,10 @@ void MainWindow::handleMessage(QByteArray buff)
             raw_imu.zgyro = mavlink_msg_raw_imu_get_zgyro(&message);
             break;
         case MAVLINK_MSG_ID_ATTITUDE:
-            attitude.roll = mavlink_msg_attitude_get_roll(&message);
-            attitude_degree.roll = attitude.roll*180/PI;     // convert to deg
+            attitude.roll = mavlink_msg_attitude_get_roll(&message); 
             attitude.pitch = mavlink_msg_attitude_get_pitch(&message);
-            attitude_degree.pitch = attitude.pitch*180/PI;
             attitude.yaw = mavlink_msg_attitude_get_yaw(&message);
-            attitude_degree.yaw = attitude.yaw*180/PI;
-            emit attitudeChanged(attitude_degree.pitch, attitude_degree.roll, attitude_degree.yaw);
+            emit attitudeChanged(attitude.pitch, attitude.roll, attitude.yaw);
             break;
         case MAVLINK_MSG_ID_PARAM_VALUE:
             paramValue.param_index = mavlink_msg_param_value_get_param_index(&message);  // get param index
@@ -1677,9 +1675,9 @@ void MainWindow::writeParamstoBoard(){
     }
     else if(ui->tabWidget->currentIndex()== 2)  // rc config tab
     {
-        /* RC config */
+        /* RC config */       
         /* rc type */
-        if(ui->rc_source->currentIndex() != oldParamConfig.radioType)
+        if((ui->rc_source->currentIndex() != oldParamConfig.radioType) && (ui->rc_source->currentIndex()==0 || ui->rc_source->currentIndex()==1))
         {
             mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
                                        MAV_COMP_ID_IMU, "RADIO_TYPE", ui->rc_source->currentIndex(), MAVLINK_TYPE_INT16_T);
@@ -1689,7 +1687,7 @@ void MainWindow::writeParamstoBoard(){
         }
 
         /* channel */
-        if(ui->rollChan->currentIndex() != oldParamConfig.sbusRollChan)
+        if((ui->rollChan->currentIndex() != oldParamConfig.sbusRollChan) && ui->rc_source->currentIndex()== 1) // only send this param when in sbus mode
         {
             mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
                                        MAV_COMP_ID_IMU, "SBUS_ROLL_CHAN", ui->rollChan->currentIndex(), MAVLINK_TYPE_INT16_T);
@@ -1698,7 +1696,7 @@ void MainWindow::writeParamstoBoard(){
             oldParamConfig.sbusRollChan = ui->rollChan->currentIndex();
         }
 
-        if(ui->pitchChan->currentIndex() != oldParamConfig.sbusPitchChan)
+        if((ui->pitchChan->currentIndex() != oldParamConfig.sbusPitchChan)&& ui->rc_source->currentIndex()== 1)
         {
             mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
                                        MAV_COMP_ID_IMU, "SBUS_PITCH_CHAN", ui->pitchChan->currentIndex(), MAVLINK_TYPE_INT16_T);
@@ -1707,7 +1705,7 @@ void MainWindow::writeParamstoBoard(){
             oldParamConfig.sbusPitchChan = ui->pitchChan->currentIndex();
         }
 
-        if(ui->yawChan->currentIndex() != oldParamConfig.sbusYawChan)
+        if((ui->yawChan->currentIndex() != oldParamConfig.sbusYawChan)&& ui->rc_source->currentIndex()== 1)
         {
             mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
                                        MAV_COMP_ID_IMU, "SBUS_YAW_CHAN", ui->yawChan->currentIndex(), MAVLINK_TYPE_INT16_T);
@@ -1716,7 +1714,7 @@ void MainWindow::writeParamstoBoard(){
             oldParamConfig.sbusYawChan = ui->yawChan->currentIndex();
         }
 
-        if(ui->modeChan->currentIndex() != oldParamConfig.sbusModeChan)
+        if((ui->modeChan->currentIndex() != oldParamConfig.sbusModeChan)&& ui->rc_source->currentIndex()== 1)
         {
             mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
                                        MAV_COMP_ID_IMU, "SBUS_MODE_CHAN", ui->modeChan->currentIndex(), MAVLINK_TYPE_INT16_T);
@@ -1726,7 +1724,7 @@ void MainWindow::writeParamstoBoard(){
         }
 
         /* rc LPF*/
-        if(ui->rcLPF_roll->value() != oldParamConfig.rcRollLPF)
+        if((ui->rcLPF_roll->value() != oldParamConfig.rcRollLPF)&& (ui->rc_source->currentIndex()==0 || ui->rc_source->currentIndex()==1))
         {
             mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
                                        MAV_COMP_ID_IMU, "RC_ROLL_LPF" , ui->rcLPF_roll->value(), MAVLINK_TYPE_INT16_T);
@@ -1735,7 +1733,7 @@ void MainWindow::writeParamstoBoard(){
             oldParamConfig.rcRollLPF = ui->rcLPF_roll->value();
         }
 
-        if(ui->rcLPF_pitch->value() != oldParamConfig.rcPitchLPF)
+        if((ui->rcLPF_pitch->value() != oldParamConfig.rcPitchLPF)&& (ui->rc_source->currentIndex()==0 || ui->rc_source->currentIndex()==1))
         {
             mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
                                        MAV_COMP_ID_IMU, "RC_PITCH_LPF" , ui->rcLPF_pitch->value(), MAVLINK_TYPE_INT16_T);
@@ -1744,7 +1742,7 @@ void MainWindow::writeParamstoBoard(){
             oldParamConfig.rcPitchLPF = ui->rcLPF_pitch->value();
         }
 
-        if(ui->rcLPF_yaw->value() != oldParamConfig.rcYawLPF)
+        if((ui->rcLPF_yaw->value() != oldParamConfig.rcYawLPF)&& (ui->rc_source->currentIndex()==0 || ui->rc_source->currentIndex()==1))
         {
             mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
                                        MAV_COMP_ID_IMU, "RC_YAW_LPF" , ui->rcLPF_yaw->value(), MAVLINK_TYPE_INT16_T);
@@ -1754,7 +1752,7 @@ void MainWindow::writeParamstoBoard(){
         }
 
         /* rc trim value */
-        if(ui->trim_roll->value() != oldParamConfig.rcRollTrim)
+        if((ui->trim_roll->value() != oldParamConfig.rcRollTrim)&& (ui->rc_source->currentIndex()==0 || ui->rc_source->currentIndex()==1))
         {
             mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
                                        MAV_COMP_ID_IMU, "RC_ROLL_TRIM" , ui->trim_roll->value(), MAVLINK_TYPE_INT16_T);
@@ -1763,7 +1761,7 @@ void MainWindow::writeParamstoBoard(){
             oldParamConfig.rcRollTrim = ui->trim_roll->value();
         }
 
-        if(ui->trim_pitch->value() != oldParamConfig.rcPitchTrim)
+        if((ui->trim_pitch->value() != oldParamConfig.rcPitchTrim)&& (ui->rc_source->currentIndex()==0 || ui->rc_source->currentIndex()==1))
         {
             mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
                                        MAV_COMP_ID_IMU, "RC_PITCH_TRIM" , ui->trim_pitch->value(), MAVLINK_TYPE_INT16_T);
@@ -1772,7 +1770,7 @@ void MainWindow::writeParamstoBoard(){
             oldParamConfig.rcPitchTrim = ui->trim_pitch->value();
         }
 
-        if(ui->trim_yaw->value() != oldParamConfig.rcYawTrim)
+        if((ui->trim_yaw->value() != oldParamConfig.rcYawTrim)&& (ui->rc_source->currentIndex()==0 || ui->rc_source->currentIndex()==1))
         {
             mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
                                        MAV_COMP_ID_IMU, "RC_YAW_TRIM" , ui->trim_yaw->value(), MAVLINK_TYPE_INT16_T);
@@ -1782,7 +1780,7 @@ void MainWindow::writeParamstoBoard(){
         }
 
         /* rc mode */
-        if(ui->mode_roll->currentIndex() != oldParamConfig.rcRollMode)
+        if((ui->mode_roll->currentIndex() != oldParamConfig.rcRollMode)&& (ui->rc_source->currentIndex()==0 || ui->rc_source->currentIndex()==1))
         {
             mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
                                        MAV_COMP_ID_IMU, "RC_ROLL_MODE" , ui->mode_roll->currentIndex(), MAVLINK_TYPE_INT16_T);
@@ -1791,7 +1789,7 @@ void MainWindow::writeParamstoBoard(){
             oldParamConfig.rcRollMode = ui->mode_roll->currentIndex();
         }
 
-        if(ui->mode_pitch->currentIndex() != oldParamConfig.rcPitchMode)
+        if((ui->mode_pitch->currentIndex() != oldParamConfig.rcPitchMode)&& (ui->rc_source->currentIndex()==0 || ui->rc_source->currentIndex()==1))
         {
             mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
                                        MAV_COMP_ID_IMU, "RC_PITCH_MODE" , ui->mode_pitch->currentIndex(), MAVLINK_TYPE_INT16_T);
@@ -1800,7 +1798,7 @@ void MainWindow::writeParamstoBoard(){
             oldParamConfig.rcPitchMode = ui->mode_pitch->currentIndex();
         }
 
-        if(ui->mode_yaw->currentIndex() != oldParamConfig.rcYawMode)
+        if((ui->mode_yaw->currentIndex() != oldParamConfig.rcYawMode)&& (ui->rc_source->currentIndex()==0 || ui->rc_source->currentIndex()==1))
         {
             mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
                                        MAV_COMP_ID_IMU, "RC_YAW_MODE" , ui->mode_yaw->currentIndex(), MAVLINK_TYPE_INT16_T);
@@ -2109,8 +2107,7 @@ void MainWindow::on_pitchSlider_valueChanged(double value)
         temp = value * 10;
     else temp = value * 5;
 
-    mavlink_msg_tilt_simulation_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg,
-                                     temp, ui->pitchChan->currentIndex());
+    mavlink_msg_tilt_simulation_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, temp);
     qDebug() <<"pitch slider" << temp;
     len = mavlink_msg_to_send_buffer(buf, &msg);
     serialport->write((const char*)buf, len);
@@ -2144,8 +2141,7 @@ void MainWindow::on_rollSlider_valueChanged(double value)
 //    else temp = ui->pitchSlider->value() * 5;
 
 
-    mavlink_msg_roll_simulation_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg,
-                                     temp, ui->rollChan->currentIndex());
+    mavlink_msg_roll_simulation_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, temp);
     qDebug() <<"roll slider" << temp;
     len = mavlink_msg_to_send_buffer(buf, &msg);
     serialport->write((const char*)buf, len);
@@ -2159,8 +2155,7 @@ void MainWindow::on_yawknob_valueChanged(double value)
     int temp=0;
     temp = value * 3;
 
-    mavlink_msg_pan_simulation_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg,
-                                     temp, ui->yawChan->currentIndex());
+    mavlink_msg_pan_simulation_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, temp);
     qDebug() <<"yaw knob" << temp;
     len = mavlink_msg_to_send_buffer(buf, &msg);
     serialport->write((const char*)buf, len);
@@ -2382,6 +2377,41 @@ void MainWindow::on_rc_source_currentIndexChanged(int index)
         ui->yawChan->setVisible(false);
         ui->modeChan->setVisible(false);
 
+        ui->yawknob->setVisible(false);
+        ui->pitchSlider->setVisible(false);
+        ui->rollSlider->setVisible(false);
+        ui->followPanTilt->setVisible(false);
+        ui->followPan->setVisible(false);
+        ui->lockdirection->setVisible(false);
+        ui->groupBox_7->setVisible(false);
+
+        ui->rc_channelslabel->setVisible(true);
+        ui->rc_lpflabel->setVisible(true);
+        ui->rc_trimlabel->setVisible(true);
+        ui->rc_typelabel->setVisible(true);
+
+        ui->rc_pitchlabel->setVisible(true);
+        ui->rc_rolllabel->setVisible(true);
+        ui->rc_yawlabel->setVisible(true);
+        ui->rc_modelabel->setVisible(true);
+
+        ui->pitch_ppmvalue->setVisible(true);
+        ui->roll_ppmvalue->setVisible(true);
+        ui->yaw_ppmvalue->setVisible(true);
+        ui->mode_ppmvalue->setVisible(true);
+
+        ui->rcLPF_pitch->setVisible(true);
+        ui->rcLPF_roll->setVisible(true);
+        ui->rcLPF_yaw->setVisible(true);
+
+        ui->trim_pitch->setVisible(true);
+        ui->trim_roll->setVisible(true);
+        ui->trim_yaw->setVisible(true);
+
+        ui->mode_pitch->setVisible(true);
+        ui->mode_roll->setVisible(true);
+        ui->mode_yaw->setVisible(true);
+
         ui->ch1level_Bar->setVisible(false);
         ui->ch1label->setVisible(false);
         ui->ch2level_Bar->setVisible(false);
@@ -2418,8 +2448,9 @@ void MainWindow::on_rc_source_currentIndexChanged(int index)
         ui->ch17label->setVisible(false);
         ui->ch18level_Bar->setVisible(false);
         ui->ch18label->setVisible(false);
+
     }
-    else  //SBUS
+    else if(index==1) //SBUS
     {
         ui->rc_channelslabel->setText("Channels");
 
@@ -2428,10 +2459,45 @@ void MainWindow::on_rc_source_currentIndexChanged(int index)
         ui->yaw_ppmvalue->setVisible(false);
         ui->mode_ppmvalue->setVisible(false);
 
+        ui->yawknob->setVisible(false);
+        ui->pitchSlider->setVisible(false);
+        ui->rollSlider->setVisible(false);
+        ui->followPanTilt->setVisible(false);
+        ui->followPan->setVisible(false);
+        ui->lockdirection->setVisible(false);
+        ui->groupBox_7->setVisible(false);
+
+        ui->rc_channelslabel->setVisible(true);
+        ui->rc_lpflabel->setVisible(true);
+        ui->rc_trimlabel->setVisible(true);
+        ui->rc_typelabel->setVisible(true);
+
+        ui->rc_pitchlabel->setVisible(true);
+        ui->rc_rolllabel->setVisible(true);
+        ui->rc_yawlabel->setVisible(true);
+        ui->rc_modelabel->setVisible(true);
+
         ui->pitchChan->setVisible(true);
         ui->rollChan->setVisible(true);
         ui->yawChan->setVisible(true);
         ui->modeChan->setVisible(true);
+
+        ui->pitch_ppmvalue->setVisible(true);
+        ui->roll_ppmvalue->setVisible(true);
+        ui->yaw_ppmvalue->setVisible(true);
+        ui->mode_ppmvalue->setVisible(true);
+
+        ui->rcLPF_pitch->setVisible(true);
+        ui->rcLPF_roll->setVisible(true);
+        ui->rcLPF_yaw->setVisible(true);
+
+        ui->trim_pitch->setVisible(true);
+        ui->trim_roll->setVisible(true);
+        ui->trim_yaw->setVisible(true);
+
+        ui->mode_pitch->setVisible(true);
+        ui->mode_roll->setVisible(true);
+        ui->mode_yaw->setVisible(true);
 
         ui->ch1level_Bar->setVisible(true);
         ui->ch1label->setVisible(true);
@@ -2469,32 +2535,170 @@ void MainWindow::on_rc_source_currentIndexChanged(int index)
         ui->ch17label->setVisible(true);
         ui->ch18level_Bar->setVisible(true);
         ui->ch18label->setVisible(true);
-    }
-}
 
-void MainWindow::on_checkBox_toggled(bool checked)
-{
-    uint16_t len=0;
-    mavlink_message_t msg;
-    uint8_t buf[MAVLINK_MAX_PACKET_LEN];
-    if(checked == true)
-    {
-        ui->yawknob->setVisible(true);
-        ui->pitchSlider->setVisible(true);
-        ui->rollSlider->setVisible(true);
-
-        mavlink_msg_use_rc_simulator_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, 1);
-        len = mavlink_msg_to_send_buffer(buf, &msg);
-        serialport->write((const char*)buf, len);
     }
-    else
+    else if(index==2)  // HAND mode
     {
         ui->yawknob->setVisible(false);
         ui->pitchSlider->setVisible(false);
         ui->rollSlider->setVisible(false);
+        ui->followPanTilt->setVisible(false);
+        ui->followPan->setVisible(false);
+        ui->lockdirection->setVisible(false);
+        ui->groupBox_7->setVisible(false);
 
-        mavlink_msg_use_rc_simulator_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, 0);
-        len = mavlink_msg_to_send_buffer(buf, &msg);
-        serialport->write((const char*)buf, len);
+        ui->rc_channelslabel->setVisible(false);
+        ui->rc_lpflabel->setVisible(false);
+        ui->rc_trimlabel->setVisible(false);
+        ui->rc_typelabel->setVisible(false);
+
+        ui->rc_pitchlabel->setVisible(false);
+        ui->rc_rolllabel->setVisible(false);
+        ui->rc_yawlabel->setVisible(false);
+        ui->rc_modelabel->setVisible(false);
+
+        ui->pitchChan->setVisible(false);
+        ui->rollChan->setVisible(false);
+        ui->yawChan->setVisible(false);
+        ui->modeChan->setVisible(false);
+
+        ui->pitch_ppmvalue->setVisible(false);
+        ui->roll_ppmvalue->setVisible(false);
+        ui->yaw_ppmvalue->setVisible(false);
+        ui->mode_ppmvalue->setVisible(false);
+
+        ui->rcLPF_pitch->setVisible(false);
+        ui->rcLPF_roll->setVisible(false);
+        ui->rcLPF_yaw->setVisible(false);
+
+        ui->trim_pitch->setVisible(false);
+        ui->trim_roll->setVisible(false);
+        ui->trim_yaw->setVisible(false);
+
+        ui->mode_pitch->setVisible(false);
+        ui->mode_roll->setVisible(false);
+        ui->mode_yaw->setVisible(false);
+
+        ui->ch1level_Bar->setVisible(false);
+        ui->ch1label->setVisible(false);
+        ui->ch2level_Bar->setVisible(false);
+        ui->ch2label->setVisible(false);
+        ui->ch3level_Bar->setVisible(false);
+        ui->ch3label->setVisible(false);
+        ui->ch4level_Bar->setVisible(false);
+        ui->ch4label->setVisible(false);
+        ui->ch5level_Bar->setVisible(false);
+        ui->ch5label->setVisible(false);
+        ui->ch6level_Bar->setVisible(false);
+        ui->ch6label->setVisible(false);
+        ui->ch7level_Bar->setVisible(false);
+        ui->ch7label->setVisible(false);
+        ui->ch8level_Bar->setVisible(false);
+        ui->ch8label->setVisible(false);
+        ui->ch9level_Bar->setVisible(false);
+        ui->ch9label->setVisible(false);
+        ui->ch10level_Bar->setVisible(false);
+        ui->ch10label->setVisible(false);
+        ui->ch11level_Bar->setVisible(false);
+        ui->ch11label->setVisible(false);
+        ui->ch12level_Bar->setVisible(false);
+        ui->ch12label->setVisible(false);
+        ui->ch13level_Bar->setVisible(false);
+        ui->ch13label->setVisible(false);
+        ui->ch14level_Bar->setVisible(false);
+        ui->ch14label->setVisible(false);
+        ui->ch15level_Bar->setVisible(false);
+        ui->ch15label->setVisible(false);
+        ui->ch16level_Bar->setVisible(false);
+        ui->ch16label->setVisible(false);
+        ui->ch17level_Bar->setVisible(false);
+        ui->ch17label->setVisible(false);
+        ui->ch18level_Bar->setVisible(false);
+        ui->ch18label->setVisible(false);
     }
+    else if(index==3)  // SIMULATOR
+    {
+        ui->yawknob->setVisible(true);
+        ui->pitchSlider->setVisible(true);
+        ui->rollSlider->setVisible(true);
+        ui->followPanTilt->setVisible(true);
+        ui->followPan->setVisible(true);
+        ui->lockdirection->setVisible(true);
+        ui->groupBox_7->setVisible(true);
+
+        ui->rc_channelslabel->setVisible(false);
+        ui->rc_lpflabel->setVisible(false);
+        ui->rc_trimlabel->setVisible(false);
+        ui->rc_typelabel->setVisible(false);
+
+        ui->rc_pitchlabel->setVisible(false);
+        ui->rc_rolllabel->setVisible(false);
+        ui->rc_yawlabel->setVisible(false);
+        ui->rc_modelabel->setVisible(false);
+
+        ui->pitchChan->setVisible(false);
+        ui->rollChan->setVisible(false);
+        ui->yawChan->setVisible(false);
+        ui->modeChan->setVisible(false);
+
+        ui->pitch_ppmvalue->setVisible(false);
+        ui->roll_ppmvalue->setVisible(false);
+        ui->yaw_ppmvalue->setVisible(false);
+        ui->mode_ppmvalue->setVisible(false);
+
+        ui->rcLPF_pitch->setVisible(false);
+        ui->rcLPF_roll->setVisible(false);
+        ui->rcLPF_yaw->setVisible(false);
+
+        ui->trim_pitch->setVisible(false);
+        ui->trim_roll->setVisible(false);
+        ui->trim_yaw->setVisible(false);
+
+        ui->mode_pitch->setVisible(false);
+        ui->mode_roll->setVisible(false);
+        ui->mode_yaw->setVisible(false);
+
+        ui->ch1level_Bar->setVisible(false);
+        ui->ch1label->setVisible(false);
+        ui->ch2level_Bar->setVisible(false);
+        ui->ch2label->setVisible(false);
+        ui->ch3level_Bar->setVisible(false);
+        ui->ch3label->setVisible(false);
+        ui->ch4level_Bar->setVisible(false);
+        ui->ch4label->setVisible(false);
+        ui->ch5level_Bar->setVisible(false);
+        ui->ch5label->setVisible(false);
+        ui->ch6level_Bar->setVisible(false);
+        ui->ch6label->setVisible(false);
+        ui->ch7level_Bar->setVisible(false);
+        ui->ch7label->setVisible(false);
+        ui->ch8level_Bar->setVisible(false);
+        ui->ch8label->setVisible(false);
+        ui->ch9level_Bar->setVisible(false);
+        ui->ch9label->setVisible(false);
+        ui->ch10level_Bar->setVisible(false);
+        ui->ch10label->setVisible(false);
+        ui->ch11level_Bar->setVisible(false);
+        ui->ch11label->setVisible(false);
+        ui->ch12level_Bar->setVisible(false);
+        ui->ch12label->setVisible(false);
+        ui->ch13level_Bar->setVisible(false);
+        ui->ch13label->setVisible(false);
+        ui->ch14level_Bar->setVisible(false);
+        ui->ch14label->setVisible(false);
+        ui->ch15level_Bar->setVisible(false);
+        ui->ch15label->setVisible(false);
+        ui->ch16level_Bar->setVisible(false);
+        ui->ch16label->setVisible(false);
+        ui->ch17level_Bar->setVisible(false);
+        ui->ch17label->setVisible(false);
+        ui->ch18level_Bar->setVisible(false);
+        ui->ch18label->setVisible(false);
+    }
+}
+
+
+void MainWindow::on_pitchChan_currentIndexChanged(int index)
+{
+
 }

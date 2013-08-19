@@ -23,6 +23,9 @@
    <iconset resource="gGimbalResources.qrc">
     <normaloff>:/files/images/Videocam.ico</normaloff>:/files/images/Videocam.ico</iconset>
   </property>
+  <property name="tabShape">
+   <enum>QTabWidget::Triangular</enum>
+  </property>
   <widget class="QWidget" name="centralWidget">
    <widget class="QFrame" name="frameCockpitDisplay">
     <property name="geometry">
@@ -54,6 +57,9 @@
        <height>120</height>
       </rect>
      </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
      <property name="lineWidth" stdset="0">
       <number>4</number>
      </property>
@@ -66,6 +72,9 @@
        <width>120</width>
        <height>120</height>
       </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
      </property>
      <property name="lineWidth" stdset="0">
       <number>4</number>
@@ -153,7 +162,7 @@
       <x>210</x>
       <y>110</y>
       <width>581</width>
-      <height>331</height>
+      <height>341</height>
      </rect>
     </property>
     <property name="toolTip">
@@ -495,7 +504,7 @@
         <number>0</number>
        </property>
        <property name="maximum">
-        <number>30</number>
+        <number>90</number>
        </property>
        <property name="singleStep">
         <number>1</number>
@@ -1364,7 +1373,7 @@
         <number>0</number>
        </property>
        <property name="maximum">
-        <number>100</number>
+        <number>255</number>
        </property>
        <property name="singleStep">
         <number>1</number>
@@ -2627,7 +2636,7 @@
         <rect>
          <x>50</x>
          <y>23</y>
-         <width>51</width>
+         <width>85</width>
          <height>20</height>
         </rect>
        </property>
@@ -2645,6 +2654,16 @@
        <item>
         <property name="text">
          <string>SBUS</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>HAND</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>SIMULATOR</string>
         </property>
        </item>
       </widget>
@@ -3316,22 +3335,6 @@
         <bool>true</bool>
        </property>
       </widget>
-      <widget class="QCheckBox" name="checkBox">
-       <property name="geometry">
-        <rect>
-         <x>170</x>
-         <y>23</y>
-         <width>111</width>
-         <height>21</height>
-        </rect>
-       </property>
-       <property name="layoutDirection">
-        <enum>Qt::RightToLeft</enum>
-       </property>
-       <property name="text">
-        <string>Use RC Simulator</string>
-       </property>
-      </widget>
       <zorder>mode_ppmvalue</zorder>
       <zorder>yaw_ppmvalue</zorder>
       <zorder>roll_ppmvalue</zorder>
@@ -3359,7 +3362,6 @@
       <zorder>mode_pitch</zorder>
       <zorder>mode_roll</zorder>
       <zorder>mode_yaw</zorder>
-      <zorder>checkBox</zorder>
      </widget>
      <widget class="QGroupBox" name="groupBox_7">
       <property name="geometry">
@@ -3386,27 +3388,27 @@
         <string>pitch axis slider</string>
        </property>
        <property name="styleSheet">
-        <string notr="true">color: rgb(85, 85, 255);</string>
+        <string notr="true">color: rgb(0, 170, 0);</string>
        </property>
        <property name="lowerBound" stdset="0">
-        <double>-20.000000000000000</double>
+        <double>-90.000000000000000</double>
        </property>
        <property name="upperBound" stdset="0">
         <double>90.000000000000000</double>
        </property>
        <property name="scaleMaxMajor" stdset="0">
-        <number>5</number>
+        <number>10</number>
        </property>
        <property name="scaleMaxMinor" stdset="0">
-        <number>3</number>
+        <number>2</number>
        </property>
       </widget>
       <widget class="QwtKnob" name="yawknob" native="true">
        <property name="geometry">
         <rect>
-         <x>80</x>
-         <y>20</y>
-         <width>171</width>
+         <x>89</x>
+         <y>24</y>
+         <width>141</width>
          <height>111</height>
         </rect>
        </property>
@@ -3414,14 +3416,19 @@
         <string>yaw axis</string>
        </property>
        <property name="styleSheet">
-        <string notr="true">color: rgb(85, 85, 255);
-border-color: rgb(170, 170, 127);</string>
+        <string notr="true">color: rgb(0, 170, 0);</string>
        </property>
        <property name="lowerBound" stdset="0">
         <double>-180.000000000000000</double>
        </property>
        <property name="upperBound" stdset="0">
         <double>180.000000000000000</double>
+       </property>
+       <property name="scaleMaxMajor" stdset="0">
+        <number>10</number>
+       </property>
+       <property name="scaleMaxMinor" stdset="0">
+        <number>3</number>
        </property>
        <property name="knobWidth" stdset="0">
         <number>55</number>
@@ -3436,7 +3443,7 @@ border-color: rgb(170, 170, 127);</string>
       <widget class="QwtSlider" name="rollSlider" native="true">
        <property name="geometry">
         <rect>
-         <x>80</x>
+         <x>75</x>
          <y>120</y>
          <width>171</width>
          <height>51</height>
@@ -3446,13 +3453,103 @@ border-color: rgb(170, 170, 127);</string>
         <string>roll axis slider</string>
        </property>
        <property name="styleSheet">
-        <string notr="true">color: rgb(85, 85, 255);</string>
+        <string notr="true">color: rgb(0, 170, 0);</string>
        </property>
        <property name="lowerBound" stdset="0">
         <double>-30.000000000000000</double>
        </property>
        <property name="upperBound" stdset="0">
         <double>30.000000000000000</double>
+       </property>
+       <property name="scaleMaxMajor" stdset="0">
+        <number>10</number>
+       </property>
+       <property name="scaleMaxMinor" stdset="0">
+        <number>2</number>
+       </property>
+      </widget>
+      <widget class="QRadioButton" name="followPanTilt">
+       <property name="geometry">
+        <rect>
+         <x>234</x>
+         <y>30</y>
+         <width>21</width>
+         <height>30</height>
+        </rect>
+       </property>
+       <property name="toolTip">
+        <string>Follow Pan and Tilt</string>
+       </property>
+       <property name="layoutDirection">
+        <enum>Qt::LeftToRight</enum>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">color: rgb(0, 170, 0);</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>40</width>
+         <height>40</height>
+        </size>
+       </property>
+      </widget>
+      <widget class="QRadioButton" name="lockdirection">
+       <property name="geometry">
+        <rect>
+         <x>234</x>
+         <y>60</y>
+         <width>21</width>
+         <height>30</height>
+        </rect>
+       </property>
+       <property name="toolTip">
+        <string>Lock Direction</string>
+       </property>
+       <property name="layoutDirection">
+        <enum>Qt::LeftToRight</enum>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">color: rgb(0, 170, 0);</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>40</width>
+         <height>40</height>
+        </size>
+       </property>
+      </widget>
+      <widget class="QRadioButton" name="followPan">
+       <property name="geometry">
+        <rect>
+         <x>234</x>
+         <y>90</y>
+         <width>21</width>
+         <height>30</height>
+        </rect>
+       </property>
+       <property name="toolTip">
+        <string>Follow Pan</string>
+       </property>
+       <property name="layoutDirection">
+        <enum>Qt::LeftToRight</enum>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">color: rgb(0, 170, 0);</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>40</width>
+         <height>40</height>
+        </size>
        </property>
       </widget>
      </widget>
@@ -3815,28 +3912,6 @@ border-color: rgb(170, 170, 127);</string>
      </widget>
     </widget>
    </widget>
-   <widget class="QPlainTextEdit" name="information_box">
-    <property name="geometry">
-     <rect>
-      <x>210</x>
-      <y>460</y>
-      <width>581</width>
-      <height>131</height>
-     </rect>
-    </property>
-    <property name="frameShape">
-     <enum>QFrame::Panel</enum>
-    </property>
-    <property name="frameShadow">
-     <enum>QFrame::Plain</enum>
-    </property>
-    <property name="lineWidth">
-     <number>0</number>
-    </property>
-    <property name="plainText">
-     <string/>
-    </property>
-   </widget>
    <widget class="QLabel" name="hearbeatPulseLabel">
     <property name="geometry">
      <rect>
@@ -4112,17 +4187,27 @@ border-color: rgb(170, 170, 127);</string>
      <string>Clear All</string>
     </property>
    </widget>
+   <widget class="QPlainTextEdit" name="information_box">
+    <property name="geometry">
+     <rect>
+      <x>210</x>
+      <y>460</y>
+      <width>581</width>
+      <height>131</height>
+     </rect>
+    </property>
+   </widget>
    <zorder>groupBox_3</zorder>
    <zorder>groupBox_2</zorder>
    <zorder>groupBox</zorder>
    <zorder>tabWidget</zorder>
    <zorder>frameCockpitDisplay</zorder>
-   <zorder>information_box</zorder>
    <zorder>hearbeatPulseLabel</zorder>
    <zorder>writeParam</zorder>
    <zorder>readParam</zorder>
    <zorder>setDefaultParams</zorder>
    <zorder>clearParam</zorder>
+   <zorder>information_box</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">

@@ -14,7 +14,6 @@
 
 #include "thirdParty/mavlink/v1.0/gremsyBGC/mavlink.h"
 #include "thirdParty/mavlink/v1.0/globalData.h"
-#include "thirdParty/mavlink/v1.0/gMavlinkV1_0.h"
 #include "thirdParty/attitude_indicator/attitude_indicator.h"
 
 #include <qwt_plot.h>
@@ -144,7 +143,7 @@ private Q_SLOTS:
 
     void on_rc_source_currentIndexChanged(int index);
 
-    void on_checkBox_toggled(bool checked);
+    void on_pitchChan_currentIndexChanged(int index);
 
 signals:
     void messageReceived(QByteArray message);
