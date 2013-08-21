@@ -1276,7 +1276,7 @@
       <widget class="QLabel" name="label_63">
        <property name="geometry">
         <rect>
-         <x>75</x>
+         <x>91</x>
          <y>16</y>
          <width>41</width>
          <height>20</height>
@@ -1285,13 +1285,16 @@
        <property name="text">
         <string>Offset</string>
        </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
       </widget>
       <widget class="QCheckBox" name="calibGyro">
        <property name="geometry">
         <rect>
-         <x>6</x>
+         <x>0</x>
          <y>190</y>
-         <width>71</width>
+         <width>131</width>
          <height>20</height>
         </rect>
        </property>
@@ -1302,7 +1305,7 @@
         <enum>Qt::RightToLeft</enum>
        </property>
        <property name="text">
-        <string>Calib gyro</string>
+        <string>Calib gyro at start up</string>
        </property>
       </widget>
       <widget class="QLineEdit" name="gyroX_offset">
@@ -1424,9 +1427,9 @@
      <widget class="QGroupBox" name="rcConfig_groupBox_4">
       <property name="geometry">
        <rect>
-        <x>440</x>
+        <x>430</x>
         <y>10</y>
-        <width>121</width>
+        <width>131</width>
         <height>51</height>
        </rect>
       </property>
@@ -1436,9 +1439,9 @@
       <widget class="QCheckBox" name="useGPS">
        <property name="geometry">
         <rect>
-         <x>8</x>
+         <x>10</x>
          <y>20</y>
-         <width>61</width>
+         <width>111</width>
          <height>20</height>
         </rect>
        </property>
@@ -1449,14 +1452,14 @@
         <enum>Qt::RightToLeft</enum>
        </property>
        <property name="text">
-        <string>Use GPS</string>
+        <string>Use GPS correction</string>
        </property>
       </widget>
      </widget>
      <widget class="QGroupBox" name="rcConfig_groupBox_3">
       <property name="geometry">
        <rect>
-        <x>220</x>
+        <x>214</x>
         <y>10</y>
         <width>161</width>
         <height>201</height>
@@ -1523,14 +1526,17 @@
       <widget class="QLabel" name="label_58">
        <property name="geometry">
         <rect>
-         <x>77</x>
-         <y>15</y>
+         <x>100</x>
+         <y>16</y>
          <width>41</width>
          <height>20</height>
         </rect>
        </property>
        <property name="text">
         <string>Offset</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
        </property>
       </widget>
       <widget class="QLabel" name="label_80">

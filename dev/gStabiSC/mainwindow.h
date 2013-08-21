@@ -103,6 +103,7 @@ public slots:
       for chartPlot
       */
     void chartUpdateData();
+    void updateDebugValues(float value, uint8_t index);
 
 private slots:
     void on_upgradeFWButton_clicked();
@@ -152,6 +153,7 @@ signals:
     void paramValueChanged(uint8_t index, float value);
     void sbusValuesChanged();
     void ppmValuesChanged();
+    void debugValuesChanged(float value, uint8_t index);
 
 private:
     Ui::MainWindow *ui;      

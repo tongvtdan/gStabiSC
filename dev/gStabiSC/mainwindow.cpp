@@ -14,7 +14,6 @@
 
 bool pulse = false;
 bool readParams = false;
-bool chartTimerStarted = false;
 
 QString loadfilename, savefilename, filedir;
 QString oldprofilename;
@@ -37,6 +36,7 @@ mavlink_sbus_chan_values_t sbus_chan_values;
 mavlink_ppm_chan_values_t ppm_chan_values;
 mavlink_acc_calib_status_t acc_calib_sta;
 mavlink_gyro_calib_status_t gyro_calib_sta;
+mavlink_debug_t debug;
 global_struct global_data;
 gConfig_t oldParamConfig;
 
@@ -98,6 +98,8 @@ MainWindow::MainWindow(QWidget *parent) :
     //param value update
     connect(this, SIGNAL(paramValueChanged(uint8_t, float)), this, SLOT(updateParamValue(uint8_t, float)));
 
+    //debug value update
+    connect(this, SIGNAL(debugValuesChanged(float,uint8_t)), SLOT(updateDebugValues(float,uint8_t)));
     // attitude display
     connect(this, SIGNAL(attitudeChanged(float, float, float)),this, SLOT(updateAttitude(float, float, float)));
 
@@ -448,6 +450,8 @@ void MainWindow::updateXMLfile(QDomDocument document, QString xmlfile)
             qDebug() << "Finished";
         }
 
+        ui->information_box->clear();
+        ui->information_box->setPlainText("Save profile completed.");
 }
 
 void MainWindow::exportXMLfile(QString xmlfilename)
@@ -459,6 +463,7 @@ void MainWindow::exportXMLfile(QString xmlfilename)
 
 void MainWindow::importXMLfile(QString importfile)
 {
+
     QDomDocument importProfile;
 
     //Load the file
@@ -472,105 +477,113 @@ void MainWindow::importXMLfile(QString importfile)
         if(!importProfile.setContent(&file))
         {
             qDebug() << "Failed to load document";
+            file.close();
+            ui->information_box->clear();
+            ui->information_box->setPlainText("Load profile completed.");
         }
-        file.close();
+        else
+        {
+            file.close();
+            //Get the root element
+            QDomElement root = importProfile.firstChildElement();
+
+            /* Get the elements */
+            //motor frequency
+            ui->motor_freq->setCurrentIndex(ListElements(root, "Motors", "Freq"));
+
+            // pitch motor
+            ui->pitch_Power->setValue(ListElements(root, "PitchMotor", "Power"));
+            ui->pitch_Pole->setValue(ListElements(root, "PitchMotor", "Poles"));
+            ui->pitch_maxTravel->setValue(ListElements(root, "PitchMotor", "MaxTravel"));
+            ui->pitch_minTravel->setValue(ListElements(root, "PitchMotor", "MinTravel"));
+            ui->pitch_Dir->setCurrentIndex(ListElements(root, "PitchMotor", "Direction"));
+
+            // roll motor
+            ui->roll_Power->setValue(ListElements(root, "RollMotor", "Power"));
+            ui->roll_Pole->setValue(ListElements(root, "RollMotor", "Poles"));
+            ui->roll_maxTravel->setValue(ListElements(root, "RollMotor", "MaxTravel"));
+            ui->roll_minTravel->setValue(ListElements(root, "RollMotor", "MinTravel"));
+            ui->roll_Dir->setCurrentIndex(ListElements(root, "RollMotor", "Direction"));
+
+            // yaw motor
+            ui->yaw_Power->setValue(ListElements(root, "YawMotor", "Power"));
+            ui->yaw_Pole->setValue(ListElements(root, "YawMotor", "Poles"));
+            ui->yaw_maxTravel->setValue(ListElements(root, "YawMotor", "MaxTravel"));
+            ui->yaw_minTravel->setValue(ListElements(root, "YawMotor", "MinTravel"));
+            ui->yaw_Dir->setCurrentIndex(ListElements(root, "YawMotor", "Direction"));
+
+            // pitch PID
+            ui->pitch_P->setValue(ListElements(root, "PitchPID", "P"));
+            ui->pitch_I->setValue(ListElements(root, "PitchPID", "I"));
+            ui->pitch_D->setValue(ListElements(root, "PitchPID", "D"));
+
+            // roll PID
+            ui->roll_P->setValue(ListElements(root, "RollPID", "P"));
+            ui->roll_I->setValue(ListElements(root, "RollPID", "I"));
+            ui->roll_D->setValue(ListElements(root, "RollPID", "D"));
+
+            // yaw PID
+            ui->yaw_P->setValue(ListElements(root, "YawPID", "P"));
+            ui->yaw_I->setValue(ListElements(root, "YawPID", "I"));
+            ui->yaw_D->setValue(ListElements(root, "YawPID", "D"));
+
+            // pitch follow
+            ui->follow_pitch->setValue(ListElements(root, "PitchFollow", "Follow"));
+            ui->pitch_filter->setValue(ListElements(root, "PitchFollow", "Filter"));
+
+            // roll follow
+            ui->follow_roll->setValue(ListElements(root, "RollFollow", "Follow"));
+            ui->roll_filter->setValue(ListElements(root, "RollFollow", "Filter"));
+
+            // yaw follow
+            ui->follow_yaw->setValue(ListElements(root, "YawFollow", "Follow"));
+            ui->yaw_filter->setValue(ListElements(root, "YawFollow", "Filter"));
+
+            // Gyro
+            ui->gyroX_offset->setText(QString::number(ListElements(root, "Gyro", "Xoffset")));
+            ui->gyroY_offset->setText(QString::number(ListElements(root, "Gyro", "Yoffset")));
+            ui->gyroZ_offset->setText(QString::number(ListElements(root, "Gyro", "Zoffset")));
+            ui->gyroTrust->setValue(ListElements(root, "Gyro", "GyroTrust"));
+            ui->gyro_LPF->setValue(ListElements(root, "Gyro", "GyroLPF"));
+            ui->calibGyro->setChecked(ListElements(root, "Gyro", "SkipCalibGyro"));
+
+            // acc
+            ui->accX_offset->setText(QString::number(ListElements(root, "Acc", "Xoffset")));
+            ui->accY_offset->setText(QString::number(ListElements(root, "Acc", "Yoffset")));
+            ui->accZ_offset->setText(QString::number(ListElements(root, "Acc", "Zoffset")));
+
+            // gps
+            ui->useGPS->setChecked(ListElements(root, "GPS", "UseGPS"));
+
+            // rc pitch
+            ui->pitchChan->setCurrentIndex(ListElements(root, "PitchChan", "Chan"));
+            ui->rcLPF_pitch->setValue(ListElements(root, "PitchChan", "LPF"));
+            ui->trim_pitch->setValue(ListElements(root, "PitchChan", "Trim"));
+            ui->mode_pitch->setCurrentIndex(ListElements(root, "PitchChan", "Mode"));
+
+            // rc roll
+            ui->rollChan->setCurrentIndex(ListElements(root, "RollChan", "Chan"));
+            ui->rcLPF_roll->setValue(ListElements(root, "RollChan", "LPF"));
+            ui->trim_roll->setValue(ListElements(root, "RollChan", "Trim"));
+            ui->mode_roll->setCurrentIndex(ListElements(root, "RollChan", "Mode"));
+
+            // rc yaw
+            ui->yawChan->setCurrentIndex(ListElements(root, "YawChan", "Chan"));
+            ui->rcLPF_yaw->setValue(ListElements(root, "YawChan", "LPF"));
+            ui->trim_yaw->setValue(ListElements(root, "YawChan", "Trim"));
+            ui->mode_yaw->setCurrentIndex(ListElements(root, "YawChan", "Mode"));
+
+            // rc type
+            ui->rc_source->setCurrentIndex(ListElements(root, "RC", "Source"));
+
+            // Stick channel
+            ui->modeChan->setCurrentIndex(ListElements(root, "RC", "StickChan"));
+
+            ui->information_box->clear();
+            ui->information_box->setPlainText("Load profile completed.");
+        }
     }
-
-    //Get the root element
-    QDomElement root = importProfile.firstChildElement();
-
-    /* Get the elements */
-    //motor frequency
-    ui->motor_freq->setCurrentIndex(ListElements(root, "Motors", "Freq"));
-
-    // pitch motor
-    ui->pitch_Power->setValue(ListElements(root, "PitchMotor", "Power"));
-    ui->pitch_Pole->setValue(ListElements(root, "PitchMotor", "Poles"));
-    ui->pitch_maxTravel->setValue(ListElements(root, "PitchMotor", "MaxTravel"));
-    ui->pitch_minTravel->setValue(ListElements(root, "PitchMotor", "MinTravel"));
-    ui->pitch_Dir->setCurrentIndex(ListElements(root, "PitchMotor", "Direction"));
-
-    // roll motor
-    ui->roll_Power->setValue(ListElements(root, "RollMotor", "Power"));
-    ui->roll_Pole->setValue(ListElements(root, "RollMotor", "Poles"));
-    ui->roll_maxTravel->setValue(ListElements(root, "RollMotor", "MaxTravel"));
-    ui->roll_minTravel->setValue(ListElements(root, "RollMotor", "MinTravel"));
-    ui->roll_Dir->setCurrentIndex(ListElements(root, "RollMotor", "Direction"));
-
-    // yaw motor
-    ui->yaw_Power->setValue(ListElements(root, "YawMotor", "Power"));
-    ui->yaw_Pole->setValue(ListElements(root, "YawMotor", "Poles"));
-    ui->yaw_maxTravel->setValue(ListElements(root, "YawMotor", "MaxTravel"));
-    ui->yaw_minTravel->setValue(ListElements(root, "YawMotor", "MinTravel"));
-    ui->yaw_Dir->setCurrentIndex(ListElements(root, "YawMotor", "Direction"));
-
-    // pitch PID
-    ui->pitch_P->setValue(ListElements(root, "PitchPID", "P"));
-    ui->pitch_I->setValue(ListElements(root, "PitchPID", "I"));
-    ui->pitch_D->setValue(ListElements(root, "PitchPID", "D"));
-
-    // roll PID
-    ui->roll_P->setValue(ListElements(root, "RollPID", "P"));
-    ui->roll_I->setValue(ListElements(root, "RollPID", "I"));
-    ui->roll_D->setValue(ListElements(root, "RollPID", "D"));
-
-    // yaw PID
-    ui->yaw_P->setValue(ListElements(root, "YawPID", "P"));
-    ui->yaw_I->setValue(ListElements(root, "YawPID", "I"));
-    ui->yaw_D->setValue(ListElements(root, "YawPID", "D"));
-
-    // pitch follow
-    ui->follow_pitch->setValue(ListElements(root, "PitchFollow", "Follow"));
-    ui->pitch_filter->setValue(ListElements(root, "PitchFollow", "Filter"));
-
-    // roll follow
-    ui->follow_roll->setValue(ListElements(root, "RollFollow", "Follow"));
-    ui->roll_filter->setValue(ListElements(root, "RollFollow", "Filter"));
-
-    // yaw follow
-    ui->follow_yaw->setValue(ListElements(root, "YawFollow", "Follow"));
-    ui->yaw_filter->setValue(ListElements(root, "YawFollow", "Filter"));
-
-    // Gyro
-    ui->gyroX_offset->setText(QString::number(ListElements(root, "Gyro", "Xoffset")));
-    ui->gyroY_offset->setText(QString::number(ListElements(root, "Gyro", "Yoffset")));
-    ui->gyroZ_offset->setText(QString::number(ListElements(root, "Gyro", "Zoffset")));
-    ui->gyroTrust->setValue(ListElements(root, "Gyro", "GyroTrust"));
-    ui->gyro_LPF->setValue(ListElements(root, "Gyro", "GyroLPF"));
-    ui->calibGyro->setChecked(ListElements(root, "Gyro", "SkipCalibGyro"));
-
-    // acc
-    ui->accX_offset->setText(QString::number(ListElements(root, "Acc", "Xoffset")));
-    ui->accY_offset->setText(QString::number(ListElements(root, "Acc", "Yoffset")));
-    ui->accZ_offset->setText(QString::number(ListElements(root, "Acc", "Zoffset")));
-
-    // gps
-    ui->useGPS->setChecked(ListElements(root, "GPS", "UseGPS"));
-
-    // rc pitch
-    ui->pitchChan->setCurrentIndex(ListElements(root, "PitchChan", "Chan"));
-    ui->rcLPF_pitch->setValue(ListElements(root, "PitchChan", "LPF"));
-    ui->trim_pitch->setValue(ListElements(root, "PitchChan", "Trim"));
-    ui->mode_pitch->setCurrentIndex(ListElements(root, "PitchChan", "Mode"));
-
-    // rc roll
-    ui->rollChan->setCurrentIndex(ListElements(root, "RollChan", "Chan"));
-    ui->rcLPF_roll->setValue(ListElements(root, "RollChan", "LPF"));
-    ui->trim_roll->setValue(ListElements(root, "RollChan", "Trim"));
-    ui->mode_roll->setCurrentIndex(ListElements(root, "RollChan", "Mode"));
-
-    // rc yaw
-    ui->yawChan->setCurrentIndex(ListElements(root, "YawChan", "Chan"));
-    ui->rcLPF_yaw->setValue(ListElements(root, "YawChan", "LPF"));
-    ui->trim_yaw->setValue(ListElements(root, "YawChan", "Trim"));
-    ui->mode_yaw->setCurrentIndex(ListElements(root, "YawChan", "Mode"));
-
-    // rc type
-    ui->rc_source->setCurrentIndex(ListElements(root, "RC", "Source"));
-
-    // Stick channel
-    ui->modeChan->setCurrentIndex(ListElements(root, "RC", "StickChan"));
-
+    watchdogTimer->start();
 }
 
 void MainWindow::saveXMLfile(QString xmlfile)
@@ -720,7 +733,7 @@ void MainWindow::openSerialPort()
         QThread::usleep(10);
         serialport->setDtr(0); // 3V3 output on reset
     }
-    updatePortStatus(serialport->isOpen());
+    updatePortStatus(serialport->isOpen());   
 }
 
 void MainWindow::portSettings()
@@ -809,10 +822,15 @@ void MainWindow::handleMessage(QByteArray buff)
             raw_imu.zgyro = mavlink_msg_raw_imu_get_zgyro(&message);
             break;
         case MAVLINK_MSG_ID_ATTITUDE:
-            attitude.roll = mavlink_msg_attitude_get_roll(&message); 
+            attitude.roll = mavlink_msg_attitude_get_roll(&message);
+            attitude_degree.roll = attitude.roll*180.0/3.14159;
+
             attitude.pitch = mavlink_msg_attitude_get_pitch(&message);
+            attitude_degree.pitch = attitude.pitch*180.0/3.14159;
+
+            attitude_degree.yaw = attitude.yaw*180.0/3.14159;
             attitude.yaw = mavlink_msg_attitude_get_yaw(&message);
-            emit attitudeChanged(attitude.pitch, attitude.roll, attitude.yaw);
+            emit attitudeChanged(attitude_degree.pitch, attitude_degree.roll, attitude_degree.yaw);
             break;
         case MAVLINK_MSG_ID_PARAM_VALUE:
             paramValue.param_index = mavlink_msg_param_value_get_param_index(&message);  // get param index
@@ -849,6 +867,7 @@ void MainWindow::handleMessage(QByteArray buff)
             break;
         case MAVLINK_MSG_ID_ACC_CALIB_STATUS:
             acc_calib_sta.acc_calib_status = mavlink_msg_acc_calib_status_get_acc_calib_status(&message);
+            ui->information_box->clear();
             switch(acc_calib_sta.acc_calib_status)
             {
                 case ACC_CALIB_FINISH:
@@ -876,18 +895,24 @@ void MainWindow::handleMessage(QByteArray buff)
                     ui->information_box->setPlainText("Acc calib failed!");
                 break;
             }
+            ui->calibAcc_Button->setEnabled(true);
             break;
-        case MAVLINK_MSG_ID_GYRO_CALIB_STATUS:
-            gyro_calib_sta.status = mavlink_msg_gyro_calib_status_get_status(&message);
-            switch(gyro_calib_sta.status)
-            {
-                case GYRO_CALIB_FAIL:
-                    ui->information_box->setPlainText("Gyro calib failed!");
-                break;
-                case GYRO_CALIB_FINISH:
-                    ui->information_box->setPlainText("Gyro calib finished!");
-                break;
-            }
+//        case MAVLINK_MSG_ID_GYRO_CALIB_STATUS:
+//            gyro_calib_sta.status = mavlink_msg_gyro_calib_status_get_status(&message);
+//            switch(gyro_calib_sta.status)
+//            {
+//                case GYRO_CALIB_FAIL:
+//                    ui->information_box->setPlainText("Gyro calib failed!");
+//                break;
+//                case GYRO_CALIB_FINISH:
+//                    ui->information_box->setPlainText("Gyro calib finished!");
+//                break;
+//            }
+//            break;
+        case MAVLINK_MSG_ID_DEBUG:
+            debug.value = mavlink_msg_debug_get_value(&message);
+            debug.ind = mavlink_msg_debug_get_ind(&message);
+            emit debugValuesChanged(debug.value, debug.ind);
             break;
         default:
             break;
@@ -901,11 +926,9 @@ void MainWindow::handleMessage(QByteArray buff)
 
     if(ui->tabWidget->currentIndex() == 3){
         chartTimer->start();
-        chartTimerStarted = true;
     }
     else{
         chartTimer->stop();
-        chartTimerStarted = false;
     }
 }
 
@@ -972,298 +995,229 @@ void MainWindow::updateParamValue(uint8_t index, float value){
     case PARAM_PITCH_P:
         ui->pitch_P->setValue(value);
         oldParamConfig.pitchKp = value;
-//        qDebug() << "pitch kp:" << oldParamConfig.pitchKp;
          break;
     case PARAM_PITCH_I:
         ui->pitch_I->setValue(value);
         oldParamConfig.pitchKi = value;
-//        qDebug() << "pitch ki:" << oldParamConfig.pitchKi;
          break;
     case PARAM_PITCH_D:
         ui->pitch_D->setValue(value);
         oldParamConfig.pitchKd = value;
-//        qDebug() << "pitch kd:" << oldParamConfig.pitchKd;
          break;
     case PARAM_ROLL_P:
         ui->roll_P->setValue(value);
         oldParamConfig.rollKp = value;
-//        qDebug() << "roll kp:" << oldParamConfig.rollKp;
          break;
     case PARAM_ROLL_I:
         ui->roll_I->setValue(value);
         oldParamConfig.rollKi = value;
-//        qDebug() << "roll ki:" << oldParamConfig.rollKi;
          break;
     case PARAM_ROLL_D:
         ui->roll_D->setValue(value);
         oldParamConfig.rollKd = value;
-//        qDebug() << "roll kd:" << oldParamConfig.rollKd;
          break;
     case PARAM_YAW_P:
         ui->yaw_P->setValue(value);
         oldParamConfig.yawKp = value;
-//        qDebug() << "yaw kp:" << oldParamConfig.yawKp;
          break;
     case PARAM_YAW_I:
         ui->yaw_I->setValue(value);
         oldParamConfig.yawKi = value;
-//        qDebug() << "yaw ki:" << oldParamConfig.yawKi;
          break;
     case PARAM_YAW_D:
         ui->yaw_D->setValue(value);
         oldParamConfig.yawKd = value;
-//        qDebug() << "yaw kd:" << oldParamConfig.yawKd;
          break;
     case PARAM_PITCH_POWER:
         ui->pitch_Power->setValue(value);
         oldParamConfig.pitchPower = value;
-//        qDebug() << "pitch power:" << oldParamConfig.pitchPower;
          break;
     case PARAM_ROLL_POWER:
         ui->roll_Power->setValue(value);
         oldParamConfig.rollPower = value;
-//        qDebug() << "roll power:" << oldParamConfig.rollPower;
          break;
     case PARAM_YAW_POWER:
         ui->yaw_Power->setValue(value);
         oldParamConfig.yawPower = value;
-//        qDebug() << "yaw power:" << oldParamConfig.yawPower;
          break;
     case PARAM_PITCH_FOLLOW:
         ui->follow_pitch->setValue(value);
         oldParamConfig.pitchFollow = value;
-//        qDebug() << "pitch follow:" << oldParamConfig.pitchFollow;
          break;
     case PARAM_ROLL_FOLLOW:
         ui->follow_roll->setValue(value);
         oldParamConfig.rollFollow = value;
-//        qDebug() << "roll follow:" << oldParamConfig.rollFollow;
          break;
     case PARAM_YAW_FOLLOW:
         ui->follow_yaw->setValue(value);
         oldParamConfig.yawFollow = value;
-//        qDebug() << "yaw follow:" << oldParamConfig.yawFollow;
          break;
     case PARAM_PITCH_FILTER:
         ui->pitch_filter->setValue(value);
         oldParamConfig.tiltFilter = value;
-//        qDebug() << "yaw follow:" << oldParamConfig.yawFollow;
          break;
     case PARAM_ROLL_FILTER:
         ui->roll_filter->setValue(value);
         oldParamConfig.rollFilter = value;
-//        qDebug() << "yaw follow:" << oldParamConfig.yawFollow;
          break;
     case PARAM_YAW_FILTER:
         ui->yaw_filter->setValue(value);
         oldParamConfig.panFilter = value;
-//        qDebug() << "yaw follow:" << oldParamConfig.yawFollow;
          break;
     case PARAM_GYRO_TRUST:
         ui->gyroTrust->setValue(value);
         oldParamConfig.gyroTrust = value;
-//        qDebug() << "gyro trust:" << oldParamConfig.gyroTrust;
         break;
     case PARAM_NPOLES_PITCH:
         ui->pitch_Pole->setValue(value);
         oldParamConfig.nPolesPitch = value;
-//        qDebug() << "npoles pitch:" << oldParamConfig.nPolesPitch;
          break;
     case PARAM_NPOLES_ROLL:
         ui->roll_Pole->setValue(value);
         oldParamConfig.nPolesRoll= value;
-//        qDebug() << "npoles roll:" << oldParamConfig.nPolesRoll;
          break;
     case PARAM_NPOLES_YAW:
         ui->yaw_Pole->setValue(value);
         oldParamConfig.nPolesYaw = value;
-//        qDebug() << "npoles yaw:" << oldParamConfig.nPolesYaw;
         break;
     case PARAM_DIR_MOTOR_PITCH:
-        if(value == 0)
-            ui->pitch_Dir->setCurrentIndex(0); // normal
-        else
-            ui->pitch_Dir->setCurrentIndex(1); // reverse
+        ui->pitch_Dir->setCurrentIndex(value);
         oldParamConfig.dirMotorPitch = value;
-//        qDebug() << "dir motor pitch:" << oldParamConfig.dirMotorPitch;
         break;
     case PARAM_DIR_MOTOR_ROLL:
-        if(value == 0)
-            ui->roll_Dir->setCurrentIndex(0); // normal
-        else
-            ui->roll_Dir->setCurrentIndex(1); // reverse
+        ui->roll_Dir->setCurrentIndex(value);
         oldParamConfig.dirMotorRoll = value;
-//        qDebug() << "dir motor roll:" << oldParamConfig.dirMotorRoll;
         break;
     case PARAM_DIR_MOTOR_YAW:
-        if(value == 0)
-            ui->yaw_Dir->setCurrentIndex(0); // normal
-        else
-            ui->yaw_Dir->setCurrentIndex(1); // reverse
+        ui->yaw_Dir->setCurrentIndex(value);
         oldParamConfig.dirMotorYaw = value;
-//        qDebug() << "dir motor yaw:" << oldParamConfig.dirMotorYaw;
         break;
     case PARAM_MOTOR_FREQ:
-        if(value == 0)
-            ui->motor_freq->setCurrentIndex(0); //high
-        else if(value == 1)
-            ui->motor_freq->setCurrentIndex(1); //medium
-        else if(value == 2)
-            ui->motor_freq->setCurrentIndex(2); //low
+        ui->motor_freq->setCurrentIndex(value);
         oldParamConfig.motorFreq = value;
-//        qDebug() << "motor freq:" << oldParamConfig.motorFreq;
         break;
     case PARAM_RADIO_TYPE:
-        if(value == 0)
-            ui->rc_source->setCurrentIndex(0); // sbus
-        else if (value == 1)
-            ui->rc_source->setCurrentIndex(1); // ppm
+        ui->rc_source->setCurrentIndex(value);
         oldParamConfig.radioType = value;
-//        qDebug() << "radio type:" << oldParamConfig.radioType;
         break;
     case PARAM_GYRO_LPF:
         ui->gyro_LPF->setValue(value);
         oldParamConfig.gyroLPF = value;
-//        qDebug() << "gyro LPF:" << oldParamConfig.gyroLPF;
         break;
     case PARAM_TRAVEL_MIN_PITCH:
         ui->pitch_minTravel->setValue(value);
         oldParamConfig.travelMinPitch = value;
-//        qDebug() << "min pitch:" << oldParamConfig.travelMinPitch;
         break;
     case PARAM_TRAVEL_MAX_PITCH:
         ui->pitch_maxTravel->setValue(value);
         oldParamConfig.travelMaxPitch = value;
-//        qDebug() << "max pitch:" << oldParamConfig.travelMaxPitch;
         break;
     case PARAM_TRAVEL_MIN_ROLL:
         ui->roll_minTravel->setValue(value);
         oldParamConfig.travelMinRoll = value;
-//        qDebug() << "min roll:" << oldParamConfig.travelMinRoll;
         break;
     case PARAM_TRAVEL_MAX_ROLL:
         ui->roll_maxTravel->setValue(value);
         oldParamConfig.travelMaxRoll = value;
-//        qDebug() << "max roll:" << oldParamConfig.travelMaxRoll;
         break;
     case PARAM_TRAVEL_MIN_YAW:
         ui->yaw_minTravel->setValue(value);
         oldParamConfig.travelMinYaw = value;
-//        qDebug() << "min yaw:" << oldParamConfig.travelMinYaw;
         break;
     case PARAM_TRAVEL_MAX_YAW:
         ui->yaw_maxTravel->setValue(value);
         oldParamConfig.travelMaxYaw = value;
-//        qDebug() << "max yaw:" << oldParamConfig.travelMaxYaw;
         break;
     case PARAM_RC_PITCH_LPF:
         ui->rcLPF_pitch->setValue(value);
         oldParamConfig.rcPitchLPF = value;
-//        qDebug() << "rc LPF pitch:" << oldParamConfig.rcPitchLPF;
         break;
     case PARAM_RC_ROLL_LPF:
         ui->rcLPF_roll->setValue(value);
         oldParamConfig.rcRollLPF = value;
-//        qDebug() << "rc LPF roll:" << oldParamConfig.rcRollLPF;
         break;
     case PARAM_RC_YAW_LPF:
         ui->rcLPF_yaw->setValue(value);
         oldParamConfig.rcYawLPF = value;
-//        qDebug() << "rc LPF yaw:" << oldParamConfig.rcYawLPF;
         break;
     case PARAM_SBUS_PITCH_CHAN:
         ui->pitchChan->setCurrentIndex(value);
         oldParamConfig.sbusPitchChan = value;
-//        qDebug() << "sbus pitch chan:" << oldParamConfig.sbusPitchChan;
         break;
     case PARAM_SBUS_ROLL_CHAN:
         ui->rollChan->setCurrentIndex(value);
         oldParamConfig.sbusRollChan = value;
-//        qDebug() << "sbus roll chan:" << oldParamConfig.sbusRollChan;
         break;
     case PARAM_SBUS_YAW_CHAN:
         ui->yawChan->setCurrentIndex(value);
         oldParamConfig.sbusYawChan = value;
-//        qDebug() << "sbus yaw chan:" << oldParamConfig.sbusYawChan;
         break;
     case PARAM_SBUS_MODE_CHAN:
         ui->modeChan->setCurrentIndex(value);
         oldParamConfig.sbusModeChan = value;
-//        qDebug() << "sbus mode chan:" << oldParamConfig.sbusModeChan;
         break;
     case PARAM_ACCX_OFFSET:
         ui->accX_offset->setText(QString::number(value));
         oldParamConfig.accXOffset = value;
-//        qDebug() << "acc X offset:" << oldParamConfig.accXOffset;
         break;
     case PARAM_ACCY_OFFSET:
         ui->accY_offset->setText(QString::number(value));
         oldParamConfig.accYOffset = value;
-//        qDebug() << "acc Y offset:" << oldParamConfig.accYOffset;
         break;
     case PARAM_ACCZ_OFFSET:
         ui->accZ_offset->setText(QString::number(value));
         oldParamConfig.accZOffset = value;
-//        qDebug() << "acc Z offset:" << oldParamConfig.accZOffset;
         break;
     case PARAM_USE_GPS:
         ui->useGPS->setChecked(value);
         oldParamConfig.useGPS = value;
-//        qDebug() << "use GPS:" << oldParamConfig.useGPS;
         break;
     case PARAM_GYROX_OFFSET:
         ui->gyroX_offset->setText(QString::number(value));
         oldParamConfig.gyroXOffset = value;
-//        qDebug() << "acc Z offset:" << oldParamConfig.accZOffset;
         break;
     case PARAM_GYROY_OFFSET:
         ui->gyroY_offset->setText(QString::number(value));
         oldParamConfig.gyroYOffset = value;
-//        qDebug() << "acc Z offset:" << oldParamConfig.accZOffset;
         break;
     case PARAM_GYROZ_OFFSET:
         ui->gyroZ_offset->setText(QString::number(value));
         oldParamConfig.gyroZOffset = value;
-//        qDebug() << "acc Z offset:" << oldParamConfig.accZOffset;
         break;
     case PARAM_SKIP_GYRO_CALIB:
         ui->calibGyro->setChecked(value);
         oldParamConfig.skipGyroCalib = value;
-//        qDebug() << "use GPS:" << oldParamConfig.useGPS;
         break;       
     case PARAM_RC_PITCH_TRIM:
         ui->trim_pitch->setValue(value);
         oldParamConfig.rcPitchTrim = value;
-//        qDebug() << "use GPS:" << oldParamConfig.useGPS;
         break;
     case PARAM_RC_ROLL_TRIM:
         ui->trim_roll->setValue(value);
         oldParamConfig.rcRollTrim = value;
-//        qDebug() << "use GPS:" << oldParamConfig.useGPS;
         break;
     case PARAM_RC_YAW_TRIM:
         ui->trim_yaw->setValue(value);
         oldParamConfig.rcYawTrim = value;
-//        qDebug() << "use GPS:" << oldParamConfig.useGPS;
         break;
     case PARAM_RC_PITCH_MODE:
         ui->mode_pitch->setCurrentIndex(value);
         oldParamConfig.rcPitchMode = value;
-//        qDebug() << "use GPS:" << oldParamConfig.useGPS;
         break;
     case PARAM_RC_ROLL_MODE:
         ui->mode_roll->setCurrentIndex(value);
         oldParamConfig.rcRollMode = value;
-//        qDebug() << "use GPS:" << oldParamConfig.useGPS;
         break;
     case PARAM_RC_YAW_MODE:
         ui->mode_yaw->setCurrentIndex(value);
         oldParamConfig.rcYawMode = value;
-//        qDebug() << "use GPS:" << oldParamConfig.useGPS;
         break;
     default:
         break;
     }
+
+    ui->information_box->clear();
+    ui->information_box->setPlainText("Read Parameters completed.");
 }
 
 void MainWindow::readParamsOnBoard()
@@ -1677,14 +1631,14 @@ void MainWindow::writeParamstoBoard(){
     {
         /* RC config */       
         /* rc type */
-        if((ui->rc_source->currentIndex() != oldParamConfig.radioType) && (ui->rc_source->currentIndex()==0 || ui->rc_source->currentIndex()==1))
+        if(ui->rc_source->currentIndex() != oldParamConfig.radioType)
         {
             mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
                                        MAV_COMP_ID_IMU, "RADIO_TYPE", ui->rc_source->currentIndex(), MAVLINK_TYPE_INT16_T);
             len = mavlink_msg_to_send_buffer(buf, &msg);
             serialport->write((const char*)buf, len);
             oldParamConfig.radioType = ui->rc_source->currentIndex();
-        }
+        }             
 
         /* channel */
         if((ui->rollChan->currentIndex() != oldParamConfig.sbusRollChan) && ui->rc_source->currentIndex()== 1) // only send this param when in sbus mode
@@ -1812,13 +1766,14 @@ void MainWindow::writeParamstoBoard(){
         // show message read only
         QMessageBox::information(this, "Message", "You can not write or change these values, just read only!");
     }
+
+    ui->information_box->clear();
+    ui->information_box->setPlainText("Write Parameters completed.");
 }
 
 void MainWindow::timeOutHandle(){
     emit heartBeatPulse(false);
-//    int res = QMessageBox::warning(this, "Connection Error", "Board is not found. Please try again!");
-//    if(res == QMessageBox::Ok)
-      timerRestart();
+    timerRestart();
 }
 
 void MainWindow::timerRestart(){
@@ -1936,15 +1891,23 @@ void MainWindow::updatePPMValues()
 
 void MainWindow::chartUpdateData()
 {
-
     ++time_count;
 
-    sampleSize = ax_point.size();
+    sampleSize = ax_point.size();  // get size of curves
 
     if(sampleSize >= sampleSizeMax)
     {
+        // clear all points
         ax_point.clear();
         ay_point.clear();
+        az_point.clear();
+        gx_point.clear();
+        gy_point.clear();
+        gz_point.clear();
+        pitch_point.clear();
+        roll_point.clear();
+        yaw_point.clear();
+
         sampleSizeOverflow++;
     }
 
@@ -1958,19 +1921,19 @@ void MainWindow::chartUpdateData()
     ui->ax_label->setText(QString("%1").arg(raw_imu.xacc, 2));
 
     ay_point += QPointF (time_count, raw_imu.yacc);
-    ui->ay_label->setText(QString("%1").arg(raw_imu.yacc));
+    ui->ay_label->setText(QString("%1").arg(raw_imu.yacc, 2));
 
     az_point += QPointF (time_count, raw_imu.zacc);
-    ui->az_label->setText(QString("%1").arg(raw_imu.zacc));
+    ui->az_label->setText(QString("%1").arg(raw_imu.zacc, 2));
 
     gx_point += QPointF (time_count, raw_imu.xgyro);
-    ui->gx_label->setText(QString("%1").arg(raw_imu.xgyro));
+    ui->gx_label->setText(QString("%1").arg(raw_imu.xgyro, 2));
 
     gy_point += QPointF (time_count, raw_imu.ygyro);
-    ui->gy_label->setText(QString("%1").arg(raw_imu.ygyro));
+    ui->gy_label->setText(QString("%1").arg(raw_imu.ygyro, 2));
 
     gz_point += QPointF (time_count, raw_imu.zgyro);
-    ui->gz_label->setText(QString("%1").arg(raw_imu.zgyro));
+    ui->gz_label->setText(QString("%1").arg(raw_imu.zgyro, 2));
 
     pitch_point += QPointF (time_count, attitude_degree.pitch);
     ui->pitch_label->setText(QString("%1").arg(attitude_degree.pitch,4,'f',2));
@@ -1994,7 +1957,13 @@ void MainWindow::chartUpdateData()
     yaw_curve->setSamples(yaw_point);
 
     ui->chartPlot->replot();
+}
 
+void MainWindow::updateDebugValues(float value, uint8_t index)
+{
+//    ui->information_box->clear();
+    ui->information_box->moveCursor(QTextCursor::End);
+    ui->information_box->insertPlainText(QString("debug value %1:\t%2\n\r").arg(index).arg(value));
 }
 
 void MainWindow::on_upgradeFWButton_clicked()
@@ -2017,10 +1986,10 @@ void MainWindow::on_upgradeFWButton_clicked()
 }
 
 void MainWindow::on_SerialPortConnectButton_clicked(){
-    watchdogTimer->setInterval(6000);
+    watchdogTimer->setInterval(5000);
     watchdogTimer->setSingleShot(true);
 
-    chartTimer->setInterval(10);
+    chartTimer->setInterval(1);
 
     openSerialPort();
 }
@@ -2103,29 +2072,15 @@ void MainWindow::on_pitchSlider_valueChanged(double value)
     mavlink_message_t msg;
     uint8_t buf[MAVLINK_MAX_PACKET_LEN];
     int temp=0;
-    if(value > 0)
-        temp = value * 10;
-    else temp = value * 5;
+    temp = value*10;
+//    if(value > 0)
+//        temp = value * 10;
+//    else temp = value * 10;
 
     mavlink_msg_tilt_simulation_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, temp);
     qDebug() <<"pitch slider" << temp;
     len = mavlink_msg_to_send_buffer(buf, &msg);
     serialport->write((const char*)buf, len);
-    /* old code
-    uint16_t len=0;
-    mavlink_message_t msg;
-    uint8_t buf[MAVLINK_MAX_PACKET_LEN];
-    int temp=0;
-    if(ui->pitchSlider->value() > 0)
-        temp = ui->pitchSlider->value() * 10;
-    else temp = ui->pitchSlider->value() * 5;
-
-    mavlink_msg_tilt_simulation_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg,
-                                     temp, ui->pitchChan->currentIndex());
-    qDebug() <<"pitch slider" << temp;
-    len = mavlink_msg_to_send_buffer(buf, &msg);
-    serialport->write((const char*)buf, len);
-    */
 }
 
 void MainWindow::on_rollSlider_valueChanged(double value)
@@ -2134,7 +2089,7 @@ void MainWindow::on_rollSlider_valueChanged(double value)
     mavlink_message_t msg;
     uint8_t buf[MAVLINK_MAX_PACKET_LEN];
     int temp=0;
-    temp = value * 7;
+    temp = value * 5;
 
 //    if(ui->pitchSlider->value() > 0)
 //        temp = ui->pitchSlider->value() * 10;
@@ -2172,6 +2127,7 @@ void MainWindow::loadfileButtonClicked()
     int char_pos=0, filename_len=0;
     int temp=0;
     QString filename;
+    watchdogTimer->stop();
 
     loadfilename = QFileDialog::getOpenFileName(this, tr("Open profile"),
                                             "profiles", tr("XML files (*.xml)"));
@@ -2228,7 +2184,7 @@ void MainWindow::init_var()
     time_count = 0;
     sampleSize = 0;
     sampleSizeOverflow = 0;
-    interval_value = (100);
+    interval_value = (1000);
     sampleSizeMax = (1000);
     // Set Image
     imageOn.load(":/files/images/leds/circle_green.svg");
@@ -2256,7 +2212,6 @@ QPalette MainWindow::colorTheme(const QColor &base) const
 
     return palette;
 }
-
 
 void MainWindow::on_clearParam_clicked()
 {
@@ -2343,11 +2298,15 @@ void MainWindow::on_calibAcc_Button_clicked()
     uint8_t buf[MAVLINK_MAX_PACKET_LEN];
     uint8_t calib_mode=0;
 
+    watchdogTimer->stop();
+
     calib_mode = ui->calibmodes->currentIndex();
 
     mavlink_msg_acc_calib_request_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, calib_mode);
     len = mavlink_msg_to_send_buffer(buf, &msg);
     serialport->write((const char*)buf, len);
+
+    ui->calibAcc_Button->setEnabled(false);
 }
 
 void MainWindow::on_calibGyro_Button_clicked()
@@ -2356,9 +2315,13 @@ void MainWindow::on_calibGyro_Button_clicked()
     mavlink_message_t msg;
     uint8_t buf[MAVLINK_MAX_PACKET_LEN];
 
+    watchdogTimer->stop();
+
     mavlink_msg_gyro_calib_request_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, 0);
     len = mavlink_msg_to_send_buffer(buf, &msg);
     serialport->write((const char*)buf, len);
+
+//    ui->calibGyro_Button->setEnabled(false);
 }
 
 void MainWindow::on_rc_source_currentIndexChanged(int index)
@@ -2696,7 +2659,6 @@ void MainWindow::on_rc_source_currentIndexChanged(int index)
         ui->ch18label->setVisible(false);
     }
 }
-
 
 void MainWindow::on_pitchChan_currentIndexChanged(int index)
 {
