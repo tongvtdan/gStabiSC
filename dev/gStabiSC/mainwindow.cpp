@@ -56,6 +56,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->pitchSlider->setVisible(false);
     ui->rollSlider->setVisible(false);
     ui->groupBox_7->setVisible(false);
+    ui->handDeviceConnectButton->setVisible(false);
 
     connect(ui->actionAbout,SIGNAL(triggered()),  this, SLOT(aboutActionTriggered()));
     connect(ui->actionHelp, SIGNAL(triggered()),this, SLOT(helpActionTriggered()));
@@ -479,7 +480,7 @@ void MainWindow::importXMLfile(QString importfile)
             qDebug() << "Failed to load document";
             file.close();
             ui->information_box->clear();
-            ui->information_box->setPlainText("Load profile completed.");
+            ui->information_box->setPlainText("Load profile failed.");
         }
         else
         {
@@ -581,9 +582,9 @@ void MainWindow::importXMLfile(QString importfile)
 
             ui->information_box->clear();
             ui->information_box->setPlainText("Load profile completed.");
+            watchdogTimer->start();
         }
-    }
-    watchdogTimer->start();
+    }  
 }
 
 void MainWindow::saveXMLfile(QString xmlfile)
@@ -1218,6 +1219,7 @@ void MainWindow::updateParamValue(uint8_t index, float value){
 
     ui->information_box->clear();
     ui->information_box->setPlainText("Read Parameters completed.");
+    ui->readParam->setEnabled(true);
 }
 
 void MainWindow::readParamsOnBoard()
@@ -1231,7 +1233,11 @@ void MainWindow::readParamsOnBoard()
         mavlink_msg_param_request_list_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, MAV_COMP_ID_IMU);
         len = mavlink_msg_to_send_buffer(buf, &msg);
         serialport->write((const char*)buf, len);
+
+        ui->readParam->setEnabled(false);
     }
+    else
+        QMessageBox::information(this,"Message", "Please click Connect button first.",QMessageBox::Ok,QMessageBox::Cancel);
 }
 
 void MainWindow::writeParamstoBoard(){
@@ -1239,536 +1245,543 @@ void MainWindow::writeParamstoBoard(){
     mavlink_message_t msg;
     uint8_t buf[MAVLINK_MAX_PACKET_LEN];
 
-    if(ui->tabWidget->currentIndex()== 0)  // motor and pid config tag
+    if(serialport->isOpen())
     {
-        /* motor config */
-        /* Power percent */
-        if(ui->roll_Power->value()!= oldParamConfig.rollPower)
-        {
-            mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
-                                       MAV_COMP_ID_IMU, "ROLL_POWER", ui->roll_Power->value(), MAVLINK_TYPE_INT16_T);
-            len = mavlink_msg_to_send_buffer(buf, &msg);
-            serialport->write((const char*)buf, len);
-            oldParamConfig.rollPower = ui->roll_Power->value();
-        }
+        ui->writeParam->setEnabled(false);
 
-        if(ui->pitch_Power->value()!= oldParamConfig.pitchPower)
+        if(ui->tabWidget->currentIndex()== 0)  // motor and pid config tag
         {
-            mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
-                                       MAV_COMP_ID_IMU, "PITCH_POWER", ui->pitch_Power->value(), MAVLINK_TYPE_INT16_T);
-            len = mavlink_msg_to_send_buffer(buf, &msg);
-            serialport->write((const char*)buf, len);
-            oldParamConfig.pitchPower = ui->pitch_Power->value();
-        }
+            /* motor config */
+            /* Power percent */
+            if(ui->roll_Power->value()!= oldParamConfig.rollPower)
+            {
+                mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
+                                           MAV_COMP_ID_IMU, "ROLL_POWER", ui->roll_Power->value(), MAVLINK_TYPE_INT16_T);
+                len = mavlink_msg_to_send_buffer(buf, &msg);
+                serialport->write((const char*)buf, len);
+                oldParamConfig.rollPower = ui->roll_Power->value();
+            }
 
-        if(ui->yaw_Power->value()!= oldParamConfig.yawPower)
+            if(ui->pitch_Power->value()!= oldParamConfig.pitchPower)
+            {
+                mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
+                                           MAV_COMP_ID_IMU, "PITCH_POWER", ui->pitch_Power->value(), MAVLINK_TYPE_INT16_T);
+                len = mavlink_msg_to_send_buffer(buf, &msg);
+                serialport->write((const char*)buf, len);
+                oldParamConfig.pitchPower = ui->pitch_Power->value();
+            }
+
+            if(ui->yaw_Power->value()!= oldParamConfig.yawPower)
+            {
+                mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
+                                           MAV_COMP_ID_IMU, "YAW_POWER", ui->yaw_Power->value(), MAVLINK_TYPE_INT16_T);
+                len = mavlink_msg_to_send_buffer(buf, &msg);
+                serialport->write((const char*)buf, len);
+                oldParamConfig.yawPower = ui->yaw_Power->value();
+            }
+
+            /* Number of Poles */
+            if(ui->roll_Pole->value()!= oldParamConfig.nPolesRoll)
+            {
+                mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
+                                           MAV_COMP_ID_IMU, "NPOLES_ROLL", ui->roll_Pole->value(), MAVLINK_TYPE_INT16_T);
+                len = mavlink_msg_to_send_buffer(buf, &msg);
+                serialport->write((const char*)buf, len);
+                oldParamConfig.nPolesRoll = ui->roll_Pole->value();
+            }
+
+            if(ui->pitch_Pole->value()!= oldParamConfig.nPolesPitch)
+            {
+                mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
+                                           MAV_COMP_ID_IMU, "NPOLES_PITCH", ui->pitch_Pole->value(), MAVLINK_TYPE_INT16_T);
+                len = mavlink_msg_to_send_buffer(buf, &msg);
+                serialport->write((const char*)buf, len);
+                oldParamConfig.nPolesPitch = ui->pitch_Pole->value();
+            }
+
+            if(ui->yaw_Pole->value()!= oldParamConfig.nPolesYaw)
+            {
+                mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
+                                           MAV_COMP_ID_IMU, "NPOLES_YAW", ui->yaw_Pole->value(), MAVLINK_TYPE_INT16_T);
+                len = mavlink_msg_to_send_buffer(buf, &msg);
+                serialport->write((const char*)buf, len);
+                oldParamConfig.nPolesYaw =ui->yaw_Pole->value();
+            }
+
+            /* Roll Motor limited range travel*/
+            if(ui->roll_maxTravel->value()!= oldParamConfig.travelMaxRoll)
+            {
+                mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
+                                           MAV_COMP_ID_IMU, "TRAVEL_MAX_ROLL", ui->roll_maxTravel->value(), MAVLINK_TYPE_INT16_T);
+                len = mavlink_msg_to_send_buffer(buf, &msg);
+                serialport->write((const char*)buf, len);
+                oldParamConfig.travelMaxRoll = ui->roll_maxTravel->value();
+            }
+
+            if(ui->roll_minTravel->value()!= oldParamConfig.travelMinRoll)
+            {
+                mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
+                                           MAV_COMP_ID_IMU, "TRAVEL_MIN_ROLL", ui->roll_minTravel->value(), MAVLINK_TYPE_INT16_T);
+                len = mavlink_msg_to_send_buffer(buf, &msg);
+                serialport->write((const char*)buf, len);
+                oldParamConfig.travelMinRoll = ui->roll_minTravel->value();
+            }
+
+            /* Pitch Motor limited range travel*/
+            if(ui->pitch_maxTravel->value()!= oldParamConfig.travelMaxPitch)
+            {
+                mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
+                                           MAV_COMP_ID_IMU, "TRAVEL_MAX_PIT", ui->pitch_maxTravel->value(), MAVLINK_TYPE_INT16_T);
+                len = mavlink_msg_to_send_buffer(buf, &msg);
+                serialport->write((const char*)buf, len);
+                oldParamConfig.travelMaxPitch = ui->pitch_maxTravel->value();
+            }
+
+            if(ui->pitch_minTravel->value()!= oldParamConfig.travelMinPitch)
+            {
+                mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
+                                           MAV_COMP_ID_IMU, "TRAVEL_MIN_PIT", ui->pitch_minTravel->value(), MAVLINK_TYPE_INT16_T);
+                len = mavlink_msg_to_send_buffer(buf, &msg);
+                serialport->write((const char*)buf, len);
+                oldParamConfig.travelMinPitch = ui->pitch_minTravel->value();
+            }
+
+            /* Yaw Motor limited range travel*/
+            if(ui->yaw_maxTravel->value()!= oldParamConfig.travelMaxYaw)
+            {
+                mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
+                                           MAV_COMP_ID_IMU, "TRAVEL_MAX_YAW", ui->yaw_maxTravel->value(), MAVLINK_TYPE_INT16_T);
+                len = mavlink_msg_to_send_buffer(buf, &msg);
+                serialport->write((const char*)buf, len);
+                oldParamConfig.travelMaxYaw = ui->yaw_maxTravel->value();
+            }
+
+            if(ui->yaw_minTravel->value()!= oldParamConfig.travelMinYaw)
+            {
+                mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
+                                           MAV_COMP_ID_IMU, "TRAVEL_MIN_YAW", ui->yaw_minTravel->value(), MAVLINK_TYPE_INT16_T);
+                len = mavlink_msg_to_send_buffer(buf, &msg);
+                serialport->write((const char*)buf, len);
+                oldParamConfig.travelMinYaw = ui->yaw_minTravel->value();
+            }
+
+            /* Motor Direction */
+            if(ui->roll_Dir->currentIndex() != oldParamConfig.dirMotorRoll)
+            {
+                mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
+                                           MAV_COMP_ID_IMU, "DIR_MOTOR_ROLL", ui->roll_Dir->currentIndex(), MAVLINK_TYPE_INT16_T);
+                len = mavlink_msg_to_send_buffer(buf, &msg);
+                serialport->write((const char*)buf, len);
+                oldParamConfig.dirMotorRoll = ui->roll_Dir->currentIndex();
+            }
+
+            if(ui->pitch_Dir->currentIndex() != oldParamConfig.dirMotorPitch)
+            {
+                mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
+                                           MAV_COMP_ID_IMU, "DIR_MOTOR_PITCH", ui->pitch_Dir->currentIndex(), MAVLINK_TYPE_INT16_T);
+                len = mavlink_msg_to_send_buffer(buf, &msg);
+                serialport->write((const char*)buf, len);
+                oldParamConfig.dirMotorPitch = ui->pitch_Dir->currentIndex();
+            }
+
+            if(ui->yaw_Dir->currentIndex() != oldParamConfig.dirMotorYaw)
+            {
+                mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
+                                           MAV_COMP_ID_IMU, "DIR_MOTOR_YAW", ui->yaw_Dir->currentIndex(), MAVLINK_TYPE_INT16_T);
+                len = mavlink_msg_to_send_buffer(buf, &msg);
+                serialport->write((const char*)buf, len);
+                oldParamConfig.dirMotorYaw = ui->yaw_Dir->currentIndex();
+            }
+
+            /* Motor Frequency */
+            if(ui->motor_freq->currentIndex() != oldParamConfig.motorFreq)
+            {
+                mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
+                                           MAV_COMP_ID_IMU, "MOTOR_FREQ", ui->motor_freq->currentIndex(), MAVLINK_TYPE_INT16_T);
+                len = mavlink_msg_to_send_buffer(buf, &msg);
+                serialport->write((const char*)buf, len);
+                oldParamConfig.motorFreq = ui->motor_freq->currentIndex();
+            }
+
+
+            /* pid config */
+            /* roll P, I, D */
+            if(ui->roll_P->value() != oldParamConfig.rollKp)
+            {
+                mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
+                                           MAV_COMP_ID_IMU, "ROLL_P", ui->roll_P->value(), MAVLINK_TYPE_INT16_T);
+                len = mavlink_msg_to_send_buffer(buf, &msg);
+                serialport->write((const char*)buf, len);
+                oldParamConfig.rollKp = ui->roll_P->value();
+            }
+
+            if(ui->roll_I->value() != oldParamConfig.rollKi)
+            {
+                mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
+                                           MAV_COMP_ID_IMU, "ROLL_I", ui->roll_I->value(), MAVLINK_TYPE_INT16_T);
+                len = mavlink_msg_to_send_buffer(buf, &msg);
+                serialport->write((const char*)buf, len);
+                oldParamConfig.rollKi = ui->roll_I->value();
+            }
+
+            if(ui->roll_D->value() != oldParamConfig.rollKd)
+            {
+                mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
+                                           MAV_COMP_ID_IMU, "ROLL_D", ui->roll_D->value(), MAVLINK_TYPE_INT16_T);
+                len = mavlink_msg_to_send_buffer(buf, &msg);
+                serialport->write((const char*)buf, len);
+                oldParamConfig.rollKd = ui->roll_D->value();
+            }
+
+            /* pitch P, I, D */
+            if(ui->pitch_P->value() != oldParamConfig.pitchKp)
+            {
+                mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
+                                           MAV_COMP_ID_IMU, "PITCH_P", ui->pitch_P->value(), MAVLINK_TYPE_INT16_T);
+                len = mavlink_msg_to_send_buffer(buf, &msg);
+                serialport->write((const char*)buf, len);
+                oldParamConfig.pitchKp = ui->pitch_P->value();
+            }
+
+            if(ui->pitch_I->value() != oldParamConfig.pitchKi)
+            {
+                mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
+                                           MAV_COMP_ID_IMU, "PITCH_I", ui->pitch_I->value(), MAVLINK_TYPE_INT16_T);
+                len = mavlink_msg_to_send_buffer(buf, &msg);
+                serialport->write((const char*)buf, len);
+                oldParamConfig.pitchKi = ui->pitch_I->value();
+            }
+
+            if(ui->pitch_D->value() != oldParamConfig.pitchKd)
+            {
+                mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
+                                           MAV_COMP_ID_IMU, "PITCH_D", ui->pitch_D->value(), MAVLINK_TYPE_INT16_T);
+                len = mavlink_msg_to_send_buffer(buf, &msg);
+                serialport->write((const char*)buf, len);
+                oldParamConfig.pitchKd = ui->pitch_D->value();
+            }
+
+            /* yaw P, I, D */
+            if(ui->yaw_P->value() != oldParamConfig.yawKp)
+            {
+                mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
+                                           MAV_COMP_ID_IMU, "YAW_P", ui->yaw_P->value(), MAVLINK_TYPE_INT16_T);
+                len = mavlink_msg_to_send_buffer(buf, &msg);
+                serialport->write((const char*)buf, len);
+                oldParamConfig.yawKp = ui->yaw_P->value();
+            }
+
+            if(ui->yaw_I->value() != oldParamConfig.yawKi)
+            {
+                mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
+                                           MAV_COMP_ID_IMU, "YAW_I", ui->yaw_I->value(), MAVLINK_TYPE_INT16_T);
+                len = mavlink_msg_to_send_buffer(buf, &msg);
+                serialport->write((const char*)buf, len);
+                oldParamConfig.yawKi = ui->yaw_I->value();
+            }
+
+            if(ui->yaw_D->value() != oldParamConfig.yawKd)
+            {
+                mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
+                                           MAV_COMP_ID_IMU, "YAW_D", ui->yaw_D->value(), MAVLINK_TYPE_INT16_T);
+                len = mavlink_msg_to_send_buffer(buf, &msg);
+                serialport->write((const char*)buf, len);
+                oldParamConfig.yawKd = ui->yaw_D->value();
+            }
+
+            /* follow mode */
+            if(ui->follow_roll->value() != oldParamConfig.rollFollow)
+            {
+                mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
+                                           MAV_COMP_ID_IMU, "ROLL_FOLLOW", ui->follow_roll->value(), MAVLINK_TYPE_INT16_T);
+                len = mavlink_msg_to_send_buffer(buf, &msg);
+                serialport->write((const char*)buf, len);
+                oldParamConfig.rollFollow = ui->follow_roll->value();
+            }
+
+            if(ui->follow_pitch->value() != oldParamConfig.pitchFollow)
+            {
+                mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
+                                           MAV_COMP_ID_IMU, "PITCH_FOLLOW", ui->follow_pitch->value(), MAVLINK_TYPE_INT16_T);
+                len = mavlink_msg_to_send_buffer(buf, &msg);
+                serialport->write((const char*)buf, len);
+                oldParamConfig.pitchFollow = ui->follow_pitch->value();
+            }
+
+            if(ui->follow_yaw->value() != oldParamConfig.yawFollow)
+            {
+                mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
+                                           MAV_COMP_ID_IMU, "YAW_FOLLOW", ui->follow_yaw->value(), MAVLINK_TYPE_INT16_T);
+                len = mavlink_msg_to_send_buffer(buf, &msg);
+                serialport->write((const char*)buf, len);
+                oldParamConfig.yawFollow = ui->follow_yaw->value();
+            }
+
+            if(ui->roll_filter->value() != oldParamConfig.rollFilter)
+            {
+                mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
+                                           MAV_COMP_ID_IMU, "ROLL_FILTER", ui->roll_filter->value(), MAVLINK_TYPE_INT16_T);
+                len = mavlink_msg_to_send_buffer(buf, &msg);
+                serialport->write((const char*)buf, len);
+                oldParamConfig.rollFilter = ui->roll_filter->value();
+            }
+
+            if(ui->pitch_filter->value() != oldParamConfig.tiltFilter)
+            {
+                mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
+                                           MAV_COMP_ID_IMU, "PITCH_FILTER", ui->pitch_filter->value(), MAVLINK_TYPE_INT16_T);
+                len = mavlink_msg_to_send_buffer(buf, &msg);
+                serialport->write((const char*)buf, len);
+                oldParamConfig.tiltFilter = ui->pitch_filter->value();
+            }
+
+            if(ui->yaw_filter->value() != oldParamConfig.panFilter)
+            {
+                mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
+                                           MAV_COMP_ID_IMU, "YAW_FILTER", ui->yaw_filter->value(), MAVLINK_TYPE_INT16_T);
+                len = mavlink_msg_to_send_buffer(buf, &msg);
+                serialport->write((const char*)buf, len);
+                oldParamConfig.panFilter = ui->yaw_filter->value();
+            }
+        }
+        else if(ui->tabWidget->currentIndex()== 1)  // imu config tab
         {
-            mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
-                                       MAV_COMP_ID_IMU, "YAW_POWER", ui->yaw_Power->value(), MAVLINK_TYPE_INT16_T);
-            len = mavlink_msg_to_send_buffer(buf, &msg);
-            serialport->write((const char*)buf, len);
-            oldParamConfig.yawPower = ui->yaw_Power->value();
-        }
+            /* imu config */
+            if(ui->gyroTrust->value() != oldParamConfig.gyroTrust)
+            {
+                mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
+                                           MAV_COMP_ID_IMU, "GYRO_TRUST" , ui->gyroTrust->value(), MAVLINK_TYPE_INT16_T);
+                len = mavlink_msg_to_send_buffer(buf, &msg);
+                serialport->write((const char*)buf, len);
+                oldParamConfig.gyroTrust = ui->gyroTrust->value();
+            }
 
-        /* Number of Poles */
-        if(ui->roll_Pole->value()!= oldParamConfig.nPolesRoll)
+            if(ui->gyro_LPF->value() != oldParamConfig.gyroLPF)
+            {
+                mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
+                                           MAV_COMP_ID_IMU, "GYRO_LPF" , ui->gyro_LPF->value(), MAVLINK_TYPE_INT16_T);
+                len = mavlink_msg_to_send_buffer(buf, &msg);
+                serialport->write((const char*)buf, len);
+                oldParamConfig.gyroLPF = ui->gyro_LPF->value();
+            }
+
+            if(ui->accX_offset->text().toInt() != oldParamConfig.accXOffset)
+            {
+                mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
+                                           MAV_COMP_ID_IMU, "ACCX_OFFSET", ui->accX_offset->text().toInt(), MAVLINK_TYPE_INT16_T);
+                len = mavlink_msg_to_send_buffer(buf, &msg);
+                serialport->write((const char*)buf, len);
+                oldParamConfig.accXOffset = ui->accX_offset->text().toInt();
+            }
+
+            if(ui->accY_offset->text().toInt() != oldParamConfig.accYOffset)
+            {
+                mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
+                                           MAV_COMP_ID_IMU, "ACCY_OFFSET", ui->accY_offset->text().toInt(), MAVLINK_TYPE_INT16_T);
+                len = mavlink_msg_to_send_buffer(buf, &msg);
+                serialport->write((const char*)buf, len);
+                oldParamConfig.accYOffset = ui->accY_offset->text().toInt();
+            }
+
+            if(ui->accZ_offset->text().toInt() != oldParamConfig.accZOffset)
+            {
+                mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
+                                           MAV_COMP_ID_IMU, "ACCZ_OFFSET", ui->accZ_offset->text().toInt(), MAVLINK_TYPE_INT16_T);
+                len = mavlink_msg_to_send_buffer(buf, &msg);
+                serialport->write((const char*)buf, len);
+                oldParamConfig.accZOffset = ui->accZ_offset->text().toInt();
+            }
+
+            if(ui->useGPS->isChecked() != oldParamConfig.useGPS)
+            {
+                mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
+                                           MAV_COMP_ID_IMU, "USE_GPS", ui->useGPS->isChecked(), MAVLINK_TYPE_INT16_T);
+                len = mavlink_msg_to_send_buffer(buf, &msg);
+                serialport->write((const char*)buf, len);
+                oldParamConfig.useGPS = ui->useGPS->isChecked();
+            }
+
+            if(ui->gyroX_offset->text().toInt() != oldParamConfig.gyroXOffset)
+            {
+                mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
+                                           MAV_COMP_ID_IMU, "GYROX_OFFSET", ui->gyroX_offset->text().toInt(), MAVLINK_TYPE_INT16_T);
+                len = mavlink_msg_to_send_buffer(buf, &msg);
+                serialport->write((const char*)buf, len);
+                oldParamConfig.gyroXOffset = ui->gyroX_offset->text().toInt();
+            }
+
+            if(ui->gyroY_offset->text().toInt() != oldParamConfig.gyroYOffset)
+            {
+                mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
+                                           MAV_COMP_ID_IMU, "GYROY_OFFSET", ui->gyroY_offset->text().toInt(), MAVLINK_TYPE_INT16_T);
+                len = mavlink_msg_to_send_buffer(buf, &msg);
+                serialport->write((const char*)buf, len);
+                oldParamConfig.gyroYOffset = ui->gyroY_offset->text().toInt();
+            }
+
+            if(ui->gyroZ_offset->text().toInt() != oldParamConfig.gyroZOffset)
+            {
+                mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
+                                           MAV_COMP_ID_IMU, "GYROZ_OFFSET", ui->gyroZ_offset->text().toInt(), MAVLINK_TYPE_INT16_T);
+                len = mavlink_msg_to_send_buffer(buf, &msg);
+                serialport->write((const char*)buf, len);
+                oldParamConfig.gyroZOffset = ui->gyroZ_offset->text().toInt();
+            }
+
+            if(ui->calibGyro->isChecked() != oldParamConfig.skipGyroCalib)
+            {
+                mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
+                                           MAV_COMP_ID_IMU, "SKIP_GYRO_CALIB", ui->calibGyro->isChecked(), MAVLINK_TYPE_INT16_T);
+                len = mavlink_msg_to_send_buffer(buf, &msg);
+                serialport->write((const char*)buf, len);
+                oldParamConfig.skipGyroCalib = ui->calibGyro->isChecked();
+            }
+        }
+        else if(ui->tabWidget->currentIndex()== 2)  // rc config tab
         {
-            mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
-                                       MAV_COMP_ID_IMU, "NPOLES_ROLL", ui->roll_Pole->value(), MAVLINK_TYPE_INT16_T);
-            len = mavlink_msg_to_send_buffer(buf, &msg);
-            serialport->write((const char*)buf, len);
-            oldParamConfig.nPolesRoll = ui->roll_Pole->value();
-        }
+            /* RC config */
+            /* rc type */
+            if(ui->rc_source->currentIndex() != oldParamConfig.radioType)
+            {
+                mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
+                                           MAV_COMP_ID_IMU, "RADIO_TYPE", ui->rc_source->currentIndex(), MAVLINK_TYPE_INT16_T);
+                len = mavlink_msg_to_send_buffer(buf, &msg);
+                serialport->write((const char*)buf, len);
+                oldParamConfig.radioType = ui->rc_source->currentIndex();
+            }
 
-        if(ui->pitch_Pole->value()!= oldParamConfig.nPolesPitch)
+            /* channel */
+            if((ui->rollChan->currentIndex() != oldParamConfig.sbusRollChan) && ui->rc_source->currentIndex()== 1) // only send this param when in sbus mode
+            {
+                mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
+                                           MAV_COMP_ID_IMU, "SBUS_ROLL_CHAN", ui->rollChan->currentIndex(), MAVLINK_TYPE_INT16_T);
+                len = mavlink_msg_to_send_buffer(buf, &msg);
+                serialport->write((const char*)buf, len);
+                oldParamConfig.sbusRollChan = ui->rollChan->currentIndex();
+            }
+
+            if((ui->pitchChan->currentIndex() != oldParamConfig.sbusPitchChan)&& ui->rc_source->currentIndex()== 1)
+            {
+                mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
+                                           MAV_COMP_ID_IMU, "SBUS_PITCH_CHAN", ui->pitchChan->currentIndex(), MAVLINK_TYPE_INT16_T);
+                len = mavlink_msg_to_send_buffer(buf, &msg);
+                serialport->write((const char*)buf, len);
+                oldParamConfig.sbusPitchChan = ui->pitchChan->currentIndex();
+            }
+
+            if((ui->yawChan->currentIndex() != oldParamConfig.sbusYawChan)&& ui->rc_source->currentIndex()== 1)
+            {
+                mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
+                                           MAV_COMP_ID_IMU, "SBUS_YAW_CHAN", ui->yawChan->currentIndex(), MAVLINK_TYPE_INT16_T);
+                len = mavlink_msg_to_send_buffer(buf, &msg);
+                serialport->write((const char*)buf, len);
+                oldParamConfig.sbusYawChan = ui->yawChan->currentIndex();
+            }
+
+            if((ui->modeChan->currentIndex() != oldParamConfig.sbusModeChan)&& ui->rc_source->currentIndex()== 1)
+            {
+                mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
+                                           MAV_COMP_ID_IMU, "SBUS_MODE_CHAN", ui->modeChan->currentIndex(), MAVLINK_TYPE_INT16_T);
+                len = mavlink_msg_to_send_buffer(buf, &msg);
+                serialport->write((const char*)buf, len);
+                oldParamConfig.sbusModeChan = ui->modeChan->currentIndex();
+            }
+
+            /* rc LPF*/
+            if((ui->rcLPF_roll->value() != oldParamConfig.rcRollLPF)&& (ui->rc_source->currentIndex()==0 || ui->rc_source->currentIndex()==1))
+            {
+                mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
+                                           MAV_COMP_ID_IMU, "RC_ROLL_LPF" , ui->rcLPF_roll->value(), MAVLINK_TYPE_INT16_T);
+                len = mavlink_msg_to_send_buffer(buf, &msg);
+                serialport->write((const char*)buf, len);
+                oldParamConfig.rcRollLPF = ui->rcLPF_roll->value();
+            }
+
+            if((ui->rcLPF_pitch->value() != oldParamConfig.rcPitchLPF)&& (ui->rc_source->currentIndex()==0 || ui->rc_source->currentIndex()==1))
+            {
+                mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
+                                           MAV_COMP_ID_IMU, "RC_PITCH_LPF" , ui->rcLPF_pitch->value(), MAVLINK_TYPE_INT16_T);
+                len = mavlink_msg_to_send_buffer(buf, &msg);
+                serialport->write((const char*)buf, len);
+                oldParamConfig.rcPitchLPF = ui->rcLPF_pitch->value();
+            }
+
+            if((ui->rcLPF_yaw->value() != oldParamConfig.rcYawLPF)&& (ui->rc_source->currentIndex()==0 || ui->rc_source->currentIndex()==1))
+            {
+                mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
+                                           MAV_COMP_ID_IMU, "RC_YAW_LPF" , ui->rcLPF_yaw->value(), MAVLINK_TYPE_INT16_T);
+                len = mavlink_msg_to_send_buffer(buf, &msg);
+                serialport->write((const char*)buf, len);
+                oldParamConfig.rcYawLPF = ui->rcLPF_yaw->value();
+            }
+
+            /* rc trim value */
+            if((ui->trim_roll->value() != oldParamConfig.rcRollTrim)&& (ui->rc_source->currentIndex()==0 || ui->rc_source->currentIndex()==1))
+            {
+                mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
+                                           MAV_COMP_ID_IMU, "RC_ROLL_TRIM" , ui->trim_roll->value(), MAVLINK_TYPE_INT16_T);
+                len = mavlink_msg_to_send_buffer(buf, &msg);
+                serialport->write((const char*)buf, len);
+                oldParamConfig.rcRollTrim = ui->trim_roll->value();
+            }
+
+            if((ui->trim_pitch->value() != oldParamConfig.rcPitchTrim)&& (ui->rc_source->currentIndex()==0 || ui->rc_source->currentIndex()==1))
+            {
+                mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
+                                           MAV_COMP_ID_IMU, "RC_PITCH_TRIM" , ui->trim_pitch->value(), MAVLINK_TYPE_INT16_T);
+                len = mavlink_msg_to_send_buffer(buf, &msg);
+                serialport->write((const char*)buf, len);
+                oldParamConfig.rcPitchTrim = ui->trim_pitch->value();
+            }
+
+            if((ui->trim_yaw->value() != oldParamConfig.rcYawTrim)&& (ui->rc_source->currentIndex()==0 || ui->rc_source->currentIndex()==1))
+            {
+                mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
+                                           MAV_COMP_ID_IMU, "RC_YAW_TRIM" , ui->trim_yaw->value(), MAVLINK_TYPE_INT16_T);
+                len = mavlink_msg_to_send_buffer(buf, &msg);
+                serialport->write((const char*)buf, len);
+                oldParamConfig.rcYawTrim = ui->trim_yaw->value();
+            }
+
+            /* rc mode */
+            if((ui->mode_roll->currentIndex() != oldParamConfig.rcRollMode)&& (ui->rc_source->currentIndex()==0 || ui->rc_source->currentIndex()==1))
+            {
+                mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
+                                           MAV_COMP_ID_IMU, "RC_ROLL_MODE" , ui->mode_roll->currentIndex(), MAVLINK_TYPE_INT16_T);
+                len = mavlink_msg_to_send_buffer(buf, &msg);
+                serialport->write((const char*)buf, len);
+                oldParamConfig.rcRollMode = ui->mode_roll->currentIndex();
+            }
+
+            if((ui->mode_pitch->currentIndex() != oldParamConfig.rcPitchMode)&& (ui->rc_source->currentIndex()==0 || ui->rc_source->currentIndex()==1))
+            {
+                mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
+                                           MAV_COMP_ID_IMU, "RC_PITCH_MODE" , ui->mode_pitch->currentIndex(), MAVLINK_TYPE_INT16_T);
+                len = mavlink_msg_to_send_buffer(buf, &msg);
+                serialport->write((const char*)buf, len);
+                oldParamConfig.rcPitchMode = ui->mode_pitch->currentIndex();
+            }
+
+            if((ui->mode_yaw->currentIndex() != oldParamConfig.rcYawMode)&& (ui->rc_source->currentIndex()==0 || ui->rc_source->currentIndex()==1))
+            {
+                mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
+                                           MAV_COMP_ID_IMU, "RC_YAW_MODE" , ui->mode_yaw->currentIndex(), MAVLINK_TYPE_INT16_T);
+                len = mavlink_msg_to_send_buffer(buf, &msg);
+                serialport->write((const char*)buf, len);
+                oldParamConfig.rcYawMode = ui->mode_yaw->currentIndex();
+            }
+        }
+        else if(ui->tabWidget->currentIndex()== 3)  // data display tab
         {
-            mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
-                                       MAV_COMP_ID_IMU, "NPOLES_PITCH", ui->pitch_Pole->value(), MAVLINK_TYPE_INT16_T);
-            len = mavlink_msg_to_send_buffer(buf, &msg);
-            serialport->write((const char*)buf, len);
-            oldParamConfig.nPolesPitch = ui->pitch_Pole->value();
+            // show message read only
+            QMessageBox::information(this, "Message", "You can not write or change these values, just read only!");
         }
-
-        if(ui->yaw_Pole->value()!= oldParamConfig.nPolesYaw)
-        {
-            mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
-                                       MAV_COMP_ID_IMU, "NPOLES_YAW", ui->yaw_Pole->value(), MAVLINK_TYPE_INT16_T);
-            len = mavlink_msg_to_send_buffer(buf, &msg);
-            serialport->write((const char*)buf, len);
-            oldParamConfig.nPolesYaw =ui->yaw_Pole->value();
-        }
-
-        /* Roll Motor limited range travel*/
-        if(ui->roll_maxTravel->value()!= oldParamConfig.travelMaxRoll)
-        {
-            mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
-                                       MAV_COMP_ID_IMU, "TRAVEL_MAX_ROLL", ui->roll_maxTravel->value(), MAVLINK_TYPE_INT16_T);
-            len = mavlink_msg_to_send_buffer(buf, &msg);
-            serialport->write((const char*)buf, len);
-            oldParamConfig.travelMaxRoll = ui->roll_maxTravel->value();
-        }
-
-        if(ui->roll_minTravel->value()!= oldParamConfig.travelMinRoll)
-        {
-            mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
-                                       MAV_COMP_ID_IMU, "TRAVEL_MIN_ROLL", ui->roll_minTravel->value(), MAVLINK_TYPE_INT16_T);
-            len = mavlink_msg_to_send_buffer(buf, &msg);
-            serialport->write((const char*)buf, len);
-            oldParamConfig.travelMinRoll = ui->roll_minTravel->value();
-        }
-
-        /* Pitch Motor limited range travel*/
-        if(ui->pitch_maxTravel->value()!= oldParamConfig.travelMaxPitch)
-        {
-            mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
-                                       MAV_COMP_ID_IMU, "TRAVEL_MAX_PIT", ui->pitch_maxTravel->value(), MAVLINK_TYPE_INT16_T);
-            len = mavlink_msg_to_send_buffer(buf, &msg);
-            serialport->write((const char*)buf, len);
-            oldParamConfig.travelMaxPitch = ui->pitch_maxTravel->value();
-        }
-
-        if(ui->pitch_minTravel->value()!= oldParamConfig.travelMinPitch)
-        {
-            mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
-                                       MAV_COMP_ID_IMU, "TRAVEL_MIN_PIT", ui->pitch_minTravel->value(), MAVLINK_TYPE_INT16_T);
-            len = mavlink_msg_to_send_buffer(buf, &msg);
-            serialport->write((const char*)buf, len);
-            oldParamConfig.travelMinPitch = ui->pitch_minTravel->value();
-        }
-
-        /* Yaw Motor limited range travel*/
-        if(ui->yaw_maxTravel->value()!= oldParamConfig.travelMaxYaw)
-        {
-            mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
-                                       MAV_COMP_ID_IMU, "TRAVEL_MAX_YAW", ui->yaw_maxTravel->value(), MAVLINK_TYPE_INT16_T);
-            len = mavlink_msg_to_send_buffer(buf, &msg);
-            serialport->write((const char*)buf, len);
-            oldParamConfig.travelMaxYaw = ui->yaw_maxTravel->value();
-        }
-
-        if(ui->yaw_minTravel->value()!= oldParamConfig.travelMinYaw)
-        {
-            mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
-                                       MAV_COMP_ID_IMU, "TRAVEL_MIN_YAW", ui->yaw_minTravel->value(), MAVLINK_TYPE_INT16_T);
-            len = mavlink_msg_to_send_buffer(buf, &msg);
-            serialport->write((const char*)buf, len);
-            oldParamConfig.travelMinYaw = ui->yaw_minTravel->value();
-        }
-
-        /* Motor Direction */
-        if(ui->roll_Dir->currentIndex() != oldParamConfig.dirMotorRoll)
-        {
-            mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
-                                       MAV_COMP_ID_IMU, "DIR_MOTOR_ROLL", ui->roll_Dir->currentIndex(), MAVLINK_TYPE_INT16_T);
-            len = mavlink_msg_to_send_buffer(buf, &msg);
-            serialport->write((const char*)buf, len);
-            oldParamConfig.dirMotorRoll = ui->roll_Dir->currentIndex();
-        }
-
-        if(ui->pitch_Dir->currentIndex() != oldParamConfig.dirMotorPitch)
-        {
-            mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
-                                       MAV_COMP_ID_IMU, "DIR_MOTOR_PITCH", ui->pitch_Dir->currentIndex(), MAVLINK_TYPE_INT16_T);
-            len = mavlink_msg_to_send_buffer(buf, &msg);
-            serialport->write((const char*)buf, len);
-            oldParamConfig.dirMotorPitch = ui->pitch_Dir->currentIndex();
-        }
-
-        if(ui->yaw_Dir->currentIndex() != oldParamConfig.dirMotorYaw)
-        {
-            mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
-                                       MAV_COMP_ID_IMU, "DIR_MOTOR_YAW", ui->yaw_Dir->currentIndex(), MAVLINK_TYPE_INT16_T);
-            len = mavlink_msg_to_send_buffer(buf, &msg);
-            serialport->write((const char*)buf, len);
-            oldParamConfig.dirMotorYaw = ui->yaw_Dir->currentIndex();
-        }
-
-        /* Motor Frequency */
-        if(ui->motor_freq->currentIndex() != oldParamConfig.motorFreq)
-        {
-            mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
-                                       MAV_COMP_ID_IMU, "MOTOR_FREQ", ui->motor_freq->currentIndex(), MAVLINK_TYPE_INT16_T);
-            len = mavlink_msg_to_send_buffer(buf, &msg);
-            serialport->write((const char*)buf, len);
-            oldParamConfig.motorFreq = ui->motor_freq->currentIndex();
-        }
-
-
-        /* pid config */
-        /* roll P, I, D */
-        if(ui->roll_P->value() != oldParamConfig.rollKp)
-        {
-            mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
-                                       MAV_COMP_ID_IMU, "ROLL_P", ui->roll_P->value(), MAVLINK_TYPE_INT16_T);
-            len = mavlink_msg_to_send_buffer(buf, &msg);
-            serialport->write((const char*)buf, len);
-            oldParamConfig.rollKp = ui->roll_P->value();
-        }
-
-        if(ui->roll_I->value() != oldParamConfig.rollKi)
-        {
-            mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
-                                       MAV_COMP_ID_IMU, "ROLL_I", ui->roll_I->value(), MAVLINK_TYPE_INT16_T);
-            len = mavlink_msg_to_send_buffer(buf, &msg);
-            serialport->write((const char*)buf, len);
-            oldParamConfig.rollKi = ui->roll_I->value();
-        }
-
-        if(ui->roll_D->value() != oldParamConfig.rollKd)
-        {
-            mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
-                                       MAV_COMP_ID_IMU, "ROLL_D", ui->roll_D->value(), MAVLINK_TYPE_INT16_T);
-            len = mavlink_msg_to_send_buffer(buf, &msg);
-            serialport->write((const char*)buf, len);
-            oldParamConfig.rollKd = ui->roll_D->value();
-        }
-
-        /* pitch P, I, D */
-        if(ui->pitch_P->value() != oldParamConfig.pitchKp)
-        {
-            mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
-                                       MAV_COMP_ID_IMU, "PITCH_P", ui->pitch_P->value(), MAVLINK_TYPE_INT16_T);
-            len = mavlink_msg_to_send_buffer(buf, &msg);
-            serialport->write((const char*)buf, len);
-            oldParamConfig.pitchKp = ui->pitch_P->value();
-        }
-
-        if(ui->pitch_I->value() != oldParamConfig.pitchKi)
-        {
-            mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
-                                       MAV_COMP_ID_IMU, "PITCH_I", ui->pitch_I->value(), MAVLINK_TYPE_INT16_T);
-            len = mavlink_msg_to_send_buffer(buf, &msg);
-            serialport->write((const char*)buf, len);
-            oldParamConfig.pitchKi = ui->pitch_I->value();
-        }
-
-        if(ui->pitch_D->value() != oldParamConfig.pitchKd)
-        {
-            mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
-                                       MAV_COMP_ID_IMU, "PITCH_D", ui->pitch_D->value(), MAVLINK_TYPE_INT16_T);
-            len = mavlink_msg_to_send_buffer(buf, &msg);
-            serialport->write((const char*)buf, len);
-            oldParamConfig.pitchKd = ui->pitch_D->value();
-        }
-
-        /* yaw P, I, D */
-        if(ui->yaw_P->value() != oldParamConfig.yawKp)
-        {
-            mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
-                                       MAV_COMP_ID_IMU, "YAW_P", ui->yaw_P->value(), MAVLINK_TYPE_INT16_T);
-            len = mavlink_msg_to_send_buffer(buf, &msg);
-            serialport->write((const char*)buf, len);
-            oldParamConfig.yawKp = ui->yaw_P->value();
-        }
-
-        if(ui->yaw_I->value() != oldParamConfig.yawKi)
-        {
-            mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
-                                       MAV_COMP_ID_IMU, "YAW_I", ui->yaw_I->value(), MAVLINK_TYPE_INT16_T);
-            len = mavlink_msg_to_send_buffer(buf, &msg);
-            serialport->write((const char*)buf, len);
-            oldParamConfig.yawKi = ui->yaw_I->value();
-        }
-
-        if(ui->yaw_D->value() != oldParamConfig.yawKd)
-        {
-            mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
-                                       MAV_COMP_ID_IMU, "YAW_D", ui->yaw_D->value(), MAVLINK_TYPE_INT16_T);
-            len = mavlink_msg_to_send_buffer(buf, &msg);
-            serialport->write((const char*)buf, len);
-            oldParamConfig.yawKd = ui->yaw_D->value();
-        }
-
-        /* follow mode */
-        if(ui->follow_roll->value() != oldParamConfig.rollFollow)
-        {
-            mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
-                                       MAV_COMP_ID_IMU, "ROLL_FOLLOW", ui->follow_roll->value(), MAVLINK_TYPE_INT16_T);
-            len = mavlink_msg_to_send_buffer(buf, &msg);
-            serialport->write((const char*)buf, len);
-            oldParamConfig.rollFollow = ui->follow_roll->value();
-        }
-
-        if(ui->follow_pitch->value() != oldParamConfig.pitchFollow)
-        {
-            mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
-                                       MAV_COMP_ID_IMU, "PITCH_FOLLOW", ui->follow_pitch->value(), MAVLINK_TYPE_INT16_T);
-            len = mavlink_msg_to_send_buffer(buf, &msg);
-            serialport->write((const char*)buf, len);
-            oldParamConfig.pitchFollow = ui->follow_pitch->value();
-        }
-
-        if(ui->follow_yaw->value() != oldParamConfig.yawFollow)
-        {
-            mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
-                                       MAV_COMP_ID_IMU, "YAW_FOLLOW", ui->follow_yaw->value(), MAVLINK_TYPE_INT16_T);
-            len = mavlink_msg_to_send_buffer(buf, &msg);
-            serialport->write((const char*)buf, len);
-            oldParamConfig.yawFollow = ui->follow_yaw->value();
-        }
-
-        if(ui->roll_filter->value() != oldParamConfig.rollFilter)
-        {
-            mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
-                                       MAV_COMP_ID_IMU, "ROLL_FILTER", ui->roll_filter->value(), MAVLINK_TYPE_INT16_T);
-            len = mavlink_msg_to_send_buffer(buf, &msg);
-            serialport->write((const char*)buf, len);
-            oldParamConfig.rollFilter = ui->roll_filter->value();
-        }
-
-        if(ui->pitch_filter->value() != oldParamConfig.tiltFilter)
-        {
-            mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
-                                       MAV_COMP_ID_IMU, "PITCH_FILTER", ui->pitch_filter->value(), MAVLINK_TYPE_INT16_T);
-            len = mavlink_msg_to_send_buffer(buf, &msg);
-            serialport->write((const char*)buf, len);
-            oldParamConfig.tiltFilter = ui->pitch_filter->value();
-        }
-
-        if(ui->yaw_filter->value() != oldParamConfig.panFilter)
-        {
-            mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
-                                       MAV_COMP_ID_IMU, "YAW_FILTER", ui->yaw_filter->value(), MAVLINK_TYPE_INT16_T);
-            len = mavlink_msg_to_send_buffer(buf, &msg);
-            serialport->write((const char*)buf, len);
-            oldParamConfig.panFilter = ui->yaw_filter->value();
-        }
+        ui->information_box->clear();
+        ui->information_box->setPlainText("Write Parameters completed.");
+        ui->writeParam->setEnabled(true);
     }
-    else if(ui->tabWidget->currentIndex()== 1)  // imu config tab
-    {
-        /* imu config */
-        if(ui->gyroTrust->value() != oldParamConfig.gyroTrust)
-        {
-            mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
-                                       MAV_COMP_ID_IMU, "GYRO_TRUST" , ui->gyroTrust->value(), MAVLINK_TYPE_INT16_T);
-            len = mavlink_msg_to_send_buffer(buf, &msg);
-            serialport->write((const char*)buf, len);
-            oldParamConfig.gyroTrust = ui->gyroTrust->value();
-        }
-
-        if(ui->gyro_LPF->value() != oldParamConfig.gyroLPF)
-        {
-            mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
-                                       MAV_COMP_ID_IMU, "GYRO_LPF" , ui->gyro_LPF->value(), MAVLINK_TYPE_INT16_T);
-            len = mavlink_msg_to_send_buffer(buf, &msg);
-            serialport->write((const char*)buf, len);
-            oldParamConfig.gyroLPF = ui->gyro_LPF->value();
-        }
-
-        if(ui->accX_offset->text().toInt() != oldParamConfig.accXOffset)
-        {
-            mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
-                                       MAV_COMP_ID_IMU, "ACCX_OFFSET", ui->accX_offset->text().toInt(), MAVLINK_TYPE_INT16_T);
-            len = mavlink_msg_to_send_buffer(buf, &msg);
-            serialport->write((const char*)buf, len);
-            oldParamConfig.accXOffset = ui->accX_offset->text().toInt();
-        }
-
-        if(ui->accY_offset->text().toInt() != oldParamConfig.accYOffset)
-        {
-            mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
-                                       MAV_COMP_ID_IMU, "ACCY_OFFSET", ui->accY_offset->text().toInt(), MAVLINK_TYPE_INT16_T);
-            len = mavlink_msg_to_send_buffer(buf, &msg);
-            serialport->write((const char*)buf, len);
-            oldParamConfig.accYOffset = ui->accY_offset->text().toInt();
-        }
-
-        if(ui->accZ_offset->text().toInt() != oldParamConfig.accZOffset)
-        {
-            mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
-                                       MAV_COMP_ID_IMU, "ACCZ_OFFSET", ui->accZ_offset->text().toInt(), MAVLINK_TYPE_INT16_T);
-            len = mavlink_msg_to_send_buffer(buf, &msg);
-            serialport->write((const char*)buf, len);
-            oldParamConfig.accZOffset = ui->accZ_offset->text().toInt();
-        }
-
-        if(ui->useGPS->isChecked() != oldParamConfig.useGPS)
-        {
-            mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
-                                       MAV_COMP_ID_IMU, "USE_GPS", ui->useGPS->isChecked(), MAVLINK_TYPE_INT16_T);
-            len = mavlink_msg_to_send_buffer(buf, &msg);
-            serialport->write((const char*)buf, len);
-            oldParamConfig.useGPS = ui->useGPS->isChecked();
-        }
-
-        if(ui->gyroX_offset->text().toInt() != oldParamConfig.gyroXOffset)
-        {
-            mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
-                                       MAV_COMP_ID_IMU, "GYROX_OFFSET", ui->gyroX_offset->text().toInt(), MAVLINK_TYPE_INT16_T);
-            len = mavlink_msg_to_send_buffer(buf, &msg);
-            serialport->write((const char*)buf, len);
-            oldParamConfig.gyroXOffset = ui->gyroX_offset->text().toInt();
-        }
-
-        if(ui->gyroY_offset->text().toInt() != oldParamConfig.gyroYOffset)
-        {
-            mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
-                                       MAV_COMP_ID_IMU, "GYROY_OFFSET", ui->gyroY_offset->text().toInt(), MAVLINK_TYPE_INT16_T);
-            len = mavlink_msg_to_send_buffer(buf, &msg);
-            serialport->write((const char*)buf, len);
-            oldParamConfig.gyroYOffset = ui->gyroY_offset->text().toInt();
-        }
-
-        if(ui->gyroZ_offset->text().toInt() != oldParamConfig.gyroZOffset)
-        {
-            mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
-                                       MAV_COMP_ID_IMU, "GYROZ_OFFSET", ui->gyroZ_offset->text().toInt(), MAVLINK_TYPE_INT16_T);
-            len = mavlink_msg_to_send_buffer(buf, &msg);
-            serialport->write((const char*)buf, len);
-            oldParamConfig.gyroZOffset = ui->gyroZ_offset->text().toInt();
-        }
-
-        if(ui->calibGyro->isChecked() != oldParamConfig.skipGyroCalib)
-        {
-            mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
-                                       MAV_COMP_ID_IMU, "SKIP_GYRO_CALIB", ui->calibGyro->isChecked(), MAVLINK_TYPE_INT16_T);
-            len = mavlink_msg_to_send_buffer(buf, &msg);
-            serialport->write((const char*)buf, len);
-            oldParamConfig.skipGyroCalib = ui->calibGyro->isChecked();
-        }
-    }
-    else if(ui->tabWidget->currentIndex()== 2)  // rc config tab
-    {
-        /* RC config */       
-        /* rc type */
-        if(ui->rc_source->currentIndex() != oldParamConfig.radioType)
-        {
-            mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
-                                       MAV_COMP_ID_IMU, "RADIO_TYPE", ui->rc_source->currentIndex(), MAVLINK_TYPE_INT16_T);
-            len = mavlink_msg_to_send_buffer(buf, &msg);
-            serialport->write((const char*)buf, len);
-            oldParamConfig.radioType = ui->rc_source->currentIndex();
-        }             
-
-        /* channel */
-        if((ui->rollChan->currentIndex() != oldParamConfig.sbusRollChan) && ui->rc_source->currentIndex()== 1) // only send this param when in sbus mode
-        {
-            mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
-                                       MAV_COMP_ID_IMU, "SBUS_ROLL_CHAN", ui->rollChan->currentIndex(), MAVLINK_TYPE_INT16_T);
-            len = mavlink_msg_to_send_buffer(buf, &msg);
-            serialport->write((const char*)buf, len);
-            oldParamConfig.sbusRollChan = ui->rollChan->currentIndex();
-        }
-
-        if((ui->pitchChan->currentIndex() != oldParamConfig.sbusPitchChan)&& ui->rc_source->currentIndex()== 1)
-        {
-            mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
-                                       MAV_COMP_ID_IMU, "SBUS_PITCH_CHAN", ui->pitchChan->currentIndex(), MAVLINK_TYPE_INT16_T);
-            len = mavlink_msg_to_send_buffer(buf, &msg);
-            serialport->write((const char*)buf, len);
-            oldParamConfig.sbusPitchChan = ui->pitchChan->currentIndex();
-        }
-
-        if((ui->yawChan->currentIndex() != oldParamConfig.sbusYawChan)&& ui->rc_source->currentIndex()== 1)
-        {
-            mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
-                                       MAV_COMP_ID_IMU, "SBUS_YAW_CHAN", ui->yawChan->currentIndex(), MAVLINK_TYPE_INT16_T);
-            len = mavlink_msg_to_send_buffer(buf, &msg);
-            serialport->write((const char*)buf, len);
-            oldParamConfig.sbusYawChan = ui->yawChan->currentIndex();
-        }
-
-        if((ui->modeChan->currentIndex() != oldParamConfig.sbusModeChan)&& ui->rc_source->currentIndex()== 1)
-        {
-            mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
-                                       MAV_COMP_ID_IMU, "SBUS_MODE_CHAN", ui->modeChan->currentIndex(), MAVLINK_TYPE_INT16_T);
-            len = mavlink_msg_to_send_buffer(buf, &msg);
-            serialport->write((const char*)buf, len);
-            oldParamConfig.sbusModeChan = ui->modeChan->currentIndex();
-        }
-
-        /* rc LPF*/
-        if((ui->rcLPF_roll->value() != oldParamConfig.rcRollLPF)&& (ui->rc_source->currentIndex()==0 || ui->rc_source->currentIndex()==1))
-        {
-            mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
-                                       MAV_COMP_ID_IMU, "RC_ROLL_LPF" , ui->rcLPF_roll->value(), MAVLINK_TYPE_INT16_T);
-            len = mavlink_msg_to_send_buffer(buf, &msg);
-            serialport->write((const char*)buf, len);
-            oldParamConfig.rcRollLPF = ui->rcLPF_roll->value();
-        }
-
-        if((ui->rcLPF_pitch->value() != oldParamConfig.rcPitchLPF)&& (ui->rc_source->currentIndex()==0 || ui->rc_source->currentIndex()==1))
-        {
-            mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
-                                       MAV_COMP_ID_IMU, "RC_PITCH_LPF" , ui->rcLPF_pitch->value(), MAVLINK_TYPE_INT16_T);
-            len = mavlink_msg_to_send_buffer(buf, &msg);
-            serialport->write((const char*)buf, len);
-            oldParamConfig.rcPitchLPF = ui->rcLPF_pitch->value();
-        }
-
-        if((ui->rcLPF_yaw->value() != oldParamConfig.rcYawLPF)&& (ui->rc_source->currentIndex()==0 || ui->rc_source->currentIndex()==1))
-        {
-            mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
-                                       MAV_COMP_ID_IMU, "RC_YAW_LPF" , ui->rcLPF_yaw->value(), MAVLINK_TYPE_INT16_T);
-            len = mavlink_msg_to_send_buffer(buf, &msg);
-            serialport->write((const char*)buf, len);
-            oldParamConfig.rcYawLPF = ui->rcLPF_yaw->value();
-        }
-
-        /* rc trim value */
-        if((ui->trim_roll->value() != oldParamConfig.rcRollTrim)&& (ui->rc_source->currentIndex()==0 || ui->rc_source->currentIndex()==1))
-        {
-            mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
-                                       MAV_COMP_ID_IMU, "RC_ROLL_TRIM" , ui->trim_roll->value(), MAVLINK_TYPE_INT16_T);
-            len = mavlink_msg_to_send_buffer(buf, &msg);
-            serialport->write((const char*)buf, len);
-            oldParamConfig.rcRollTrim = ui->trim_roll->value();
-        }
-
-        if((ui->trim_pitch->value() != oldParamConfig.rcPitchTrim)&& (ui->rc_source->currentIndex()==0 || ui->rc_source->currentIndex()==1))
-        {
-            mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
-                                       MAV_COMP_ID_IMU, "RC_PITCH_TRIM" , ui->trim_pitch->value(), MAVLINK_TYPE_INT16_T);
-            len = mavlink_msg_to_send_buffer(buf, &msg);
-            serialport->write((const char*)buf, len);
-            oldParamConfig.rcPitchTrim = ui->trim_pitch->value();
-        }
-
-        if((ui->trim_yaw->value() != oldParamConfig.rcYawTrim)&& (ui->rc_source->currentIndex()==0 || ui->rc_source->currentIndex()==1))
-        {
-            mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
-                                       MAV_COMP_ID_IMU, "RC_YAW_TRIM" , ui->trim_yaw->value(), MAVLINK_TYPE_INT16_T);
-            len = mavlink_msg_to_send_buffer(buf, &msg);
-            serialport->write((const char*)buf, len);
-            oldParamConfig.rcYawTrim = ui->trim_yaw->value();
-        }
-
-        /* rc mode */
-        if((ui->mode_roll->currentIndex() != oldParamConfig.rcRollMode)&& (ui->rc_source->currentIndex()==0 || ui->rc_source->currentIndex()==1))
-        {
-            mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
-                                       MAV_COMP_ID_IMU, "RC_ROLL_MODE" , ui->mode_roll->currentIndex(), MAVLINK_TYPE_INT16_T);
-            len = mavlink_msg_to_send_buffer(buf, &msg);
-            serialport->write((const char*)buf, len);
-            oldParamConfig.rcRollMode = ui->mode_roll->currentIndex();
-        }
-
-        if((ui->mode_pitch->currentIndex() != oldParamConfig.rcPitchMode)&& (ui->rc_source->currentIndex()==0 || ui->rc_source->currentIndex()==1))
-        {
-            mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
-                                       MAV_COMP_ID_IMU, "RC_PITCH_MODE" , ui->mode_pitch->currentIndex(), MAVLINK_TYPE_INT16_T);
-            len = mavlink_msg_to_send_buffer(buf, &msg);
-            serialport->write((const char*)buf, len);
-            oldParamConfig.rcPitchMode = ui->mode_pitch->currentIndex();
-        }
-
-        if((ui->mode_yaw->currentIndex() != oldParamConfig.rcYawMode)&& (ui->rc_source->currentIndex()==0 || ui->rc_source->currentIndex()==1))
-        {
-            mavlink_msg_param_set_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, TARGET_SYSTEM_ID, \
-                                       MAV_COMP_ID_IMU, "RC_YAW_MODE" , ui->mode_yaw->currentIndex(), MAVLINK_TYPE_INT16_T);
-            len = mavlink_msg_to_send_buffer(buf, &msg);
-            serialport->write((const char*)buf, len);
-            oldParamConfig.rcYawMode = ui->mode_yaw->currentIndex();
-        }
-    }
-    else if(ui->tabWidget->currentIndex()== 3)  // data display tab
-    {
-        // show message read only
-        QMessageBox::information(this, "Message", "You can not write or change these values, just read only!");
-    }
-
-    ui->information_box->clear();
-    ui->information_box->setPlainText("Write Parameters completed.");
+    else
+        QMessageBox::information(this,"Message", "Please click Connect button first.",QMessageBox::Ok,QMessageBox::Cancel);
 }
 
 void MainWindow::timeOutHandle(){
@@ -1968,16 +1981,18 @@ void MainWindow::updateDebugValues(float value, uint8_t index)
 
 void MainWindow::on_upgradeFWButton_clicked()
 {
-    QString appFolder = QCoreApplication::applicationDirPath()+ "/thirdParty/FlyMCU.exe" ;
-    appFolder.replace("/","\\\\");  // replace "/ to "\\" in order to run th FlyMCU.exe
-    qDebug()<< appFolder;
+//    QString appFolder = QCoreApplication::applicationDirPath()+ "/thirdParty/FlyMCU.exe" ;
+//    appFolder.replace("/","\\\\");  // replace "/ to "\\" in order to run th FlyMCU.exe
+//    qDebug()<< appFolder;
 
     if(!serialport->isOpen())
     {
         int res = QMessageBox::information(this,"Upgrade Firmware Confirm", "Press OK to Open the Upgrade FW Dialog",QMessageBox::Ok,QMessageBox::Cancel);
         if(res == QMessageBox::Ok)
         {
-             m_process.execute(appFolder, QStringList() << "" );
+//             m_process.execute(appFolder, QStringList() << "" );
+             m_process.execute("thirdParty/FlyMCU");
+             qDebug()<<"executed";
         }
     }
     else
@@ -2127,24 +2142,33 @@ void MainWindow::loadfileButtonClicked()
     int char_pos=0, filename_len=0;
     int temp=0;
     QString filename;
-    watchdogTimer->stop();
 
-    loadfilename = QFileDialog::getOpenFileName(this, tr("Open profile"),
-                                            "profiles", tr("XML files (*.xml)"));
-    qDebug() << loadfilename;
-    filename_len = loadfilename.size();
-    temp = filename_len;
+    if(serialport->isOpen())
+    {
+        watchdogTimer->stop();
+        loadfilename = QFileDialog::getOpenFileName(this, tr("Open profile"),
+                                                "profiles", tr("XML files (*.xml)"));
+        if(!loadfilename.isNull())
+        {
+            qDebug() << loadfilename;
+            filename_len = loadfilename.size();
+            temp = filename_len;
 
-    while(loadfilename.at(--temp) != '/')
-        char_pos = temp;
-    filename = loadfilename.right(filename_len - char_pos);
-    qDebug() << "file name: " + filename;
+            while(loadfilename.at(--temp) != '/')
+                char_pos = temp;
+            filename = loadfilename.right(filename_len - char_pos);
+            qDebug() << "file name: " + filename;
 
-    ui->profilename->setText(filename);
-    oldprofilename = filename.left(filename.size() - 4);
-    qDebug() << "old file name: " + oldprofilename;
+            ui->profilename->setText(filename);
+            oldprofilename = filename.left(filename.size() - 4);
 
-    importXMLfile(loadfilename);
+            importXMLfile(loadfilename);
+        }
+        else
+            qDebug() << "file name is null";
+    }
+    else
+        QMessageBox::information(this,"Message", "Please click Connect button first.",QMessageBox::Ok,QMessageBox::Cancel);
 }
 
 void MainWindow::savefileButtonClicked()
@@ -2297,16 +2321,20 @@ void MainWindow::on_calibAcc_Button_clicked()
     mavlink_message_t msg;
     uint8_t buf[MAVLINK_MAX_PACKET_LEN];
     uint8_t calib_mode=0;
+    if(serialport->isOpen())
+    {
+        watchdogTimer->stop();
 
-    watchdogTimer->stop();
+        calib_mode = ui->calibmodes->currentIndex();
 
-    calib_mode = ui->calibmodes->currentIndex();
+        mavlink_msg_acc_calib_request_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, calib_mode);
+        len = mavlink_msg_to_send_buffer(buf, &msg);
+        serialport->write((const char*)buf, len);
 
-    mavlink_msg_acc_calib_request_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, calib_mode);
-    len = mavlink_msg_to_send_buffer(buf, &msg);
-    serialport->write((const char*)buf, len);
-
-    ui->calibAcc_Button->setEnabled(false);
+        ui->calibAcc_Button->setEnabled(false);
+    }
+    else
+        QMessageBox::information(this,"Message", "Please click Connect button first.",QMessageBox::Ok,QMessageBox::Cancel);
 }
 
 void MainWindow::on_calibGyro_Button_clicked()
@@ -2315,13 +2343,16 @@ void MainWindow::on_calibGyro_Button_clicked()
     mavlink_message_t msg;
     uint8_t buf[MAVLINK_MAX_PACKET_LEN];
 
-    watchdogTimer->stop();
-
-    mavlink_msg_gyro_calib_request_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, 0);
-    len = mavlink_msg_to_send_buffer(buf, &msg);
-    serialport->write((const char*)buf, len);
-
-//    ui->calibGyro_Button->setEnabled(false);
+    if(serialport->isOpen())
+    {
+//      watchdogTimer->stop();
+        mavlink_msg_gyro_calib_request_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, 0);
+        len = mavlink_msg_to_send_buffer(buf, &msg);
+        serialport->write((const char*)buf, len);
+//      ui->calibGyro_Button->setEnabled(false);
+    }
+    else
+        QMessageBox::information(this,"Message", "Please click Connect button first.",QMessageBox::Ok,QMessageBox::Cancel);
 }
 
 void MainWindow::on_rc_source_currentIndexChanged(int index)
@@ -2334,6 +2365,8 @@ void MainWindow::on_rc_source_currentIndexChanged(int index)
         ui->roll_ppmvalue->setVisible(true);
         ui->yaw_ppmvalue->setVisible(true);
         ui->mode_ppmvalue->setVisible(true);
+
+        ui->handDeviceConnectButton->setVisible(false);
 
         ui->pitchChan->setVisible(false);
         ui->rollChan->setVisible(false);
@@ -2430,6 +2463,8 @@ void MainWindow::on_rc_source_currentIndexChanged(int index)
         ui->lockdirection->setVisible(false);
         ui->groupBox_7->setVisible(false);
 
+        ui->handDeviceConnectButton->setVisible(false);
+
         ui->rc_channelslabel->setVisible(true);
         ui->rc_lpflabel->setVisible(true);
         ui->rc_trimlabel->setVisible(true);
@@ -2502,6 +2537,8 @@ void MainWindow::on_rc_source_currentIndexChanged(int index)
     }
     else if(index==2)  // HAND mode
     {
+        ui->handDeviceConnectButton->setVisible(true);
+
         ui->yawknob->setVisible(false);
         ui->pitchSlider->setVisible(false);
         ui->rollSlider->setVisible(false);
@@ -2589,6 +2626,8 @@ void MainWindow::on_rc_source_currentIndexChanged(int index)
         ui->lockdirection->setVisible(true);
         ui->groupBox_7->setVisible(true);
 
+        ui->handDeviceConnectButton->setVisible(false);
+
         ui->rc_channelslabel->setVisible(false);
         ui->rc_lpflabel->setVisible(false);
         ui->rc_trimlabel->setVisible(false);
@@ -2663,4 +2702,18 @@ void MainWindow::on_rc_source_currentIndexChanged(int index)
 void MainWindow::on_pitchChan_currentIndexChanged(int index)
 {
 
+}
+
+void MainWindow::on_handDeviceConnectButton_clicked()
+{
+    if(serialport->isOpen())
+    {
+        serialport->close();
+        watchdogTimer->stop();
+        chartTimer->stop();
+        ui->BoardConnectionStatusLabel->hide();
+        ui->information_box->clear();
+        ui->information_box->setPlainText("Connecting to handle device...");
+    }
+    updatePortStatus(serialport->isOpen());
 }

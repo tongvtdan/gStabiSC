@@ -146,6 +146,8 @@ private Q_SLOTS:
 
     void on_pitchChan_currentIndexChanged(int index);
 
+    void on_handDeviceConnectButton_clicked();
+
 signals:
     void messageReceived(QByteArray message);
     void heartBeatPulse(bool heartbeat_status);

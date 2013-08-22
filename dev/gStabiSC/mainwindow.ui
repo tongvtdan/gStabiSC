@@ -2642,7 +2642,7 @@
         <rect>
          <x>50</x>
          <y>23</y>
-         <width>85</width>
+         <width>101</width>
          <height>20</height>
         </rect>
        </property>
@@ -2650,7 +2650,7 @@
         <string>RC type in your system</string>
        </property>
        <property name="currentIndex">
-        <number>1</number>
+        <number>0</number>
        </property>
        <item>
         <property name="text">
@@ -2664,7 +2664,7 @@
        </item>
        <item>
         <property name="text">
-         <string>HAND</string>
+         <string>HAND DEVICE</string>
         </property>
        </item>
        <item>
@@ -3341,6 +3341,25 @@
         <bool>true</bool>
        </property>
       </widget>
+      <widget class="QPushButton" name="handDeviceConnectButton">
+       <property name="geometry">
+        <rect>
+         <x>200</x>
+         <y>23</y>
+         <width>81</width>
+         <height>23</height>
+        </rect>
+       </property>
+       <property name="toolTip">
+        <string>connect or disconnect serialport</string>
+       </property>
+       <property name="statusTip">
+        <string/>
+       </property>
+       <property name="text">
+        <string>Connect</string>
+       </property>
+      </widget>
       <zorder>mode_ppmvalue</zorder>
       <zorder>yaw_ppmvalue</zorder>
       <zorder>roll_ppmvalue</zorder>
@@ -3368,6 +3387,7 @@
       <zorder>mode_pitch</zorder>
       <zorder>mode_roll</zorder>
       <zorder>mode_yaw</zorder>
+      <zorder>handDeviceConnectButton</zorder>
      </widget>
      <widget class="QGroupBox" name="groupBox_7">
       <property name="geometry">
