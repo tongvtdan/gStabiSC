@@ -104,6 +104,7 @@ public slots:
       */
     void chartUpdateData();
     void updateDebugValues(float value, uint8_t index);
+    void rcSimulationSend();
 
 private slots:
     void on_upgradeFWButton_clicked();
@@ -113,25 +114,13 @@ private Q_SLOTS:
     void on_SerialPortConnectButton_clicked();
     void PortAddedRemoved();
     void onReadyReadData();
-//    void on_clearParamButton_clicked();
 
-
-    void on_pitchSlider_valueChanged(double value);
-    void on_rollSlider_valueChanged(double value);
-    void on_yawknob_valueChanged(double value);
     void on_yawknob_sliderReleased();
 
     void loadfileButtonClicked();
     void savefileButtonClicked();
     void init_var(); // init all variables
 
-
-    void on_ax_checkBox_toggled(bool checked);
-    void on_ay_checkBox_toggled(bool checked);
-    void on_az_checkBox_toggled(bool checked);
-    void on_gx_checkBox_toggled(bool checked);
-    void on_gy_checkBox_toggled(bool checked);
-    void on_gz_checkBox_toggled(bool checked);
     void on_pitch_checkBox_toggled(bool checked);
     void on_roll_checkBox_toggled(bool checked);
     void on_yaw_checkBox_toggled(bool checked);
@@ -165,16 +154,16 @@ private:
     AttitudeIndicator *pitch_ai;
     AttitudeIndicator *roll_ai;
 
-    QPolygonF ax_point, ay_point, az_point;
-    QPolygonF gx_point, gy_point, gz_point;
+//    QPolygonF ax_point, ay_point, az_point;
+//    QPolygonF gx_point, gy_point, gz_point;
     QPolygonF pitch_point, roll_point, yaw_point;
 
-    QwtPlotCurve *ax_curve;
-    QwtPlotCurve *ay_curve;
-    QwtPlotCurve *az_curve;
-    QwtPlotCurve *gx_curve;
-    QwtPlotCurve *gy_curve;
-    QwtPlotCurve *gz_curve;
+//    QwtPlotCurve *ax_curve;
+//    QwtPlotCurve *ay_curve;
+//    QwtPlotCurve *az_curve;
+//    QwtPlotCurve *gx_curve;
+//    QwtPlotCurve *gy_curve;
+//    QwtPlotCurve *gz_curve;
     QwtPlotCurve *pitch_curve;
     QwtPlotCurve *roll_curve;
     QwtPlotCurve *yaw_curve;

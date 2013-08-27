@@ -14,6 +14,7 @@
 
 bool pulse = false;
 bool readParams = false;
+bool resetboard = false;
 
 QString loadfilename, savefilename, filedir;
 QString oldprofilename;
@@ -34,8 +35,7 @@ mavlink_param_request_read_t request_read;
 mavlink_param_value_t paramValue;
 mavlink_sbus_chan_values_t sbus_chan_values;
 mavlink_ppm_chan_values_t ppm_chan_values;
-mavlink_acc_calib_status_t acc_calib_sta;
-mavlink_gyro_calib_status_t gyro_calib_sta;
+mavlink_imu_calib_status_t imu_calib_status;
 mavlink_debug_t debug;
 global_struct global_data;
 gConfig_t oldParamConfig;
@@ -88,9 +88,6 @@ MainWindow::MainWindow(QWidget *parent) :
     //set default all params values
     connect(ui->setDefaultParams, SIGNAL(clicked()), SLOT(setDefaultParams()));
 
-    //clear all params
-//    connect(ui->clearParam, SIGNAL(clicked()), SLOT(on_clearParamButton_clicked()));
-
     //write param to board
     connect(ui->writeParam, SIGNAL(clicked()), SLOT(writeParamstoBoard()));
 
@@ -104,6 +101,9 @@ MainWindow::MainWindow(QWidget *parent) :
     // attitude display
     connect(this, SIGNAL(attitudeChanged(float, float, float)),this, SLOT(updateAttitude(float, float, float)));
 
+    connect(ui->pitchSlider, SIGNAL(valueChanged(double)), SLOT(rcSimulationSend()));
+    connect(ui->rollSlider, SIGNAL(valueChanged(double)), SLOT(rcSimulationSend()));
+    connect(ui->yawknob, SIGNAL(valueChanged(double)), SLOT(rcSimulationSend()));
 
     watchdogTimer = new QTimer(this);
     chartTimer = new QTimer(this);
@@ -129,59 +129,14 @@ void MainWindow::chartSetting(QwtPlot *plot)
 {
 
     QwtPlotGrid *grid = new QwtPlotGrid();
-//    ui->chartPlot->setAutoReplot(true);
-    plot->setAutoReplot(true);
-
+//    plot->setAutoReplot(true);
     grid->setMinorPen(QPen(Qt::gray, 0, Qt::DotLine));
     grid->setMajorPen(QPen(Qt::gray, 0, Qt::DotLine));
     grid->enableX(true);
     grid->enableY(true);
     grid->attach(plot);
-//    grid->attach(ui->chartPlot);
 
-    ax_curve = new QwtPlotCurve();
-    ax_curve->setTitle("AccX");
-    ax_curve->setPen(Qt::red, 2, Qt::SolidLine);
-    ax_curve->setRenderHint(QwtPlotItem::RenderAntialiased, true);
-    ax_curve->attach(plot);
-//    ax_curve->attach(ui->chartPlot);
-    ax_curve->hide();
-
-    ay_curve = new QwtPlotCurve();
-    ay_curve->setTitle("AccY");
-    ay_curve->setPen(Qt::green, 2, Qt::SolidLine);
-    ay_curve->setRenderHint(QwtPlotItem::RenderAntialiased, true);
-
-    ay_curve->attach(plot);
-    ay_curve->hide();
-
-    az_curve = new QwtPlotCurve();
-    az_curve->setTitle("AccZ");
-    az_curve->setPen(Qt::blue, 2, Qt::SolidLine);
-    az_curve->setRenderHint(QwtPlotItem::RenderAntialiased, true);
-    az_curve->attach(plot);
-    az_curve->hide();
-
-    gx_curve = new QwtPlotCurve();
-    gx_curve->setTitle("GyroX");
-    gx_curve->setPen(Qt::magenta, 2, Qt::SolidLine);
-    gx_curve->setRenderHint(QwtPlotItem::RenderAntialiased, true);
-    gx_curve->attach(plot);
-    gx_curve->hide();
-
-    gy_curve = new QwtPlotCurve();
-    gy_curve->setTitle("GyroY");
-    gy_curve->setPen(Qt::darkBlue, 2, Qt::SolidLine);
-    gy_curve->setRenderHint(QwtPlotItem::RenderAntialiased, true);
-    gy_curve->attach(plot);
-    gy_curve->hide();
-
-    gz_curve = new QwtPlotCurve();
-    gz_curve->setTitle("GyroZ");
-    gz_curve->setPen(Qt::darkCyan, 2, Qt::SolidLine);
-    gz_curve->setRenderHint(QwtPlotItem::RenderAntialiased, true);
-    gz_curve->attach(plot);
-    gz_curve->hide();
+    ui->chartPlot->setAxisScale(QwtPlot::yLeft, -1000, 1000);
 
     pitch_curve = new QwtPlotCurve();
     pitch_curve->setTitle("Pitch in degree");
@@ -206,7 +161,6 @@ void MainWindow::chartSetting(QwtPlot *plot)
     yaw_curve->attach(plot);
     ui->yaw_checkBox->setChecked(true);
     yaw_curve->show();
-
 }
 
 void MainWindow::attitudeIndicatorSetting()
@@ -711,6 +665,7 @@ void MainWindow::fillSerialPortInfo()
 
 void MainWindow::openSerialPort()
 {
+
     if(serialport->isOpen())
     {
         serialport->close();
@@ -725,15 +680,21 @@ void MainWindow::openSerialPort()
         ui->BoardConnectionStatusLabel->show();
 
         serialport->open(QIODevice::ReadWrite);
+
+//        if(resetboard==false)
+//        {
+//            resetboard=true;
+            //        QThread::msleep(50);
+                serialport->setRts(1); // 0V output on boot0
+            //        QThread::msleep(10);
+                serialport->setDtr(1); // 0v output on reset
+            //        QThread::usleep(10);
+                serialport->setDtr(0); // 3V3 output on reset
+//        }
         watchdogTimer->start();
 
-        QThread::msleep(10);
-        serialport->setRts(1); // 0V output on boot0
-        QThread::msleep(10);
-        serialport->setDtr(1); // 0v output on reset
-        QThread::usleep(10);
-        serialport->setDtr(0); // 3V3 output on reset
     }
+
     updatePortStatus(serialport->isOpen());   
 }
 
@@ -800,19 +761,21 @@ void MainWindow::handleMessage(QByteArray buff)
         byte = buff[position];
         decodeState = mavlink_parse_char(MAVLINK_COMM_0,byte, &message, &status);
 
-        if(decodeState) timerRestart();
+        if(decodeState)
+        {
+            timerRestart();
+            pulse = 1;
+        }
+        else
+            pulse = 0;
 
         switch (message.msgid)
         {
         case MAVLINK_MSG_ID_HEARTBEAT:
-            mavlink_heartbeat_t heartbeat;
-            heartbeat.mavlink_version = 0;
-            mavlink_msg_heartbeat_decode(&message,&heartbeat);
-            if(heartbeat.mavlink_version == MAVLINK_VERSION )
-                pulse = 1;
-            else
-                pulse = 0;
-            emit heartBeatPulse(pulse);
+//            mavlink_heartbeat_t heartbeat;
+//            heartbeat.mavlink_version = 0;
+//            mavlink_msg_heartbeat_decode(&message,&heartbeat);
+//            if(heartbeat.mavlink_version == MAVLINK_VERSION )
             break;
         case MAVLINK_MSG_ID_RAW_IMU:
             raw_imu.xacc = mavlink_msg_raw_imu_get_xacc(&message);
@@ -866,13 +829,13 @@ void MainWindow::handleMessage(QByteArray buff)
             ppm_chan_values.mode = mavlink_msg_ppm_chan_values_get_mode(&message);
             emit ppmValuesChanged();
             break;
-        case MAVLINK_MSG_ID_ACC_CALIB_STATUS:
-            acc_calib_sta.acc_calib_status = mavlink_msg_acc_calib_status_get_acc_calib_status(&message);
+        case MAVLINK_MSG_ID_IMU_CALIB_STATUS:
+            imu_calib_status.calib_status = mavlink_msg_imu_calib_status_get_calib_status(&message);
             ui->information_box->clear();
-            switch(acc_calib_sta.acc_calib_status)
+            switch(imu_calib_status.calib_status)
             {
-                case ACC_CALIB_FINISH:
-                    ui->information_box->setPlainText("Acc calib finished!");
+                case CALIB_FINISH:
+                    ui->information_box->setPlainText("IMU calib finished!");
                 break;
                 case ONE_REMAINING_FACE:
                     ui->information_box->setPlainText("One remaining face");
@@ -892,8 +855,8 @@ void MainWindow::handleMessage(QByteArray buff)
                 case SIX_REMAINING_FACES:
                     ui->information_box->setPlainText("Six remaining faces");
                 break;
-                case ACC_CALIB_FAIL:
-                    ui->information_box->setPlainText("Acc calib failed!");
+                case CALIB_FAIL:
+                    ui->information_box->setPlainText("Calib failed!");
                 break;
             }
             ui->calibAcc_Button->setEnabled(true);
@@ -1906,17 +1869,17 @@ void MainWindow::chartUpdateData()
 {
     ++time_count;
 
-    sampleSize = ax_point.size();  // get size of curves
+    sampleSize = pitch_point.size();  // get size of curves
 
     if(sampleSize >= sampleSizeMax)
     {
         // clear all points
-        ax_point.clear();
-        ay_point.clear();
-        az_point.clear();
-        gx_point.clear();
-        gy_point.clear();
-        gz_point.clear();
+//        ax_point.clear();
+//        ay_point.clear();
+//        az_point.clear();
+//        gx_point.clear();
+//        gy_point.clear();
+//        gz_point.clear();
         pitch_point.clear();
         roll_point.clear();
         yaw_point.clear();
@@ -1924,29 +1887,29 @@ void MainWindow::chartUpdateData()
         sampleSizeOverflow++;
     }
 
-    if((ax_point.size() % interval_value)== 0)
+    if((pitch_point.size() % interval_value)== 0)
     {
-        ui->chartPlot->setAxisScale(QwtPlot::xBottom, (sampleSizeOverflow*sampleSizeMax) + ax_point.size(),
-                                    (sampleSizeOverflow*sampleSizeMax) + ax_point.size() + interval_value);
+        ui->chartPlot->setAxisScale(QwtPlot::xBottom, (sampleSizeOverflow*sampleSizeMax) + pitch_point.size(),
+                                    (sampleSizeOverflow*sampleSizeMax) + pitch_point.size() + interval_value);
     }
 
-    ax_point += QPointF (time_count, raw_imu.xacc);
-    ui->ax_label->setText(QString("%1").arg(raw_imu.xacc, 2));
+//    ax_point += QPointF (time_count, raw_imu.xacc);
+//    ui->ax_label->setText(QString("%1").arg(raw_imu.xacc, 2));
 
-    ay_point += QPointF (time_count, raw_imu.yacc);
-    ui->ay_label->setText(QString("%1").arg(raw_imu.yacc, 2));
+//    ay_point += QPointF (time_count, raw_imu.yacc);
+//    ui->ay_label->setText(QString("%1").arg(raw_imu.yacc, 2));
 
-    az_point += QPointF (time_count, raw_imu.zacc);
-    ui->az_label->setText(QString("%1").arg(raw_imu.zacc, 2));
+//    az_point += QPointF (time_count, raw_imu.zacc);
+//    ui->az_label->setText(QString("%1").arg(raw_imu.zacc, 2));
 
-    gx_point += QPointF (time_count, raw_imu.xgyro);
-    ui->gx_label->setText(QString("%1").arg(raw_imu.xgyro, 2));
+//    gx_point += QPointF (time_count, raw_imu.xgyro);
+//    ui->gx_label->setText(QString("%1").arg(raw_imu.xgyro, 2));
 
-    gy_point += QPointF (time_count, raw_imu.ygyro);
-    ui->gy_label->setText(QString("%1").arg(raw_imu.ygyro, 2));
+//    gy_point += QPointF (time_count, raw_imu.ygyro);
+//    ui->gy_label->setText(QString("%1").arg(raw_imu.ygyro, 2));
 
-    gz_point += QPointF (time_count, raw_imu.zgyro);
-    ui->gz_label->setText(QString("%1").arg(raw_imu.zgyro, 2));
+//    gz_point += QPointF (time_count, raw_imu.zgyro);
+//    ui->gz_label->setText(QString("%1").arg(raw_imu.zgyro, 2));
 
     pitch_point += QPointF (time_count, attitude_degree.pitch);
     ui->pitch_label->setText(QString("%1").arg(attitude_degree.pitch,4,'f',2));
@@ -1957,13 +1920,13 @@ void MainWindow::chartUpdateData()
     yaw_point += QPointF (time_count, attitude_degree.yaw);
     ui->yaw_label->setText(QString("%1").arg(attitude_degree.yaw,4,'f',2));
 
-    ax_curve->setSamples(ax_point);
-    ay_curve->setSamples(ay_point);
-    az_curve->setSamples(az_point);
+//    ax_curve->setSamples(ax_point);
+//    ay_curve->setSamples(ay_point);
+//    az_curve->setSamples(az_point);
 
-    gx_curve->setSamples(gx_point);
-    gy_curve->setSamples(gy_point);
-    gz_curve->setSamples(gz_point);
+//    gx_curve->setSamples(gx_point);
+//    gy_curve->setSamples(gy_point);
+//    gz_curve->setSamples(gz_point);
 
     pitch_curve->setSamples(pitch_point);
     roll_curve->setSamples(roll_point);
@@ -1977,6 +1940,21 @@ void MainWindow::updateDebugValues(float value, uint8_t index)
 //    ui->information_box->clear();
     ui->information_box->moveCursor(QTextCursor::End);
     ui->information_box->insertPlainText(QString("debug value %1:\t%2\n\r").arg(index).arg(value));
+}
+
+void MainWindow::rcSimulationSend()
+{
+    uint16_t len=0, tilt_temp=0, roll_temp=0, yaw_temp=0;
+    mavlink_message_t msg;
+    uint8_t buf[MAVLINK_MAX_PACKET_LEN];
+
+    tilt_temp = ui->pitchSlider->value()*10;
+    roll_temp = ui->rollSlider->value()*5;
+    yaw_temp  = ui->yawknob->value()*3;
+
+    mavlink_msg_rc_simulation_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, tilt_temp, roll_temp, yaw_temp);
+    len = mavlink_msg_to_send_buffer(buf, &msg);
+    serialport->write((const char*)buf, len);
 }
 
 void MainWindow::on_upgradeFWButton_clicked()
@@ -2004,7 +1982,7 @@ void MainWindow::on_SerialPortConnectButton_clicked(){
     watchdogTimer->setInterval(5000);
     watchdogTimer->setSingleShot(true);
 
-    chartTimer->setInterval(1);
+    chartTimer->setInterval(8);
 
     openSerialPort();
 }
@@ -2021,46 +1999,6 @@ void MainWindow::SelectPortChanged(const QString &newPortName){
     serialport->close();
     m_statusLabel->setText(QString("Port %1 is selected").arg(serialport->portName()));
     updatePortStatus(serialport->isOpen());
-}
-
-/* clear all params to zero */
-//void MainWindow::on_clearParamButton_clicked(){
-//}
-
-void MainWindow::on_ax_checkBox_toggled(bool checked)
-{
-    if(checked) ax_curve->show();
-    else ax_curve->hide();
-}
-
-void MainWindow::on_ay_checkBox_toggled(bool checked)
-{
-    if(checked) ay_curve->show();
-    else ay_curve->hide();
-}
-
-void MainWindow::on_az_checkBox_toggled(bool checked)
-{
-    if(checked) az_curve->show();
-    else az_curve->hide();
-}
-
-void MainWindow::on_gx_checkBox_toggled(bool checked)
-{
-    if(checked) gx_curve->show();
-    else gx_curve->hide();
-}
-
-void MainWindow::on_gy_checkBox_toggled(bool checked)
-{
-    if(checked) gy_curve->show();
-    else gy_curve->hide();
-}
-
-void MainWindow::on_gz_checkBox_toggled(bool checked)
-{
-    if(checked) gz_curve->show();
-    else gz_curve->hide();
 }
 
 void MainWindow::on_pitch_checkBox_toggled(bool checked)
@@ -2081,60 +2019,9 @@ void MainWindow::on_yaw_checkBox_toggled(bool checked)
     else yaw_curve->hide();
 }
 
-void MainWindow::on_pitchSlider_valueChanged(double value)
-{
-    uint16_t len=0;
-    mavlink_message_t msg;
-    uint8_t buf[MAVLINK_MAX_PACKET_LEN];
-    int temp=0;
-    temp = value*10;
-//    if(value > 0)
-//        temp = value * 10;
-//    else temp = value * 10;
-
-    mavlink_msg_tilt_simulation_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, temp);
-    qDebug() <<"pitch slider" << temp;
-    len = mavlink_msg_to_send_buffer(buf, &msg);
-    serialport->write((const char*)buf, len);
-}
-
-void MainWindow::on_rollSlider_valueChanged(double value)
-{
-    uint16_t len=0;
-    mavlink_message_t msg;
-    uint8_t buf[MAVLINK_MAX_PACKET_LEN];
-    int temp=0;
-    temp = value * 5;
-
-//    if(ui->pitchSlider->value() > 0)
-//        temp = ui->pitchSlider->value() * 10;
-//    else temp = ui->pitchSlider->value() * 5;
-
-
-    mavlink_msg_roll_simulation_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, temp);
-    qDebug() <<"roll slider" << temp;
-    len = mavlink_msg_to_send_buffer(buf, &msg);
-    serialport->write((const char*)buf, len);
-}
-
-void MainWindow::on_yawknob_valueChanged(double value)
-{
-    uint16_t len=0;
-    mavlink_message_t msg;
-    uint8_t buf[MAVLINK_MAX_PACKET_LEN];
-    int temp=0;
-    temp = value * 3;
-
-    mavlink_msg_pan_simulation_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, temp);
-    qDebug() <<"yaw knob" << temp;
-    len = mavlink_msg_to_send_buffer(buf, &msg);
-    serialport->write((const char*)buf, len);
-}
-
 void MainWindow::on_yawknob_sliderReleased()
 {
     ui->yawknob->setValue(0);
-    qDebug()<<"Knob Release";
 }
 
 void MainWindow::loadfileButtonClicked()
@@ -2208,8 +2095,8 @@ void MainWindow::init_var()
     time_count = 0;
     sampleSize = 0;
     sampleSizeOverflow = 0;
-    interval_value = (1000);
-    sampleSizeMax = (1000);
+    interval_value = (200);
+    sampleSizeMax = (200);
     // Set Image
     imageOn.load(":/files/images/leds/circle_green.svg");
     imageOff.load(":/files/images/leds/circle_black.svg");
@@ -2327,7 +2214,7 @@ void MainWindow::on_calibAcc_Button_clicked()
 
         calib_mode = ui->calibmodes->currentIndex();
 
-        mavlink_msg_acc_calib_request_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, calib_mode);
+        mavlink_msg_imu_calib_request_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, 0, calib_mode);  // '0' means acc calib
         len = mavlink_msg_to_send_buffer(buf, &msg);
         serialport->write((const char*)buf, len);
 
@@ -2346,7 +2233,7 @@ void MainWindow::on_calibGyro_Button_clicked()
     if(serialport->isOpen())
     {
 //      watchdogTimer->stop();
-        mavlink_msg_gyro_calib_request_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, 0);
+        mavlink_msg_imu_calib_request_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, 1, 0);  // '1' means gyro calib
         len = mavlink_msg_to_send_buffer(buf, &msg);
         serialport->write((const char*)buf, len);
 //      ui->calibGyro_Button->setEnabled(false);
