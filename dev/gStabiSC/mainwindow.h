@@ -103,7 +103,6 @@ public slots:
       for chartPlot
       */
     void chartUpdateData();
-    void updateDebugValues(float value, uint8_t index);
     void rcSimulationSend();
 
 private slots:
@@ -115,7 +114,7 @@ private Q_SLOTS:
     void PortAddedRemoved();
     void onReadyReadData();
 
-    void on_yawknob_sliderReleased();
+//    void on_yawknob_sliderReleased();
 
     void loadfileButtonClicked();
     void savefileButtonClicked();
@@ -144,7 +143,6 @@ signals:
     void paramValueChanged(uint8_t index, float value);
     void sbusValuesChanged();
     void ppmValuesChanged();
-    void debugValuesChanged(float value, uint8_t index);
 
 private:
     Ui::MainWindow *ui;      
@@ -154,16 +152,8 @@ private:
     AttitudeIndicator *pitch_ai;
     AttitudeIndicator *roll_ai;
 
-//    QPolygonF ax_point, ay_point, az_point;
-//    QPolygonF gx_point, gy_point, gz_point;
     QPolygonF pitch_point, roll_point, yaw_point;
 
-//    QwtPlotCurve *ax_curve;
-//    QwtPlotCurve *ay_curve;
-//    QwtPlotCurve *az_curve;
-//    QwtPlotCurve *gx_curve;
-//    QwtPlotCurve *gy_curve;
-//    QwtPlotCurve *gz_curve;
     QwtPlotCurve *pitch_curve;
     QwtPlotCurve *roll_curve;
     QwtPlotCurve *yaw_curve;

@@ -9,12 +9,12 @@
 #include <QTime>
 #include <QTimer>
 
-
 #define TARGET_SYSTEM_ID 10
 
 bool pulse = false;
 bool readParams = false;
 bool resetboard = false;
+uint8_t calib_type = CALIB_NONE;
 
 QString loadfilename, savefilename, filedir;
 QString oldprofilename;
@@ -36,10 +36,9 @@ mavlink_param_value_t paramValue;
 mavlink_sbus_chan_values_t sbus_chan_values;
 mavlink_ppm_chan_values_t ppm_chan_values;
 mavlink_imu_calib_status_t imu_calib_status;
-mavlink_debug_t debug;
+mavlink_debug_values_t debugValues;
 global_struct global_data;
 gConfig_t oldParamConfig;
-
 
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -96,8 +95,6 @@ MainWindow::MainWindow(QWidget *parent) :
     //param value update
     connect(this, SIGNAL(paramValueChanged(uint8_t, float)), this, SLOT(updateParamValue(uint8_t, float)));
 
-    //debug value update
-    connect(this, SIGNAL(debugValuesChanged(float,uint8_t)), SLOT(updateDebugValues(float,uint8_t)));
     // attitude display
     connect(this, SIGNAL(attitudeChanged(float, float, float)),this, SLOT(updateAttitude(float, float, float)));
 
@@ -681,20 +678,12 @@ void MainWindow::openSerialPort()
 
         serialport->open(QIODevice::ReadWrite);
 
-//        if(resetboard==false)
-//        {
-//            resetboard=true;
-            //        QThread::msleep(50);
-                serialport->setRts(1); // 0V output on boot0
-            //        QThread::msleep(10);
-                serialport->setDtr(1); // 0v output on reset
-            //        QThread::usleep(10);
-                serialport->setDtr(0); // 3V3 output on reset
-//        }
+        serialport->setRts(1); // 0V output on boot0
+        serialport->setDtr(1); // 0v output on reset
+        serialport->setDtr(0); // 3V3 output on reset
         watchdogTimer->start();
 
     }
-
     updatePortStatus(serialport->isOpen());   
 }
 
@@ -760,22 +749,16 @@ void MainWindow::handleMessage(QByteArray buff)
     {
         byte = buff[position];
         decodeState = mavlink_parse_char(MAVLINK_COMM_0,byte, &message, &status);
-
         if(decodeState)
         {
             timerRestart();
             pulse = 1;
+            emit heartBeatPulse(pulse);
         }
-        else
-            pulse = 0;
 
         switch (message.msgid)
         {
         case MAVLINK_MSG_ID_HEARTBEAT:
-//            mavlink_heartbeat_t heartbeat;
-//            heartbeat.mavlink_version = 0;
-//            mavlink_msg_heartbeat_decode(&message,&heartbeat);
-//            if(heartbeat.mavlink_version == MAVLINK_VERSION )
             break;
         case MAVLINK_MSG_ID_RAW_IMU:
             raw_imu.xacc = mavlink_msg_raw_imu_get_xacc(&message);
@@ -831,52 +814,74 @@ void MainWindow::handleMessage(QByteArray buff)
             break;
         case MAVLINK_MSG_ID_IMU_CALIB_STATUS:
             imu_calib_status.calib_status = mavlink_msg_imu_calib_status_get_calib_status(&message);
-            ui->information_box->clear();
-            switch(imu_calib_status.calib_status)
+            if(calib_type==ACC_CALIB)
             {
-                case CALIB_FINISH:
-                    ui->information_box->setPlainText("IMU calib finished!");
-                break;
-                case ONE_REMAINING_FACE:
-                    ui->information_box->setPlainText("One remaining face");
-                break;
-                case TWO_REMAINING_FACES:
-                    ui->information_box->setPlainText("Two remaining faces");
-                break;
-                case THREE_REMAINING_FACES:
-                    ui->information_box->setPlainText("Three remaining faces");
-                break;
-                case FOUR_REMAINING_FACES:
-                    ui->information_box->setPlainText("Four remaining faces");
-                break;
-                case FIVE_REMAINING_FACES:
-                    ui->information_box->setPlainText("Five remaining faces");
-                break;
-                case SIX_REMAINING_FACES:
-                    ui->information_box->setPlainText("Six remaining faces");
-                break;
-                case CALIB_FAIL:
-                    ui->information_box->setPlainText("Calib failed!");
-                break;
+                ui->information_box->clear();
+                switch(imu_calib_status.calib_status)
+                {
+                    case CALIB_FINISH:
+                        ui->information_box->setPlainText("IMU calib finished!");
+                        calib_type=CALIB_NONE;
+                    break;
+                    case ONE_REMAINING_FACE:
+                        ui->information_box->setPlainText("One face remaining");
+                    break;
+                    case TWO_REMAINING_FACES:
+                        ui->information_box->setPlainText("Two faces remaining");
+                    break;
+                    case THREE_REMAINING_FACES:
+                        ui->information_box->setPlainText("Three faces remaining");
+                    break;
+                    case FOUR_REMAINING_FACES:
+                        ui->information_box->setPlainText("Four faces remaining");
+                    break;
+                    case FIVE_REMAINING_FACES:
+                        ui->information_box->setPlainText("Five faces remaining");
+                    break;
+                    case SIX_REMAINING_FACES:
+                        ui->information_box->setPlainText("Six faces remaining");
+                    break;
+                    case CALIB_FAIL:
+                        ui->information_box->setPlainText("IMU calib failed!");
+                        calib_type=CALIB_NONE;
+                    break;
+                }
+                ui->calibAcc_Button->setEnabled(true);
             }
-            ui->calibAcc_Button->setEnabled(true);
+            else if(calib_type==GYRO_CALIB)
+            {
+                ui->information_box->clear();
+                if(imu_calib_status.calib_status==0)
+                    ui->information_box->setPlainText("IMU calib finished!");
+                else
+                    ui->information_box->setPlainText("IMU calib failed!");
+                calib_type=CALIB_NONE;
+                ui->calibGyro_Button->setEnabled(true);
+            }
             break;
-//        case MAVLINK_MSG_ID_GYRO_CALIB_STATUS:
-//            gyro_calib_sta.status = mavlink_msg_gyro_calib_status_get_status(&message);
-//            switch(gyro_calib_sta.status)
-//            {
-//                case GYRO_CALIB_FAIL:
-//                    ui->information_box->setPlainText("Gyro calib failed!");
-//                break;
-//                case GYRO_CALIB_FINISH:
-//                    ui->information_box->setPlainText("Gyro calib finished!");
-//                break;
-//            }
-//            break;
-        case MAVLINK_MSG_ID_DEBUG:
-            debug.value = mavlink_msg_debug_get_value(&message);
-            debug.ind = mavlink_msg_debug_get_ind(&message);
-            emit debugValuesChanged(debug.value, debug.ind);
+        case MAVLINK_MSG_ID_DEBUG_VALUES:
+            debugValues.debug1 = mavlink_msg_debug_values_get_debug1(&message);
+            debugValues.debug2 = mavlink_msg_debug_values_get_debug2(&message);
+            debugValues.debug3 = mavlink_msg_debug_values_get_debug3(&message);
+            debugValues.debug4 = mavlink_msg_debug_values_get_debug4(&message);
+            debugValues.debug5 = mavlink_msg_debug_values_get_debug5(&message);
+            debugValues.debug6 = mavlink_msg_debug_values_get_debug6(&message);
+            debugValues.debug7 = mavlink_msg_debug_values_get_debug7(&message);
+            debugValues.debug8 = mavlink_msg_debug_values_get_debug8(&message);
+
+            ui->information_box->clear();
+            if(ui->debugCheckbox->isChecked()==true)
+            {
+
+                ui->information_box->insertPlainText(QString("debug1: %1\t\t").arg(debugValues.debug1));
+                ui->information_box->insertPlainText(QString("debug2: %1\n\r").arg(debugValues.debug2));
+                ui->information_box->insertPlainText(QString("debug3: %1\t\t").arg(debugValues.debug3));
+                ui->information_box->insertPlainText(QString("debug4: %1\n\r").arg(debugValues.debug4));
+                ui->information_box->insertPlainText(QString("debug5: %1\t\t").arg(debugValues.debug5));
+                ui->information_box->insertPlainText(QString("debug6: %1\n\r").arg(debugValues.debug6));
+                ui->information_box->insertPlainText(QString("debug7: %1\t\t").arg(debugValues.debug7));
+                ui->information_box->insertPlainText(QString("debug8: %1\n\t").arg(debugValues.debug8));
+            }
             break;
         default:
             break;
@@ -1820,7 +1825,7 @@ void MainWindow::setDefaultParams()
     ui->mode_roll->setCurrentIndex(0);
     ui->mode_yaw->setCurrentIndex(0);
 
-    /* ctab IMU config */
+    /* tab IMU config */
     ui->gyroTrust->setValue(120);
     ui->gyro_LPF->setValue(0);
     ui->accX_offset->setText("0");
@@ -1874,12 +1879,6 @@ void MainWindow::chartUpdateData()
     if(sampleSize >= sampleSizeMax)
     {
         // clear all points
-//        ax_point.clear();
-//        ay_point.clear();
-//        az_point.clear();
-//        gx_point.clear();
-//        gy_point.clear();
-//        gz_point.clear();
         pitch_point.clear();
         roll_point.clear();
         yaw_point.clear();
@@ -1893,24 +1892,6 @@ void MainWindow::chartUpdateData()
                                     (sampleSizeOverflow*sampleSizeMax) + pitch_point.size() + interval_value);
     }
 
-//    ax_point += QPointF (time_count, raw_imu.xacc);
-//    ui->ax_label->setText(QString("%1").arg(raw_imu.xacc, 2));
-
-//    ay_point += QPointF (time_count, raw_imu.yacc);
-//    ui->ay_label->setText(QString("%1").arg(raw_imu.yacc, 2));
-
-//    az_point += QPointF (time_count, raw_imu.zacc);
-//    ui->az_label->setText(QString("%1").arg(raw_imu.zacc, 2));
-
-//    gx_point += QPointF (time_count, raw_imu.xgyro);
-//    ui->gx_label->setText(QString("%1").arg(raw_imu.xgyro, 2));
-
-//    gy_point += QPointF (time_count, raw_imu.ygyro);
-//    ui->gy_label->setText(QString("%1").arg(raw_imu.ygyro, 2));
-
-//    gz_point += QPointF (time_count, raw_imu.zgyro);
-//    ui->gz_label->setText(QString("%1").arg(raw_imu.zgyro, 2));
-
     pitch_point += QPointF (time_count, attitude_degree.pitch);
     ui->pitch_label->setText(QString("%1").arg(attitude_degree.pitch,4,'f',2));
 
@@ -1920,26 +1901,11 @@ void MainWindow::chartUpdateData()
     yaw_point += QPointF (time_count, attitude_degree.yaw);
     ui->yaw_label->setText(QString("%1").arg(attitude_degree.yaw,4,'f',2));
 
-//    ax_curve->setSamples(ax_point);
-//    ay_curve->setSamples(ay_point);
-//    az_curve->setSamples(az_point);
-
-//    gx_curve->setSamples(gx_point);
-//    gy_curve->setSamples(gy_point);
-//    gz_curve->setSamples(gz_point);
-
     pitch_curve->setSamples(pitch_point);
     roll_curve->setSamples(roll_point);
     yaw_curve->setSamples(yaw_point);
 
     ui->chartPlot->replot();
-}
-
-void MainWindow::updateDebugValues(float value, uint8_t index)
-{
-//    ui->information_box->clear();
-    ui->information_box->moveCursor(QTextCursor::End);
-    ui->information_box->insertPlainText(QString("debug value %1:\t%2\n\r").arg(index).arg(value));
 }
 
 void MainWindow::rcSimulationSend()
@@ -1948,9 +1914,9 @@ void MainWindow::rcSimulationSend()
     mavlink_message_t msg;
     uint8_t buf[MAVLINK_MAX_PACKET_LEN];
 
-    tilt_temp = ui->pitchSlider->value()*10;
-    roll_temp = ui->rollSlider->value()*5;
-    yaw_temp  = ui->yawknob->value()*3;
+    tilt_temp = ui->pitchSlider->value();  // degree then convert to angle speed
+    roll_temp = ui->rollSlider->value();
+    yaw_temp  = ui->yawknob->value();
 
     mavlink_msg_rc_simulation_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, tilt_temp, roll_temp, yaw_temp);
     len = mavlink_msg_to_send_buffer(buf, &msg);
@@ -1959,16 +1925,11 @@ void MainWindow::rcSimulationSend()
 
 void MainWindow::on_upgradeFWButton_clicked()
 {
-//    QString appFolder = QCoreApplication::applicationDirPath()+ "/thirdParty/FlyMCU.exe" ;
-//    appFolder.replace("/","\\\\");  // replace "/ to "\\" in order to run th FlyMCU.exe
-//    qDebug()<< appFolder;
-
     if(!serialport->isOpen())
     {
         int res = QMessageBox::information(this,"Upgrade Firmware Confirm", "Press OK to Open the Upgrade FW Dialog",QMessageBox::Ok,QMessageBox::Cancel);
         if(res == QMessageBox::Ok)
         {
-//             m_process.execute(appFolder, QStringList() << "" );
              m_process.execute("thirdParty/FlyMCU");
              qDebug()<<"executed";
         }
@@ -1979,10 +1940,10 @@ void MainWindow::on_upgradeFWButton_clicked()
 }
 
 void MainWindow::on_SerialPortConnectButton_clicked(){
-    watchdogTimer->setInterval(5000);
+    watchdogTimer->setInterval(10000);
     watchdogTimer->setSingleShot(true);
 
-    chartTimer->setInterval(8);
+    chartTimer->setInterval(10);
 
     openSerialPort();
 }
@@ -2019,10 +1980,10 @@ void MainWindow::on_yaw_checkBox_toggled(bool checked)
     else yaw_curve->hide();
 }
 
-void MainWindow::on_yawknob_sliderReleased()
-{
-    ui->yawknob->setValue(0);
-}
+//void MainWindow::on_yawknob_sliderReleased()
+//{
+//    ui->yawknob->setValue(0);
+//}
 
 void MainWindow::loadfileButtonClicked()
 {
@@ -2095,8 +2056,8 @@ void MainWindow::init_var()
     time_count = 0;
     sampleSize = 0;
     sampleSizeOverflow = 0;
-    interval_value = (200);
-    sampleSizeMax = (200);
+    interval_value = (100);
+    sampleSizeMax = (100);
     // Set Image
     imageOn.load(":/files/images/leds/circle_green.svg");
     imageOff.load(":/files/images/leds/circle_black.svg");
@@ -2210,15 +2171,13 @@ void MainWindow::on_calibAcc_Button_clicked()
     uint8_t calib_mode=0;
     if(serialport->isOpen())
     {
-        watchdogTimer->stop();
-
         calib_mode = ui->calibmodes->currentIndex();
 
         mavlink_msg_imu_calib_request_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, 0, calib_mode);  // '0' means acc calib
         len = mavlink_msg_to_send_buffer(buf, &msg);
         serialport->write((const char*)buf, len);
-
         ui->calibAcc_Button->setEnabled(false);
+        calib_type = ACC_CALIB;
     }
     else
         QMessageBox::information(this,"Message", "Please click Connect button first.",QMessageBox::Ok,QMessageBox::Cancel);
@@ -2232,11 +2191,11 @@ void MainWindow::on_calibGyro_Button_clicked()
 
     if(serialport->isOpen())
     {
-//      watchdogTimer->stop();
         mavlink_msg_imu_calib_request_pack(SYSTEM_ID, MAV_COMP_ID_SERVO1, &msg, 1, 0);  // '1' means gyro calib
         len = mavlink_msg_to_send_buffer(buf, &msg);
         serialport->write((const char*)buf, len);
-//      ui->calibGyro_Button->setEnabled(false);
+        ui->calibGyro_Button->setEnabled(false);
+        calib_type = GYRO_CALIB;
     }
     else
         QMessageBox::information(this,"Message", "Please click Connect button first.",QMessageBox::Ok,QMessageBox::Cancel);

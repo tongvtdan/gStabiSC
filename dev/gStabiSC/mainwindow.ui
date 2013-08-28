@@ -3616,6 +3616,9 @@
             <property name="text">
              <string>Ax</string>
             </property>
+            <property name="checkable">
+             <bool>false</bool>
+            </property>
            </widget>
           </item>
           <item>
@@ -3645,6 +3648,9 @@
            <widget class="QCheckBox" name="ay_checkBox">
             <property name="text">
              <string>Ay</string>
+            </property>
+            <property name="checkable">
+             <bool>false</bool>
             </property>
            </widget>
           </item>
@@ -3676,6 +3682,9 @@
             <property name="text">
              <string>Az</string>
             </property>
+            <property name="checkable">
+             <bool>false</bool>
+            </property>
            </widget>
           </item>
           <item>
@@ -3705,6 +3714,9 @@
            <widget class="QCheckBox" name="gx_checkBox">
             <property name="text">
              <string>Gx</string>
+            </property>
+            <property name="checkable">
+             <bool>false</bool>
             </property>
            </widget>
           </item>
@@ -3736,6 +3748,9 @@
             <property name="text">
              <string>Gy</string>
             </property>
+            <property name="checkable">
+             <bool>false</bool>
+            </property>
            </widget>
           </item>
           <item>
@@ -3765,6 +3780,9 @@
            <widget class="QCheckBox" name="gz_checkBox">
             <property name="text">
              <string>Gz</string>
+            </property>
+            <property name="checkable">
+             <bool>false</bool>
             </property>
            </widget>
           </item>
@@ -4217,10 +4235,23 @@
     <property name="geometry">
      <rect>
       <x>210</x>
-      <y>460</y>
+      <y>480</y>
       <width>581</width>
-      <height>131</height>
+      <height>111</height>
      </rect>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="debugCheckbox">
+    <property name="geometry">
+     <rect>
+      <x>210</x>
+      <y>460</y>
+      <width>91</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Show Debug</string>
     </property>
    </widget>
    <zorder>groupBox_3</zorder>
@@ -4234,6 +4265,7 @@
    <zorder>setDefaultParams</zorder>
    <zorder>clearParam</zorder>
    <zorder>information_box</zorder>
+   <zorder>debugCheckbox</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
