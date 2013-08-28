@@ -2394,13 +2394,13 @@ void MainWindow::on_rc_source_currentIndexChanged(int index)
         ui->groupBox_7->setVisible(false);
 
         ui->rc_channelslabel->setVisible(false);
-        ui->rc_lpflabel->setVisible(false);
-        ui->rc_trimlabel->setVisible(false);
-        ui->rc_typelabel->setVisible(false);
+//        ui->rc_lpflabel->setVisible(false);
+//        ui->rc_trimlabel->setVisible(false);
+//        ui->rc_typelabel->setVisible(false);
 
-        ui->rc_pitchlabel->setVisible(false);
-        ui->rc_rolllabel->setVisible(false);
-        ui->rc_yawlabel->setVisible(false);
+//        ui->rc_pitchlabel->setVisible(false);
+//        ui->rc_rolllabel->setVisible(false);
+//        ui->rc_yawlabel->setVisible(false);
         ui->rc_modelabel->setVisible(false);
 
         ui->pitchChan->setVisible(false);
@@ -2413,17 +2413,17 @@ void MainWindow::on_rc_source_currentIndexChanged(int index)
         ui->yaw_ppmvalue->setVisible(false);
         ui->mode_ppmvalue->setVisible(false);
 
-        ui->rcLPF_pitch->setVisible(false);
-        ui->rcLPF_roll->setVisible(false);
-        ui->rcLPF_yaw->setVisible(false);
+//        ui->rcLPF_pitch->setVisible(false);
+//        ui->rcLPF_roll->setVisible(false);
+//        ui->rcLPF_yaw->setVisible(false);
 
-        ui->trim_pitch->setVisible(false);
-        ui->trim_roll->setVisible(false);
-        ui->trim_yaw->setVisible(false);
+//        ui->trim_pitch->setVisible(false);
+//        ui->trim_roll->setVisible(false);
+//        ui->trim_yaw->setVisible(false);
 
-        ui->mode_pitch->setVisible(false);
-        ui->mode_roll->setVisible(false);
-        ui->mode_yaw->setVisible(false);
+//        ui->mode_pitch->setVisible(false);
+//        ui->mode_roll->setVisible(false);
+//        ui->mode_yaw->setVisible(false);
 
         ui->ch1level_Bar->setVisible(false);
         ui->ch1label->setVisible(false);
@@ -2475,13 +2475,13 @@ void MainWindow::on_rc_source_currentIndexChanged(int index)
         ui->handDeviceConnectButton->setVisible(false);
 
         ui->rc_channelslabel->setVisible(false);
-        ui->rc_lpflabel->setVisible(false);
-        ui->rc_trimlabel->setVisible(false);
-        ui->rc_typelabel->setVisible(false);
+//        ui->rc_lpflabel->setVisible(false);
+//        ui->rc_trimlabel->setVisible(false);
+//        ui->rc_typelabel->setVisible(false);
 
-        ui->rc_pitchlabel->setVisible(false);
-        ui->rc_rolllabel->setVisible(false);
-        ui->rc_yawlabel->setVisible(false);
+//        ui->rc_pitchlabel->setVisible(false);
+//        ui->rc_rolllabel->setVisible(false);
+//        ui->rc_yawlabel->setVisible(false);
         ui->rc_modelabel->setVisible(false);
 
         ui->pitchChan->setVisible(false);
@@ -2494,17 +2494,17 @@ void MainWindow::on_rc_source_currentIndexChanged(int index)
         ui->yaw_ppmvalue->setVisible(false);
         ui->mode_ppmvalue->setVisible(false);
 
-        ui->rcLPF_pitch->setVisible(false);
-        ui->rcLPF_roll->setVisible(false);
-        ui->rcLPF_yaw->setVisible(false);
+//        ui->rcLPF_pitch->setVisible(false);
+//        ui->rcLPF_roll->setVisible(false);
+//        ui->rcLPF_yaw->setVisible(false);
 
-        ui->trim_pitch->setVisible(false);
-        ui->trim_roll->setVisible(false);
-        ui->trim_yaw->setVisible(false);
+//        ui->trim_pitch->setVisible(false);
+//        ui->trim_roll->setVisible(false);
+//        ui->trim_yaw->setVisible(false);
 
-        ui->mode_pitch->setVisible(false);
-        ui->mode_roll->setVisible(false);
-        ui->mode_yaw->setVisible(false);
+//        ui->mode_pitch->setVisible(false);
+//        ui->mode_roll->setVisible(false);
+//        ui->mode_yaw->setVisible(false);
 
         ui->ch1level_Bar->setVisible(false);
         ui->ch1label->setVisible(false);
