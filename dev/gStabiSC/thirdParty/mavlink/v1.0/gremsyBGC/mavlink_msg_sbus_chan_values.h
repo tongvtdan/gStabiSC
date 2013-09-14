@@ -80,7 +80,7 @@ typedef struct __mavlink_sbus_chan_values_t
  * @param ch18 channel18 value
  * @return length of the message in bytes (excluding serial stream start sign)
  */
-static __inline uint16_t mavlink_msg_sbus_chan_values_pack(uint8_t system_id, uint8_t component_id, mavlink_message_t* msg,
+static inline uint16_t mavlink_msg_sbus_chan_values_pack(uint8_t system_id, uint8_t component_id, mavlink_message_t* msg,
 						       int16_t ch1, int16_t ch2, int16_t ch3, int16_t ch4, int16_t ch5, int16_t ch6, int16_t ch7, int16_t ch8, int16_t ch9, int16_t ch10, int16_t ch11, int16_t ch12, int16_t ch13, int16_t ch14, int16_t ch15, int16_t ch16, int16_t ch17, int16_t ch18)
 {
 #if MAVLINK_NEED_BYTE_SWAP || !MAVLINK_ALIGNED_FIELDS
@@ -159,7 +159,7 @@ static __inline uint16_t mavlink_msg_sbus_chan_values_pack(uint8_t system_id, ui
  * @param ch18 channel18 value
  * @return length of the message in bytes (excluding serial stream start sign)
  */
-static __inline uint16_t mavlink_msg_sbus_chan_values_pack_chan(uint8_t system_id, uint8_t component_id, uint8_t chan,
+static inline uint16_t mavlink_msg_sbus_chan_values_pack_chan(uint8_t system_id, uint8_t component_id, uint8_t chan,
 							   mavlink_message_t* msg,
 						           int16_t ch1,int16_t ch2,int16_t ch3,int16_t ch4,int16_t ch5,int16_t ch6,int16_t ch7,int16_t ch8,int16_t ch9,int16_t ch10,int16_t ch11,int16_t ch12,int16_t ch13,int16_t ch14,int16_t ch15,int16_t ch16,int16_t ch17,int16_t ch18)
 {
@@ -221,7 +221,7 @@ static __inline uint16_t mavlink_msg_sbus_chan_values_pack_chan(uint8_t system_i
  * @param msg The MAVLink message to compress the data into
  * @param sbus_chan_values C-struct to read the message contents from
  */
-static __inline uint16_t mavlink_msg_sbus_chan_values_encode(uint8_t system_id, uint8_t component_id, mavlink_message_t* msg, const mavlink_sbus_chan_values_t* sbus_chan_values)
+static inline uint16_t mavlink_msg_sbus_chan_values_encode(uint8_t system_id, uint8_t component_id, mavlink_message_t* msg, const mavlink_sbus_chan_values_t* sbus_chan_values)
 {
 	return mavlink_msg_sbus_chan_values_pack(system_id, component_id, msg, sbus_chan_values->ch1, sbus_chan_values->ch2, sbus_chan_values->ch3, sbus_chan_values->ch4, sbus_chan_values->ch5, sbus_chan_values->ch6, sbus_chan_values->ch7, sbus_chan_values->ch8, sbus_chan_values->ch9, sbus_chan_values->ch10, sbus_chan_values->ch11, sbus_chan_values->ch12, sbus_chan_values->ch13, sbus_chan_values->ch14, sbus_chan_values->ch15, sbus_chan_values->ch16, sbus_chan_values->ch17, sbus_chan_values->ch18);
 }
@@ -251,7 +251,7 @@ static __inline uint16_t mavlink_msg_sbus_chan_values_encode(uint8_t system_id, 
  */
 #ifdef MAVLINK_USE_CONVENIENCE_FUNCTIONS
 
-static __inline void mavlink_msg_sbus_chan_values_send(mavlink_channel_t chan, int16_t ch1, int16_t ch2, int16_t ch3, int16_t ch4, int16_t ch5, int16_t ch6, int16_t ch7, int16_t ch8, int16_t ch9, int16_t ch10, int16_t ch11, int16_t ch12, int16_t ch13, int16_t ch14, int16_t ch15, int16_t ch16, int16_t ch17, int16_t ch18)
+static inline void mavlink_msg_sbus_chan_values_send(mavlink_channel_t chan, int16_t ch1, int16_t ch2, int16_t ch3, int16_t ch4, int16_t ch5, int16_t ch6, int16_t ch7, int16_t ch8, int16_t ch9, int16_t ch10, int16_t ch11, int16_t ch12, int16_t ch13, int16_t ch14, int16_t ch15, int16_t ch16, int16_t ch17, int16_t ch18)
 {
 #if MAVLINK_NEED_BYTE_SWAP || !MAVLINK_ALIGNED_FIELDS
 	char buf[36];
@@ -310,7 +310,7 @@ static __inline void mavlink_msg_sbus_chan_values_send(mavlink_channel_t chan, i
  *
  * @return channel1 value
  */
-static __inline int16_t mavlink_msg_sbus_chan_values_get_ch1(const mavlink_message_t* msg)
+static inline int16_t mavlink_msg_sbus_chan_values_get_ch1(const mavlink_message_t* msg)
 {
 	return _MAV_RETURN_int16_t(msg,  0);
 }
@@ -320,7 +320,7 @@ static __inline int16_t mavlink_msg_sbus_chan_values_get_ch1(const mavlink_messa
  *
  * @return channel2 value
  */
-static __inline int16_t mavlink_msg_sbus_chan_values_get_ch2(const mavlink_message_t* msg)
+static inline int16_t mavlink_msg_sbus_chan_values_get_ch2(const mavlink_message_t* msg)
 {
 	return _MAV_RETURN_int16_t(msg,  2);
 }
@@ -330,7 +330,7 @@ static __inline int16_t mavlink_msg_sbus_chan_values_get_ch2(const mavlink_messa
  *
  * @return channel3 value
  */
-static __inline int16_t mavlink_msg_sbus_chan_values_get_ch3(const mavlink_message_t* msg)
+static inline int16_t mavlink_msg_sbus_chan_values_get_ch3(const mavlink_message_t* msg)
 {
 	return _MAV_RETURN_int16_t(msg,  4);
 }
@@ -340,7 +340,7 @@ static __inline int16_t mavlink_msg_sbus_chan_values_get_ch3(const mavlink_messa
  *
  * @return channel4 value
  */
-static __inline int16_t mavlink_msg_sbus_chan_values_get_ch4(const mavlink_message_t* msg)
+static inline int16_t mavlink_msg_sbus_chan_values_get_ch4(const mavlink_message_t* msg)
 {
 	return _MAV_RETURN_int16_t(msg,  6);
 }
@@ -350,7 +350,7 @@ static __inline int16_t mavlink_msg_sbus_chan_values_get_ch4(const mavlink_messa
  *
  * @return channel5 value
  */
-static __inline int16_t mavlink_msg_sbus_chan_values_get_ch5(const mavlink_message_t* msg)
+static inline int16_t mavlink_msg_sbus_chan_values_get_ch5(const mavlink_message_t* msg)
 {
 	return _MAV_RETURN_int16_t(msg,  8);
 }
@@ -360,7 +360,7 @@ static __inline int16_t mavlink_msg_sbus_chan_values_get_ch5(const mavlink_messa
  *
  * @return channel6 value
  */
-static __inline int16_t mavlink_msg_sbus_chan_values_get_ch6(const mavlink_message_t* msg)
+static inline int16_t mavlink_msg_sbus_chan_values_get_ch6(const mavlink_message_t* msg)
 {
 	return _MAV_RETURN_int16_t(msg,  10);
 }
@@ -370,7 +370,7 @@ static __inline int16_t mavlink_msg_sbus_chan_values_get_ch6(const mavlink_messa
  *
  * @return channel7 value
  */
-static __inline int16_t mavlink_msg_sbus_chan_values_get_ch7(const mavlink_message_t* msg)
+static inline int16_t mavlink_msg_sbus_chan_values_get_ch7(const mavlink_message_t* msg)
 {
 	return _MAV_RETURN_int16_t(msg,  12);
 }
@@ -380,7 +380,7 @@ static __inline int16_t mavlink_msg_sbus_chan_values_get_ch7(const mavlink_messa
  *
  * @return channel8 value
  */
-static __inline int16_t mavlink_msg_sbus_chan_values_get_ch8(const mavlink_message_t* msg)
+static inline int16_t mavlink_msg_sbus_chan_values_get_ch8(const mavlink_message_t* msg)
 {
 	return _MAV_RETURN_int16_t(msg,  14);
 }
@@ -390,7 +390,7 @@ static __inline int16_t mavlink_msg_sbus_chan_values_get_ch8(const mavlink_messa
  *
  * @return channel9 value
  */
-static __inline int16_t mavlink_msg_sbus_chan_values_get_ch9(const mavlink_message_t* msg)
+static inline int16_t mavlink_msg_sbus_chan_values_get_ch9(const mavlink_message_t* msg)
 {
 	return _MAV_RETURN_int16_t(msg,  16);
 }
@@ -400,7 +400,7 @@ static __inline int16_t mavlink_msg_sbus_chan_values_get_ch9(const mavlink_messa
  *
  * @return channel10 value
  */
-static __inline int16_t mavlink_msg_sbus_chan_values_get_ch10(const mavlink_message_t* msg)
+static inline int16_t mavlink_msg_sbus_chan_values_get_ch10(const mavlink_message_t* msg)
 {
 	return _MAV_RETURN_int16_t(msg,  18);
 }
@@ -410,7 +410,7 @@ static __inline int16_t mavlink_msg_sbus_chan_values_get_ch10(const mavlink_mess
  *
  * @return channel11 value
  */
-static __inline int16_t mavlink_msg_sbus_chan_values_get_ch11(const mavlink_message_t* msg)
+static inline int16_t mavlink_msg_sbus_chan_values_get_ch11(const mavlink_message_t* msg)
 {
 	return _MAV_RETURN_int16_t(msg,  20);
 }
@@ -420,7 +420,7 @@ static __inline int16_t mavlink_msg_sbus_chan_values_get_ch11(const mavlink_mess
  *
  * @return channel12 value
  */
-static __inline int16_t mavlink_msg_sbus_chan_values_get_ch12(const mavlink_message_t* msg)
+static inline int16_t mavlink_msg_sbus_chan_values_get_ch12(const mavlink_message_t* msg)
 {
 	return _MAV_RETURN_int16_t(msg,  22);
 }
@@ -430,7 +430,7 @@ static __inline int16_t mavlink_msg_sbus_chan_values_get_ch12(const mavlink_mess
  *
  * @return channel13 value
  */
-static __inline int16_t mavlink_msg_sbus_chan_values_get_ch13(const mavlink_message_t* msg)
+static inline int16_t mavlink_msg_sbus_chan_values_get_ch13(const mavlink_message_t* msg)
 {
 	return _MAV_RETURN_int16_t(msg,  24);
 }
@@ -440,7 +440,7 @@ static __inline int16_t mavlink_msg_sbus_chan_values_get_ch13(const mavlink_mess
  *
  * @return channel14 value
  */
-static __inline int16_t mavlink_msg_sbus_chan_values_get_ch14(const mavlink_message_t* msg)
+static inline int16_t mavlink_msg_sbus_chan_values_get_ch14(const mavlink_message_t* msg)
 {
 	return _MAV_RETURN_int16_t(msg,  26);
 }
@@ -450,7 +450,7 @@ static __inline int16_t mavlink_msg_sbus_chan_values_get_ch14(const mavlink_mess
  *
  * @return channel15 value
  */
-static __inline int16_t mavlink_msg_sbus_chan_values_get_ch15(const mavlink_message_t* msg)
+static inline int16_t mavlink_msg_sbus_chan_values_get_ch15(const mavlink_message_t* msg)
 {
 	return _MAV_RETURN_int16_t(msg,  28);
 }
@@ -460,7 +460,7 @@ static __inline int16_t mavlink_msg_sbus_chan_values_get_ch15(const mavlink_mess
  *
  * @return channel16 value
  */
-static __inline int16_t mavlink_msg_sbus_chan_values_get_ch16(const mavlink_message_t* msg)
+static inline int16_t mavlink_msg_sbus_chan_values_get_ch16(const mavlink_message_t* msg)
 {
 	return _MAV_RETURN_int16_t(msg,  30);
 }
@@ -470,7 +470,7 @@ static __inline int16_t mavlink_msg_sbus_chan_values_get_ch16(const mavlink_mess
  *
  * @return channel17 value
  */
-static __inline int16_t mavlink_msg_sbus_chan_values_get_ch17(const mavlink_message_t* msg)
+static inline int16_t mavlink_msg_sbus_chan_values_get_ch17(const mavlink_message_t* msg)
 {
 	return _MAV_RETURN_int16_t(msg,  32);
 }
@@ -480,7 +480,7 @@ static __inline int16_t mavlink_msg_sbus_chan_values_get_ch17(const mavlink_mess
  *
  * @return channel18 value
  */
-static __inline int16_t mavlink_msg_sbus_chan_values_get_ch18(const mavlink_message_t* msg)
+static inline int16_t mavlink_msg_sbus_chan_values_get_ch18(const mavlink_message_t* msg)
 {
 	return _MAV_RETURN_int16_t(msg,  34);
 }
@@ -491,7 +491,7 @@ static __inline int16_t mavlink_msg_sbus_chan_values_get_ch18(const mavlink_mess
  * @param msg The message to decode
  * @param sbus_chan_values C-struct to decode the message contents into
  */
-static __inline void mavlink_msg_sbus_chan_values_decode(const mavlink_message_t* msg, mavlink_sbus_chan_values_t* sbus_chan_values)
+static inline void mavlink_msg_sbus_chan_values_decode(const mavlink_message_t* msg, mavlink_sbus_chan_values_t* sbus_chan_values)
 {
 #if MAVLINK_NEED_BYTE_SWAP
 	sbus_chan_values->ch1 = mavlink_msg_sbus_chan_values_get_ch1(msg);

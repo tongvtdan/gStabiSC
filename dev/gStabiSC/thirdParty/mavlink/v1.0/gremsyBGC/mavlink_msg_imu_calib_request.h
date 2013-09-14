@@ -32,7 +32,7 @@ typedef struct __mavlink_imu_calib_request_t
  * @param acc_calib_mode this argument is optional, only used when calib type is ACC
  * @return length of the message in bytes (excluding serial stream start sign)
  */
-static __inline uint16_t mavlink_msg_imu_calib_request_pack(uint8_t system_id, uint8_t component_id, mavlink_message_t* msg,
+static inline uint16_t mavlink_msg_imu_calib_request_pack(uint8_t system_id, uint8_t component_id, mavlink_message_t* msg,
 						       uint8_t calib_type, uint8_t acc_calib_mode)
 {
 #if MAVLINK_NEED_BYTE_SWAP || !MAVLINK_ALIGNED_FIELDS
@@ -63,7 +63,7 @@ static __inline uint16_t mavlink_msg_imu_calib_request_pack(uint8_t system_id, u
  * @param acc_calib_mode this argument is optional, only used when calib type is ACC
  * @return length of the message in bytes (excluding serial stream start sign)
  */
-static __inline uint16_t mavlink_msg_imu_calib_request_pack_chan(uint8_t system_id, uint8_t component_id, uint8_t chan,
+static inline uint16_t mavlink_msg_imu_calib_request_pack_chan(uint8_t system_id, uint8_t component_id, uint8_t chan,
 							   mavlink_message_t* msg,
 						           uint8_t calib_type,uint8_t acc_calib_mode)
 {
@@ -93,7 +93,7 @@ static __inline uint16_t mavlink_msg_imu_calib_request_pack_chan(uint8_t system_
  * @param msg The MAVLink message to compress the data into
  * @param imu_calib_request C-struct to read the message contents from
  */
-static __inline uint16_t mavlink_msg_imu_calib_request_encode(uint8_t system_id, uint8_t component_id, mavlink_message_t* msg, const mavlink_imu_calib_request_t* imu_calib_request)
+static inline uint16_t mavlink_msg_imu_calib_request_encode(uint8_t system_id, uint8_t component_id, mavlink_message_t* msg, const mavlink_imu_calib_request_t* imu_calib_request)
 {
 	return mavlink_msg_imu_calib_request_pack(system_id, component_id, msg, imu_calib_request->calib_type, imu_calib_request->acc_calib_mode);
 }
@@ -107,7 +107,7 @@ static __inline uint16_t mavlink_msg_imu_calib_request_encode(uint8_t system_id,
  */
 #ifdef MAVLINK_USE_CONVENIENCE_FUNCTIONS
 
-static __inline void mavlink_msg_imu_calib_request_send(mavlink_channel_t chan, uint8_t calib_type, uint8_t acc_calib_mode)
+static inline void mavlink_msg_imu_calib_request_send(mavlink_channel_t chan, uint8_t calib_type, uint8_t acc_calib_mode)
 {
 #if MAVLINK_NEED_BYTE_SWAP || !MAVLINK_ALIGNED_FIELDS
 	char buf[2];
@@ -134,7 +134,7 @@ static __inline void mavlink_msg_imu_calib_request_send(mavlink_channel_t chan, 
  *
  * @return imu calib type Gyro or Accelerometer
  */
-static __inline uint8_t mavlink_msg_imu_calib_request_get_calib_type(const mavlink_message_t* msg)
+static inline uint8_t mavlink_msg_imu_calib_request_get_calib_type(const mavlink_message_t* msg)
 {
 	return _MAV_RETURN_uint8_t(msg,  0);
 }
@@ -144,7 +144,7 @@ static __inline uint8_t mavlink_msg_imu_calib_request_get_calib_type(const mavli
  *
  * @return this argument is optional, only used when calib type is ACC
  */
-static __inline uint8_t mavlink_msg_imu_calib_request_get_acc_calib_mode(const mavlink_message_t* msg)
+static inline uint8_t mavlink_msg_imu_calib_request_get_acc_calib_mode(const mavlink_message_t* msg)
 {
 	return _MAV_RETURN_uint8_t(msg,  1);
 }
@@ -155,7 +155,7 @@ static __inline uint8_t mavlink_msg_imu_calib_request_get_acc_calib_mode(const m
  * @param msg The message to decode
  * @param imu_calib_request C-struct to decode the message contents into
  */
-static __inline void mavlink_msg_imu_calib_request_decode(const mavlink_message_t* msg, mavlink_imu_calib_request_t* imu_calib_request)
+static inline void mavlink_msg_imu_calib_request_decode(const mavlink_message_t* msg, mavlink_imu_calib_request_t* imu_calib_request)
 {
 #if MAVLINK_NEED_BYTE_SWAP
 	imu_calib_request->calib_type = mavlink_msg_imu_calib_request_get_calib_type(msg);

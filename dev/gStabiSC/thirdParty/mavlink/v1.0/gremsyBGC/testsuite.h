@@ -242,33 +242,41 @@ static void mavlink_test_imu_calib_request(uint8_t system_id, uint8_t component_
         MAVLINK_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
 }
 
-static void mavlink_test_imu_calib_status(uint8_t system_id, uint8_t component_id, mavlink_message_t *last_msg)
+static void mavlink_test_system_status(uint8_t system_id, uint8_t component_id, mavlink_message_t *last_msg)
 {
 	mavlink_message_t msg;
         uint8_t buffer[MAVLINK_MAX_PACKET_LEN];
         uint16_t i;
-	mavlink_imu_calib_status_t packet_in = {
-		5,
+	mavlink_system_status_t packet_in = {
+		17.0,
+	17,
+	84,
+	151,
+	218,
 	};
-	mavlink_imu_calib_status_t packet1, packet2;
+	mavlink_system_status_t packet1, packet2;
         memset(&packet1, 0, sizeof(packet1));
-        	packet1.calib_status = packet_in.calib_status;
+        	packet1.battery_voltage = packet_in.battery_voltage;
+        	packet1.imu_calib = packet_in.imu_calib;
+        	packet1.sat_numbers = packet_in.sat_numbers;
+        	packet1.status1 = packet_in.status1;
+        	packet1.status2 = packet_in.status2;
         
         
 
         memset(&packet2, 0, sizeof(packet2));
-	mavlink_msg_imu_calib_status_encode(system_id, component_id, &msg, &packet1);
-	mavlink_msg_imu_calib_status_decode(&msg, &packet2);
+	mavlink_msg_system_status_encode(system_id, component_id, &msg, &packet1);
+	mavlink_msg_system_status_decode(&msg, &packet2);
         MAVLINK_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
 
         memset(&packet2, 0, sizeof(packet2));
-	mavlink_msg_imu_calib_status_pack(system_id, component_id, &msg , packet1.calib_status );
-	mavlink_msg_imu_calib_status_decode(&msg, &packet2);
+	mavlink_msg_system_status_pack(system_id, component_id, &msg , packet1.battery_voltage , packet1.imu_calib , packet1.sat_numbers , packet1.status1 , packet1.status2 );
+	mavlink_msg_system_status_decode(&msg, &packet2);
         MAVLINK_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
 
         memset(&packet2, 0, sizeof(packet2));
-	mavlink_msg_imu_calib_status_pack_chan(system_id, component_id, MAVLINK_COMM_0, &msg , packet1.calib_status );
-	mavlink_msg_imu_calib_status_decode(&msg, &packet2);
+	mavlink_msg_system_status_pack_chan(system_id, component_id, MAVLINK_COMM_0, &msg , packet1.battery_voltage , packet1.imu_calib , packet1.sat_numbers , packet1.status1 , packet1.status2 );
+	mavlink_msg_system_status_decode(&msg, &packet2);
         MAVLINK_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
 
         memset(&packet2, 0, sizeof(packet2));
@@ -276,12 +284,12 @@ static void mavlink_test_imu_calib_status(uint8_t system_id, uint8_t component_i
         for (i=0; i<mavlink_msg_get_send_buffer_length(&msg); i++) {
         	comm_send_ch(MAVLINK_COMM_0, buffer[i]);
         }
-	mavlink_msg_imu_calib_status_decode(last_msg, &packet2);
+	mavlink_msg_system_status_decode(last_msg, &packet2);
         MAVLINK_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
         
         memset(&packet2, 0, sizeof(packet2));
-	mavlink_msg_imu_calib_status_send(MAVLINK_COMM_1 , packet1.calib_status );
-	mavlink_msg_imu_calib_status_decode(last_msg, &packet2);
+	mavlink_msg_system_status_send(MAVLINK_COMM_1 , packet1.battery_voltage , packet1.imu_calib , packet1.sat_numbers , packet1.status1 , packet1.status2 );
+	mavlink_msg_system_status_decode(last_msg, &packet2);
         MAVLINK_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
 }
 
@@ -348,7 +356,7 @@ static void mavlink_test_gremsyBGC(uint8_t system_id, uint8_t component_id, mavl
 	mavlink_test_sbus_chan_values(system_id, component_id, last_msg);
 	mavlink_test_rc_simulation(system_id, component_id, last_msg);
 	mavlink_test_imu_calib_request(system_id, component_id, last_msg);
-	mavlink_test_imu_calib_status(system_id, component_id, last_msg);
+	mavlink_test_system_status(system_id, component_id, last_msg);
 	mavlink_test_debug_values(system_id, component_id, last_msg);
 }
 

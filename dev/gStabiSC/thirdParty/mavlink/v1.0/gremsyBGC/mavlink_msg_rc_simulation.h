@@ -35,7 +35,7 @@ typedef struct __mavlink_rc_simulation_t
  * @param pan pan value in degree
  * @return length of the message in bytes (excluding serial stream start sign)
  */
-static __inline uint16_t mavlink_msg_rc_simulation_pack(uint8_t system_id, uint8_t component_id, mavlink_message_t* msg,
+static inline uint16_t mavlink_msg_rc_simulation_pack(uint8_t system_id, uint8_t component_id, mavlink_message_t* msg,
 						       int16_t tilt, int16_t roll, int16_t pan)
 {
 #if MAVLINK_NEED_BYTE_SWAP || !MAVLINK_ALIGNED_FIELDS
@@ -69,7 +69,7 @@ static __inline uint16_t mavlink_msg_rc_simulation_pack(uint8_t system_id, uint8
  * @param pan pan value in degree
  * @return length of the message in bytes (excluding serial stream start sign)
  */
-static __inline uint16_t mavlink_msg_rc_simulation_pack_chan(uint8_t system_id, uint8_t component_id, uint8_t chan,
+static inline uint16_t mavlink_msg_rc_simulation_pack_chan(uint8_t system_id, uint8_t component_id, uint8_t chan,
 							   mavlink_message_t* msg,
 						           int16_t tilt,int16_t roll,int16_t pan)
 {
@@ -101,7 +101,7 @@ static __inline uint16_t mavlink_msg_rc_simulation_pack_chan(uint8_t system_id, 
  * @param msg The MAVLink message to compress the data into
  * @param rc_simulation C-struct to read the message contents from
  */
-static __inline uint16_t mavlink_msg_rc_simulation_encode(uint8_t system_id, uint8_t component_id, mavlink_message_t* msg, const mavlink_rc_simulation_t* rc_simulation)
+static inline uint16_t mavlink_msg_rc_simulation_encode(uint8_t system_id, uint8_t component_id, mavlink_message_t* msg, const mavlink_rc_simulation_t* rc_simulation)
 {
 	return mavlink_msg_rc_simulation_pack(system_id, component_id, msg, rc_simulation->tilt, rc_simulation->roll, rc_simulation->pan);
 }
@@ -116,7 +116,7 @@ static __inline uint16_t mavlink_msg_rc_simulation_encode(uint8_t system_id, uin
  */
 #ifdef MAVLINK_USE_CONVENIENCE_FUNCTIONS
 
-static __inline void mavlink_msg_rc_simulation_send(mavlink_channel_t chan, int16_t tilt, int16_t roll, int16_t pan)
+static inline void mavlink_msg_rc_simulation_send(mavlink_channel_t chan, int16_t tilt, int16_t roll, int16_t pan)
 {
 #if MAVLINK_NEED_BYTE_SWAP || !MAVLINK_ALIGNED_FIELDS
 	char buf[6];
@@ -145,7 +145,7 @@ static __inline void mavlink_msg_rc_simulation_send(mavlink_channel_t chan, int1
  *
  * @return tilt value in degree
  */
-static __inline int16_t mavlink_msg_rc_simulation_get_tilt(const mavlink_message_t* msg)
+static inline int16_t mavlink_msg_rc_simulation_get_tilt(const mavlink_message_t* msg)
 {
 	return _MAV_RETURN_int16_t(msg,  0);
 }
@@ -155,7 +155,7 @@ static __inline int16_t mavlink_msg_rc_simulation_get_tilt(const mavlink_message
  *
  * @return roll value in degree
  */
-static __inline int16_t mavlink_msg_rc_simulation_get_roll(const mavlink_message_t* msg)
+static inline int16_t mavlink_msg_rc_simulation_get_roll(const mavlink_message_t* msg)
 {
 	return _MAV_RETURN_int16_t(msg,  2);
 }
@@ -165,7 +165,7 @@ static __inline int16_t mavlink_msg_rc_simulation_get_roll(const mavlink_message
  *
  * @return pan value in degree
  */
-static __inline int16_t mavlink_msg_rc_simulation_get_pan(const mavlink_message_t* msg)
+static inline int16_t mavlink_msg_rc_simulation_get_pan(const mavlink_message_t* msg)
 {
 	return _MAV_RETURN_int16_t(msg,  4);
 }
@@ -176,7 +176,7 @@ static __inline int16_t mavlink_msg_rc_simulation_get_pan(const mavlink_message_
  * @param msg The message to decode
  * @param rc_simulation C-struct to decode the message contents into
  */
-static __inline void mavlink_msg_rc_simulation_decode(const mavlink_message_t* msg, mavlink_rc_simulation_t* rc_simulation)
+static inline void mavlink_msg_rc_simulation_decode(const mavlink_message_t* msg, mavlink_rc_simulation_t* rc_simulation)
 {
 #if MAVLINK_NEED_BYTE_SWAP
 	rc_simulation->tilt = mavlink_msg_rc_simulation_get_tilt(msg);

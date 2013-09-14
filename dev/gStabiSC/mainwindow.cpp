@@ -678,7 +678,7 @@ void MainWindow::openSerialPort()
 
         serialport->open(QIODevice::ReadWrite);
 
-        serialport->setRts(1); // 0V output on boot0
+        serialport->setRts(0); // 0V output on boot0
         serialport->setDtr(1); // 0v output on reset
         serialport->setDtr(0); // 3V3 output on reset
         watchdogTimer->start();
@@ -1891,6 +1891,13 @@ void MainWindow::chartUpdateData()
         ui->chartPlot->setAxisScale(QwtPlot::xBottom, (sampleSizeOverflow*sampleSizeMax) + pitch_point.size(),
                                     (sampleSizeOverflow*sampleSizeMax) + pitch_point.size() + interval_value);
     }
+
+    ui->ax_label->setText(QString("%1").arg(raw_imu.xacc));
+    ui->ay_label->setText(QString("%1").arg(raw_imu.yacc));
+    ui->az_label->setText(QString("%1").arg(raw_imu.zacc));
+    ui->gx_label->setText(QString("%1").arg(raw_imu.xgyro));
+    ui->gy_label->setText(QString("%1").arg(raw_imu.ygyro));
+    ui->gz_label->setText(QString("%1").arg(raw_imu.zgyro));
 
     pitch_point += QPointF (time_count, attitude_degree.pitch);
     ui->pitch_label->setText(QString("%1").arg(attitude_degree.pitch,4,'f',2));

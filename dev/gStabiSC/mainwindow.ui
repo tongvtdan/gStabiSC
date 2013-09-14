@@ -1194,7 +1194,7 @@
         </rect>
        </property>
        <property name="text">
-        <string>Filter</string>
+        <string>Response</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
@@ -2580,7 +2580,7 @@
         </rect>
        </property>
        <property name="text">
-        <string>LPF</string>
+        <string>Smooth</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
@@ -2650,11 +2650,11 @@
         <string>RC type in your system</string>
        </property>
        <property name="currentIndex">
-        <number>1</number>
+        <number>0</number>
        </property>
        <item>
         <property name="text">
-         <string>PPM</string>
+         <string>PWM</string>
         </property>
        </item>
        <item>
@@ -2664,12 +2664,12 @@
        </item>
        <item>
         <property name="text">
-         <string>HAND DEVICE</string>
+         <string>gMOTION</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>SIMULATOR</string>
+         <string>PC</string>
         </property>
        </item>
       </widget>

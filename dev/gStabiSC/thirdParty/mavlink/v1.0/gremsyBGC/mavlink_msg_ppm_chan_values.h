@@ -38,7 +38,7 @@ typedef struct __mavlink_ppm_chan_values_t
  * @param mode ppm mode value
  * @return length of the message in bytes (excluding serial stream start sign)
  */
-static __inline uint16_t mavlink_msg_ppm_chan_values_pack(uint8_t system_id, uint8_t component_id, mavlink_message_t* msg,
+static inline uint16_t mavlink_msg_ppm_chan_values_pack(uint8_t system_id, uint8_t component_id, mavlink_message_t* msg,
 						       float tilt, float pan, float roll, float mode)
 {
 #if MAVLINK_NEED_BYTE_SWAP || !MAVLINK_ALIGNED_FIELDS
@@ -75,7 +75,7 @@ static __inline uint16_t mavlink_msg_ppm_chan_values_pack(uint8_t system_id, uin
  * @param mode ppm mode value
  * @return length of the message in bytes (excluding serial stream start sign)
  */
-static __inline uint16_t mavlink_msg_ppm_chan_values_pack_chan(uint8_t system_id, uint8_t component_id, uint8_t chan,
+static inline uint16_t mavlink_msg_ppm_chan_values_pack_chan(uint8_t system_id, uint8_t component_id, uint8_t chan,
 							   mavlink_message_t* msg,
 						           float tilt,float pan,float roll,float mode)
 {
@@ -109,7 +109,7 @@ static __inline uint16_t mavlink_msg_ppm_chan_values_pack_chan(uint8_t system_id
  * @param msg The MAVLink message to compress the data into
  * @param ppm_chan_values C-struct to read the message contents from
  */
-static __inline uint16_t mavlink_msg_ppm_chan_values_encode(uint8_t system_id, uint8_t component_id, mavlink_message_t* msg, const mavlink_ppm_chan_values_t* ppm_chan_values)
+static inline uint16_t mavlink_msg_ppm_chan_values_encode(uint8_t system_id, uint8_t component_id, mavlink_message_t* msg, const mavlink_ppm_chan_values_t* ppm_chan_values)
 {
 	return mavlink_msg_ppm_chan_values_pack(system_id, component_id, msg, ppm_chan_values->tilt, ppm_chan_values->pan, ppm_chan_values->roll, ppm_chan_values->mode);
 }
@@ -125,7 +125,7 @@ static __inline uint16_t mavlink_msg_ppm_chan_values_encode(uint8_t system_id, u
  */
 #ifdef MAVLINK_USE_CONVENIENCE_FUNCTIONS
 
-static __inline void mavlink_msg_ppm_chan_values_send(mavlink_channel_t chan, float tilt, float pan, float roll, float mode)
+static inline void mavlink_msg_ppm_chan_values_send(mavlink_channel_t chan, float tilt, float pan, float roll, float mode)
 {
 #if MAVLINK_NEED_BYTE_SWAP || !MAVLINK_ALIGNED_FIELDS
 	char buf[16];
@@ -156,7 +156,7 @@ static __inline void mavlink_msg_ppm_chan_values_send(mavlink_channel_t chan, fl
  *
  * @return ppm tilt value
  */
-static __inline float mavlink_msg_ppm_chan_values_get_tilt(const mavlink_message_t* msg)
+static inline float mavlink_msg_ppm_chan_values_get_tilt(const mavlink_message_t* msg)
 {
 	return _MAV_RETURN_float(msg,  0);
 }
@@ -166,7 +166,7 @@ static __inline float mavlink_msg_ppm_chan_values_get_tilt(const mavlink_message
  *
  * @return ppm pan value
  */
-static __inline float mavlink_msg_ppm_chan_values_get_pan(const mavlink_message_t* msg)
+static inline float mavlink_msg_ppm_chan_values_get_pan(const mavlink_message_t* msg)
 {
 	return _MAV_RETURN_float(msg,  4);
 }
@@ -176,7 +176,7 @@ static __inline float mavlink_msg_ppm_chan_values_get_pan(const mavlink_message_
  *
  * @return ppm roll value
  */
-static __inline float mavlink_msg_ppm_chan_values_get_roll(const mavlink_message_t* msg)
+static inline float mavlink_msg_ppm_chan_values_get_roll(const mavlink_message_t* msg)
 {
 	return _MAV_RETURN_float(msg,  8);
 }
@@ -186,7 +186,7 @@ static __inline float mavlink_msg_ppm_chan_values_get_roll(const mavlink_message
  *
  * @return ppm mode value
  */
-static __inline float mavlink_msg_ppm_chan_values_get_mode(const mavlink_message_t* msg)
+static inline float mavlink_msg_ppm_chan_values_get_mode(const mavlink_message_t* msg)
 {
 	return _MAV_RETURN_float(msg,  12);
 }
@@ -197,7 +197,7 @@ static __inline float mavlink_msg_ppm_chan_values_get_mode(const mavlink_message
  * @param msg The message to decode
  * @param ppm_chan_values C-struct to decode the message contents into
  */
-static __inline void mavlink_msg_ppm_chan_values_decode(const mavlink_message_t* msg, mavlink_ppm_chan_values_t* ppm_chan_values)
+static inline void mavlink_msg_ppm_chan_values_decode(const mavlink_message_t* msg, mavlink_ppm_chan_values_t* ppm_chan_values)
 {
 #if MAVLINK_NEED_BYTE_SWAP
 	ppm_chan_values->tilt = mavlink_msg_ppm_chan_values_get_tilt(msg);
