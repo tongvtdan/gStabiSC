@@ -17,5 +17,6 @@
         <file>files/styles/style-indoor.css</file>
         <file>files/styles/style-outdoor.css</file>
         <file>files/styles/Vera.ttf</file>
+        <file>uuid_first.txt</file>
     </qresource>
 </RCC>

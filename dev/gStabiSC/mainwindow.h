@@ -24,6 +24,20 @@
 #include <qwt_compass.h>
 #include <qwt_dial.h>
 
+#define BATT_CELL_MIN	3.5
+#define BATT_CELL_MAX 	4.2
+#define BATT_CELL_ALARM	3.6
+
+#define BATT_OK		0
+#define BATT_LOW    1
+#define BATT_PC		2
+
+#define BATT_NO_CELL	2
+#define BATT_3_CELL		3
+#define BATT_4_CELL		4
+#define BATT_5_CELL		5
+#define BATT_6_CELL		6
+
 class AttitudeIndicator;
 
 namespace Ui {
@@ -98,6 +112,7 @@ public slots:
     void setDefaultParams();
     void updateSbusValues();
     void updatePPMValues();
+    void updateBatteryStatus(float voltage);
 
     /**
       for chartPlot
@@ -143,10 +158,12 @@ signals:
     void paramValueChanged(uint8_t index, float value);
     void sbusValuesChanged();
     void ppmValuesChanged();
+    void baterryValuesChanged(float voltage);
 
 private:
     Ui::MainWindow *ui;      
     QLabel *m_statusLabel;
+    QLabel *batteryStatusLabel;
     QTimer *watchdogTimer;  
     QTimer *chartTimer;
     AttitudeIndicator *pitch_ai;

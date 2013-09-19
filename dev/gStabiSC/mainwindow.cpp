@@ -14,7 +14,7 @@
 bool pulse = false;
 bool readParams = false;
 bool resetboard = false;
-uint8_t calib_type = CALIB_NONE;
+//uint8_t calib_type = CALIB_NONE;
 
 QString loadfilename, savefilename, filedir;
 QString oldprofilename;
@@ -28,6 +28,9 @@ uint8_t autopilot_type = MAV_AUTOPILOT_GENERIC;
 uint8_t system_mode = MAV_MODE_PREFLIGHT; ///< Booting up
 uint32_t custom_mode = 0;                 ///< Custom mode, can be defined by user/adopter
 uint8_t system_state = MAV_STATE_STANDBY; ///< System ready for flight
+uint8_t calib_type = CALIB_NONE;
+uint8_t battery_cell = 0;
+uint8_t baterry_lowLevel;
 
 mavlink_raw_imu_t raw_imu;
 mavlink_attitude_t attitude;
@@ -35,7 +38,8 @@ mavlink_param_request_read_t request_read;
 mavlink_param_value_t paramValue;
 mavlink_sbus_chan_values_t sbus_chan_values;
 mavlink_ppm_chan_values_t ppm_chan_values;
-mavlink_imu_calib_status_t imu_calib_status;
+mavlink_system_status_t system_status;
+//mavlink_imu_calib_status_t imu_calib_status;
 mavlink_debug_values_t debugValues;
 global_struct global_data;
 gConfig_t oldParamConfig;
@@ -44,7 +48,8 @@ gConfig_t oldParamConfig;
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
-    m_statusLabel(new QLabel)
+    m_statusLabel(new QLabel),
+    batteryStatusLabel(new QLabel)
 {
     ui->setupUi(this);
 //    init all required variables
@@ -79,6 +84,9 @@ MainWindow::MainWindow(QWidget *parent) :
     m_statusLabel->setMinimumWidth(200);
     ui->statusBar->addWidget(m_statusLabel);
 
+    batteryStatusLabel->setMinimumWidth(200);
+    ui->statusBar->addWidget(batteryStatusLabel);
+
     //open profile file
     connect(ui->loadfileButton, SIGNAL(clicked()), SLOT(loadfileButtonClicked()));
     //save profile file
@@ -110,6 +118,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(this, SIGNAL(sbusValuesChanged()), this, SLOT(updateSbusValues()));
     connect(this, SIGNAL(ppmValuesChanged()), this, SLOT(updatePPMValues()));
+    connect(this, SIGNAL(baterryValuesChanged(float)),this, SLOT(updateBatteryStatus(float)));
 
     chartSetting(ui->chartPlot);
 
@@ -133,7 +142,7 @@ void MainWindow::chartSetting(QwtPlot *plot)
     grid->enableY(true);
     grid->attach(plot);
 
-    ui->chartPlot->setAxisScale(QwtPlot::yLeft, -1000, 1000);
+    ui->chartPlot->setAxisScale(QwtPlot::yLeft, -200, 200);
 
     pitch_curve = new QwtPlotCurve();
     pitch_curve->setTitle("Pitch in degree");
@@ -754,143 +763,164 @@ void MainWindow::handleMessage(QByteArray buff)
             timerRestart();
             pulse = 1;
             emit heartBeatPulse(pulse);
-        }
-
-        switch (message.msgid)
-        {
-        case MAVLINK_MSG_ID_HEARTBEAT:
-            break;
-        case MAVLINK_MSG_ID_RAW_IMU:
-            raw_imu.xacc = mavlink_msg_raw_imu_get_xacc(&message);
-            raw_imu.yacc = mavlink_msg_raw_imu_get_yacc(&message);
-            raw_imu.zacc = mavlink_msg_raw_imu_get_zacc(&message);
-            raw_imu.xgyro = mavlink_msg_raw_imu_get_xgyro(&message);
-            raw_imu.ygyro = mavlink_msg_raw_imu_get_ygyro(&message);
-            raw_imu.zgyro = mavlink_msg_raw_imu_get_zgyro(&message);
-            break;
-        case MAVLINK_MSG_ID_ATTITUDE:
-            attitude.roll = mavlink_msg_attitude_get_roll(&message);
-            attitude_degree.roll = attitude.roll*180.0/3.14159;
-
-            attitude.pitch = mavlink_msg_attitude_get_pitch(&message);
-            attitude_degree.pitch = attitude.pitch*180.0/3.14159;
-
-            attitude_degree.yaw = attitude.yaw*180.0/3.14159;
-            attitude.yaw = mavlink_msg_attitude_get_yaw(&message);
-            emit attitudeChanged(attitude_degree.pitch, attitude_degree.roll, attitude_degree.yaw);
-            break;
-        case MAVLINK_MSG_ID_PARAM_VALUE:
-            paramValue.param_index = mavlink_msg_param_value_get_param_index(&message);  // get param index
-            paramValue.param_value = mavlink_msg_param_value_get_param_value(&message);  // get param value
-            emit paramValueChanged(paramValue.param_index, paramValue.param_value);
-            break;
-        case MAVLINK_MSG_ID_SBUS_CHAN_VALUES:
-            sbus_chan_values.ch1 = mavlink_msg_sbus_chan_values_get_ch1(&message);
-            sbus_chan_values.ch2 = mavlink_msg_sbus_chan_values_get_ch2(&message);
-            sbus_chan_values.ch3 = mavlink_msg_sbus_chan_values_get_ch3(&message);
-            sbus_chan_values.ch4 = mavlink_msg_sbus_chan_values_get_ch4(&message);
-            sbus_chan_values.ch5 = mavlink_msg_sbus_chan_values_get_ch5(&message);
-            sbus_chan_values.ch6 = mavlink_msg_sbus_chan_values_get_ch6(&message);
-            sbus_chan_values.ch7 = mavlink_msg_sbus_chan_values_get_ch7(&message);
-            sbus_chan_values.ch8 = mavlink_msg_sbus_chan_values_get_ch8(&message);
-            sbus_chan_values.ch9 = mavlink_msg_sbus_chan_values_get_ch9(&message);
-            sbus_chan_values.ch10 = mavlink_msg_sbus_chan_values_get_ch10(&message);
-            sbus_chan_values.ch11 = mavlink_msg_sbus_chan_values_get_ch11(&message);
-            sbus_chan_values.ch12 = mavlink_msg_sbus_chan_values_get_ch12(&message);
-            sbus_chan_values.ch13 = mavlink_msg_sbus_chan_values_get_ch13(&message);
-            sbus_chan_values.ch14 = mavlink_msg_sbus_chan_values_get_ch14(&message);
-            sbus_chan_values.ch15 = mavlink_msg_sbus_chan_values_get_ch15(&message);
-            sbus_chan_values.ch16 = mavlink_msg_sbus_chan_values_get_ch16(&message);
-            sbus_chan_values.ch17 = mavlink_msg_sbus_chan_values_get_ch17(&message);
-            sbus_chan_values.ch18 = mavlink_msg_sbus_chan_values_get_ch18(&message);
-            emit sbusValuesChanged();
-            break;
-        case MAVLINK_MSG_ID_PPM_CHAN_VALUES:
-            ppm_chan_values.tilt = mavlink_msg_ppm_chan_values_get_tilt(&message);
-            ppm_chan_values.roll = mavlink_msg_ppm_chan_values_get_roll(&message);
-            ppm_chan_values.pan = mavlink_msg_ppm_chan_values_get_pan(&message);
-            ppm_chan_values.mode = mavlink_msg_ppm_chan_values_get_mode(&message);
-            emit ppmValuesChanged();
-            break;
-        case MAVLINK_MSG_ID_IMU_CALIB_STATUS:
-            imu_calib_status.calib_status = mavlink_msg_imu_calib_status_get_calib_status(&message);
-            if(calib_type==ACC_CALIB)
+            /* read all params at the first time */
+            if(readParams == false)
             {
-                ui->information_box->clear();
-                switch(imu_calib_status.calib_status)
+                readParams = true;
+                readParamsOnBoard();
+            }
+
+            switch (message.msgid)
+            {
+            case MAVLINK_MSG_ID_HEARTBEAT:
+                break;
+            case MAVLINK_MSG_ID_RAW_IMU:
+            {
+                raw_imu.xacc = mavlink_msg_raw_imu_get_xacc(&message);
+                raw_imu.yacc = mavlink_msg_raw_imu_get_yacc(&message);
+                raw_imu.zacc = mavlink_msg_raw_imu_get_zacc(&message);
+                raw_imu.xgyro = mavlink_msg_raw_imu_get_xgyro(&message);
+                raw_imu.ygyro = mavlink_msg_raw_imu_get_ygyro(&message);
+                raw_imu.zgyro = mavlink_msg_raw_imu_get_zgyro(&message);
+                break;
+            }
+            case MAVLINK_MSG_ID_ATTITUDE:
+            {
+                attitude.roll = mavlink_msg_attitude_get_roll(&message);
+                attitude_degree.roll = attitude.roll*180.0/3.14159;
+
+                attitude.pitch = mavlink_msg_attitude_get_pitch(&message);
+                attitude_degree.pitch = attitude.pitch*180.0/3.14159;
+
+                attitude_degree.yaw = attitude.yaw*180.0/3.14159;
+                attitude.yaw = mavlink_msg_attitude_get_yaw(&message);
+                emit attitudeChanged(attitude_degree.pitch, attitude_degree.roll, attitude_degree.yaw);
+                break;
+            }
+            case MAVLINK_MSG_ID_PARAM_VALUE:
+            {
+                paramValue.param_index = mavlink_msg_param_value_get_param_index(&message);  // get param index
+                paramValue.param_value = mavlink_msg_param_value_get_param_value(&message);  // get param value
+                emit paramValueChanged(paramValue.param_index, paramValue.param_value);
+                break;
+            }
+            case MAVLINK_MSG_ID_SBUS_CHAN_VALUES:
+            {
+                sbus_chan_values.ch1 = mavlink_msg_sbus_chan_values_get_ch1(&message);
+                sbus_chan_values.ch2 = mavlink_msg_sbus_chan_values_get_ch2(&message);
+                sbus_chan_values.ch3 = mavlink_msg_sbus_chan_values_get_ch3(&message);
+                sbus_chan_values.ch4 = mavlink_msg_sbus_chan_values_get_ch4(&message);
+                sbus_chan_values.ch5 = mavlink_msg_sbus_chan_values_get_ch5(&message);
+                sbus_chan_values.ch6 = mavlink_msg_sbus_chan_values_get_ch6(&message);
+                sbus_chan_values.ch7 = mavlink_msg_sbus_chan_values_get_ch7(&message);
+                sbus_chan_values.ch8 = mavlink_msg_sbus_chan_values_get_ch8(&message);
+                sbus_chan_values.ch9 = mavlink_msg_sbus_chan_values_get_ch9(&message);
+                sbus_chan_values.ch10 = mavlink_msg_sbus_chan_values_get_ch10(&message);
+                sbus_chan_values.ch11 = mavlink_msg_sbus_chan_values_get_ch11(&message);
+                sbus_chan_values.ch12 = mavlink_msg_sbus_chan_values_get_ch12(&message);
+                sbus_chan_values.ch13 = mavlink_msg_sbus_chan_values_get_ch13(&message);
+                sbus_chan_values.ch14 = mavlink_msg_sbus_chan_values_get_ch14(&message);
+                sbus_chan_values.ch15 = mavlink_msg_sbus_chan_values_get_ch15(&message);
+                sbus_chan_values.ch16 = mavlink_msg_sbus_chan_values_get_ch16(&message);
+                sbus_chan_values.ch17 = mavlink_msg_sbus_chan_values_get_ch17(&message);
+                sbus_chan_values.ch18 = mavlink_msg_sbus_chan_values_get_ch18(&message);
+                emit sbusValuesChanged();
+                break;
+            }
+            case MAVLINK_MSG_ID_PPM_CHAN_VALUES:
+            {
+                ppm_chan_values.tilt = mavlink_msg_ppm_chan_values_get_tilt(&message);
+                ppm_chan_values.roll = mavlink_msg_ppm_chan_values_get_roll(&message);
+                ppm_chan_values.pan = mavlink_msg_ppm_chan_values_get_pan(&message);
+                ppm_chan_values.mode = mavlink_msg_ppm_chan_values_get_mode(&message);
+                emit ppmValuesChanged();
+                break;
+            }
+            case MAVLINK_MSG_ID_SYSTEM_STATUS:
+            {
+                system_status.battery_voltage = mavlink_msg_system_status_get_battery_voltage(&message);
+                system_status.imu_calib = mavlink_msg_system_status_get_imu_calib(&message);
+                system_status.sat_numbers = mavlink_msg_system_status_get_sat_numbers(&message);
+                system_status.status1 = mavlink_msg_system_status_get_status1(&message);
+                system_status.status2 = mavlink_msg_system_status_get_status2(&message);
+                emit baterryValuesChanged(system_status.battery_voltage);
+
+                if(calib_type==ACC_CALIB)
                 {
-                    case CALIB_FINISH:
-                        ui->information_box->setPlainText("IMU calib finished!");
-                        calib_type=CALIB_NONE;
-                    break;
-                    case ONE_REMAINING_FACE:
-                        ui->information_box->setPlainText("One face remaining");
-                    break;
-                    case TWO_REMAINING_FACES:
-                        ui->information_box->setPlainText("Two faces remaining");
-                    break;
-                    case THREE_REMAINING_FACES:
-                        ui->information_box->setPlainText("Three faces remaining");
-                    break;
-                    case FOUR_REMAINING_FACES:
-                        ui->information_box->setPlainText("Four faces remaining");
-                    break;
-                    case FIVE_REMAINING_FACES:
-                        ui->information_box->setPlainText("Five faces remaining");
-                    break;
-                    case SIX_REMAINING_FACES:
-                        ui->information_box->setPlainText("Six faces remaining");
-                    break;
-                    case CALIB_FAIL:
-                        ui->information_box->setPlainText("IMU calib failed!");
-                        calib_type=CALIB_NONE;
-                    break;
+//                    ui->information_box->clear();
+                    switch(system_status.imu_calib)
+                    {
+                        case CALIB_FINISH:
+                            ui->information_box->setPlainText("IMU calib finished!");
+                            calib_type=CALIB_NONE;
+                        break;
+                        case ONE_REMAINING_FACE:
+                            ui->information_box->setPlainText("One face done");
+                        break;
+                        case TWO_REMAINING_FACES:
+                            ui->information_box->setPlainText("Two faces done");
+                        break;
+                        case THREE_REMAINING_FACES:
+                            ui->information_box->setPlainText("Three faces done");
+                        break;
+                        case FOUR_REMAINING_FACES:
+                            ui->information_box->setPlainText("Four faces done");
+                        break;
+                        case FIVE_REMAINING_FACES:
+                            ui->information_box->setPlainText("Five faces done");
+                        break;
+                        case SIX_REMAINING_FACES:
+                            ui->information_box->setPlainText("Six faces done");
+                        break;
+                        case CALIB_FAIL:
+                            ui->information_box->setPlainText("IMU calib failed!");
+                            calib_type=CALIB_NONE;
+                        break;
+                    }
+                    ui->calibAcc_Button->setEnabled(true);
                 }
-                ui->calibAcc_Button->setEnabled(true);
+                else if(calib_type==GYRO_CALIB)
+                {
+                    ui->information_box->clear();
+                    if(system_status.imu_calib==0)
+                        ui->information_box->setPlainText("IMU calib finished!");
+                    else
+                        ui->information_box->setPlainText("IMU calib failed!");
+                    calib_type=CALIB_NONE;
+                    ui->calibGyro_Button->setEnabled(true);
+                }
+                break;
             }
-            else if(calib_type==GYRO_CALIB)
+            case MAVLINK_MSG_ID_DEBUG_VALUES:
             {
+                debugValues.debug1 = mavlink_msg_debug_values_get_debug1(&message);
+                debugValues.debug2 = mavlink_msg_debug_values_get_debug2(&message);
+                debugValues.debug3 = mavlink_msg_debug_values_get_debug3(&message);
+                debugValues.debug4 = mavlink_msg_debug_values_get_debug4(&message);
+                debugValues.debug5 = mavlink_msg_debug_values_get_debug5(&message);
+                debugValues.debug6 = mavlink_msg_debug_values_get_debug6(&message);
+                debugValues.debug7 = mavlink_msg_debug_values_get_debug7(&message);
+                debugValues.debug8 = mavlink_msg_debug_values_get_debug8(&message);
+
                 ui->information_box->clear();
-                if(imu_calib_status.calib_status==0)
-                    ui->information_box->setPlainText("IMU calib finished!");
-                else
-                    ui->information_box->setPlainText("IMU calib failed!");
-                calib_type=CALIB_NONE;
-                ui->calibGyro_Button->setEnabled(true);
-            }
-            break;
-        case MAVLINK_MSG_ID_DEBUG_VALUES:
-            debugValues.debug1 = mavlink_msg_debug_values_get_debug1(&message);
-            debugValues.debug2 = mavlink_msg_debug_values_get_debug2(&message);
-            debugValues.debug3 = mavlink_msg_debug_values_get_debug3(&message);
-            debugValues.debug4 = mavlink_msg_debug_values_get_debug4(&message);
-            debugValues.debug5 = mavlink_msg_debug_values_get_debug5(&message);
-            debugValues.debug6 = mavlink_msg_debug_values_get_debug6(&message);
-            debugValues.debug7 = mavlink_msg_debug_values_get_debug7(&message);
-            debugValues.debug8 = mavlink_msg_debug_values_get_debug8(&message);
+                if(ui->debugCheckbox->isChecked()==true)
+                {
 
-            ui->information_box->clear();
-            if(ui->debugCheckbox->isChecked()==true)
-            {
-
-                ui->information_box->insertPlainText(QString("debug1: %1\t\t").arg(debugValues.debug1));
-                ui->information_box->insertPlainText(QString("debug2: %1\n\r").arg(debugValues.debug2));
-                ui->information_box->insertPlainText(QString("debug3: %1\t\t").arg(debugValues.debug3));
-                ui->information_box->insertPlainText(QString("debug4: %1\n\r").arg(debugValues.debug4));
-                ui->information_box->insertPlainText(QString("debug5: %1\t\t").arg(debugValues.debug5));
-                ui->information_box->insertPlainText(QString("debug6: %1\n\r").arg(debugValues.debug6));
-                ui->information_box->insertPlainText(QString("debug7: %1\t\t").arg(debugValues.debug7));
-                ui->information_box->insertPlainText(QString("debug8: %1\n\t").arg(debugValues.debug8));
+                    ui->information_box->insertPlainText(QString("debug1: %1\t\t").arg(debugValues.debug1));
+                    ui->information_box->insertPlainText(QString("debug2: %1\n\r").arg(debugValues.debug2));
+                    ui->information_box->insertPlainText(QString("debug3: %1\t\t").arg(debugValues.debug3));
+                    ui->information_box->insertPlainText(QString("debug4: %1\n\r").arg(debugValues.debug4));
+                    ui->information_box->insertPlainText(QString("debug5: %1\t\t").arg(debugValues.debug5));
+                    ui->information_box->insertPlainText(QString("debug6: %1\n\r").arg(debugValues.debug6));
+                    ui->information_box->insertPlainText(QString("debug7: %1\t\t").arg(debugValues.debug7));
+                    ui->information_box->insertPlainText(QString("debug8: %1\n\t").arg(debugValues.debug8));
+                }
+                break;
             }
-            break;
-        default:
-            break;
-        } // end of switch
-    }
-    /* read all params at the first time */
-    if(readParams == false){
-        readParamsOnBoard();
-        readParams = true;
+            default:
+                break;
+            } // end of switch
+        }
     }
 
     if(ui->tabWidget->currentIndex() == 3){
@@ -1616,6 +1646,8 @@ void MainWindow::writeParamstoBoard(){
                 len = mavlink_msg_to_send_buffer(buf, &msg);
                 serialport->write((const char*)buf, len);
                 oldParamConfig.radioType = ui->rc_source->currentIndex();
+                if(oldParamConfig.radioType == 2) // gMotion device
+                    ui->handDeviceConnectButton->setEnabled(true);
             }
 
             /* channel */
@@ -1870,6 +1902,53 @@ void MainWindow::updatePPMValues()
     ui->mode_ppmvalue->setText(QString::number(ppm_chan_values.mode));
 }
 
+void MainWindow::updateBatteryStatus(float voltage)
+{
+    static uint8_t baterryLowCount=0;
+    if(voltage < (BATT_3_CELL*BATT_CELL_MIN - 4)){
+        battery_cell = BATT_NO_CELL;
+    }
+    else if((voltage >= (BATT_3_CELL*BATT_CELL_MIN)) && (voltage <= (BATT_3_CELL*BATT_CELL_MAX))){
+        battery_cell = BATT_3_CELL;
+    }
+    else if((voltage >= (BATT_4_CELL*BATT_CELL_MIN)) && (voltage <= (BATT_4_CELL*BATT_CELL_MAX))){
+        battery_cell = BATT_4_CELL;
+    }
+    else if((voltage >= (BATT_5_CELL*BATT_CELL_MIN)) && (voltage <= (BATT_5_CELL*BATT_CELL_MAX))){
+        battery_cell = BATT_5_CELL;
+    }
+    else if((voltage >= (BATT_6_CELL*BATT_CELL_MIN))){
+        battery_cell = BATT_6_CELL;
+    }
+
+    if(battery_cell != 2)
+    {
+        if(voltage <= battery_cell*BATT_CELL_ALARM)
+        {
+            baterryLowCount++;
+            if(baterryLowCount >= 10)
+            {
+//                baterry_lowLevel = BATT_LOW;
+                batteryStatusLabel->setStyleSheet("color: rgb(255, 0, 0);"); //red
+                batteryStatusLabel->setText(QString("Low Battery: %1V, %2S").arg(system_status.battery_voltage,2,'f',1).arg(battery_cell));
+            }
+        }
+        else
+        {
+//            baterry_lowLevel = BATT_OK;
+            batteryStatusLabel->setStyleSheet("color: rgb(0, 170, 0);"); //green
+            batteryStatusLabel->setText(QString("Battery Status: %1V, %2S").arg(system_status.battery_voltage,2,'f',1).arg(battery_cell));
+            baterryLowCount = 0;
+        }
+    }
+    else{
+//        baterry_lowLevel = BATT_OK;
+        batteryStatusLabel->setStyleSheet("color: rgb(0, 170, 0);"); //green
+        batteryStatusLabel->setText(QString("Battery Status: %1V, USB Power Supply").arg(system_status.battery_voltage,2,'f',1));
+    }
+
+}
+
 void MainWindow::chartUpdateData()
 {
     ++time_count;
@@ -1950,7 +2029,7 @@ void MainWindow::on_SerialPortConnectButton_clicked(){
     watchdogTimer->setInterval(10000);
     watchdogTimer->setSingleShot(true);
 
-    chartTimer->setInterval(10);
+    chartTimer->setInterval(5);
 
     openSerialPort();
 }
@@ -2391,6 +2470,7 @@ void MainWindow::on_rc_source_currentIndexChanged(int index)
     else if(index==2)  // HAND mode
     {
         ui->handDeviceConnectButton->setVisible(true);
+        ui->handDeviceConnectButton->setEnabled(false);
 
         ui->yawknob->setVisible(false);
         ui->pitchSlider->setVisible(false);
@@ -2566,7 +2646,7 @@ void MainWindow::on_handDeviceConnectButton_clicked()
         chartTimer->stop();
         ui->BoardConnectionStatusLabel->hide();
         ui->information_box->clear();
-        ui->information_box->setPlainText("Connecting to handle device...");
+        ui->information_box->setPlainText("Connecting to gMotion device...");
     }
     updatePortStatus(serialport->isOpen());
 }

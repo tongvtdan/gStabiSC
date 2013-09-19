@@ -94,6 +94,7 @@ enum IMU_CALIB_TYPES
 {
 	ACC_CALIB=0, /* acc one face calib mode | */
 	GYRO_CALIB=1, /* acc six faces calib mode | */
+    CALIB_NONE=2,
 	IMU_CALIB_TYPES_ENUM_END=2, /*  | */
 };
 #endif
